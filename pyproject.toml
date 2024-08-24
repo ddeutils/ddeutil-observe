@@ -27,7 +27,7 @@ dependencies = [
     "fmtutil",
     "ddeutil-io",
     "python-dotenv==1.0.1",
-    "python-fasthtml==0.3.3",
+    "python-fasthtml==0.4.5",
 ]
 dynamic = ["version"]
 

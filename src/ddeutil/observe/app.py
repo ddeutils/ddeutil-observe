@@ -1,7 +1,9 @@
 import uvicorn
 from fasthtml.common import Div, FastHTML, P
 
-app = FastHTML()
+app: FastHTML = FastHTML(
+    debug=True,
+)
 
 
 @app.get("/")
