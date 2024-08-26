@@ -29,4 +29,8 @@ pip install ddeutil-observe
 
 ## Getting Started
 
-## Usage
+## Testing
+
+```shell
+python .\src\ddeutil\observe\app.py
+```
