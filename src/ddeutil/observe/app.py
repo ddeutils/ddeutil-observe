@@ -1,19 +1,15 @@
 import uvicorn
-from fasthtml.common import Div, FastHTML, P
+from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 
-app: FastHTML = FastHTML(
-    debug=True,
-)
-
-
-@app.get("/")
-def get():
-    return Div(P("Hello World!"), hx_get="/change")
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
 
 
-@app.get("/change")
-def get():
-    return P("Nice to be here!")
+@app.get("/", response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(request=request, name="index.html")
 
 
 if __name__ == "__main__":
