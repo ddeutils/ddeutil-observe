@@ -8,7 +8,7 @@ description = "Lightweight observation web application"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT"}
 authors = [{ name = "ddeutils", email = "korawich.anu@gmail.com" }]
-keywords = ['data', 'observe', 'utility', 'webserver']
+keywords = ['data', 'observe', 'utility', 'webserver', 'fastapi']
 classifiers = [
     "Topic :: Utilities",
     "Natural Language :: English",
@@ -31,6 +31,7 @@ dependencies = [
     "fastapi==0.112.2",
     "uvicorn==0.30.6",
     "jinja2==3.1.4",
+    "sqlalchemy==2.0.32",
 ]
 dynamic = ["version"]
 
@@ -53,7 +54,6 @@ branch = true
 relative_files = true
 concurrency = ["thread", "multiprocessing"]
 source = ["ddeutil", "tests"]
-omit = ["scripts/"]
 
 [tool.coverage.report]
 exclude_lines = ["raise NotImplementedError"]
