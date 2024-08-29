@@ -31,5 +31,5 @@ pip install ddeutil-observe
 ## Testing
 
 ```shell
-python .\src\ddeutil\observe\app.py
+uvicorn src.ddeutil.observe.app:app --host 0.0.0.0 --port 80
 ```
