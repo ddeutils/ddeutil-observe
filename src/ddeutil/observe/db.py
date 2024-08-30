@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 SQLALCHEMY_DATABASE_URL: str = os.getenv(
-    "SQLALCHEMY_DATABASE_URL", "sqlite:///./sql_app.db"
+    "OBSERVE_SQLALCHEMY_DATABASE_URL", "sqlite:///./observe.db"
 )
 
 engine = create_engine(
