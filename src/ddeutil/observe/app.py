@@ -14,7 +14,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from .deps import get_db, get_templates
-from .routes import workflows
+from .routes import logs, workflows
 from .utils import get_logger
 
 load_dotenv()
@@ -23,11 +23,15 @@ logger = get_logger("ddeutil.observe")
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
-    # TODO: Update with specific origins in production
-    allow_origins=["127.0.0.1"],
-    allow_methods=["GET", "POST"],
+    allow_origins=[
+        "http://localhost",
+        "http://localhost:8080",
+    ],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 app.include_router(workflows)
+app.include_router(logs)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 

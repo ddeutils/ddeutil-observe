@@ -1,15 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Observe via FastAPI</title>
 
-    {% block additional_css %}{% endblock %}
+    <link rel="stylesheet" href="/static/css/site.css"/>
 
+    {% block additional_css %}{% endblock %}
 </head>
 
 <body>
+
+<nav>
+    <span>
+        <a class="nav-item" href="/workflows/">Workflows</a>
+        <a class="nav-item" href="/logs/">Logs</a>
+    </span>
+</nav>
 
 <div class="main_content">
     {% block main_content %}{% endblock %}
@@ -29,6 +38,5 @@
         crossorigin="anonymous"></script>
 
 {% block additional_js %}{% endblock %}
-
 
 </html>
