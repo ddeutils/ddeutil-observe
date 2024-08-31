@@ -2,6 +2,7 @@ from ddeutil.observe.routes.workflows.schemas import PipelineCreate
 
 
 def test_workflow_schema():
+    # NOTE: This data return from ddeutil-workflow api.
     value = {
         "name": "pipe-scheduling",
         "params": {"asat-dt": {"type": "datetime"}},

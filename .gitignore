@@ -164,8 +164,10 @@ cython_debug/
 # FastHTML
 .sesskey
 
-# Main ddeutil-observe
+# SQLite ddeutil-observe
 observe.db
+observe.db-shm
+observe.db-wal
 
 # Assets
 *.bkp

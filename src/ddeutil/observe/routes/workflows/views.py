@@ -47,7 +47,9 @@ def read_workflows(
 
 @workflows.post("/", response_model=Pipeline)
 def create_workflow(pipeline: PipelineCreate, db: Session = Depends(get_db)):
-    db_user = crud.get_pipeline_by_name(db, name=pipeline.name)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
+    db_pipeline = crud.get_pipeline_by_name(db, name=pipeline.name)
+    if db_pipeline:
+        raise HTTPException(
+            status_code=400, detail="Pipeline already registered to observe db"
+        )
     return crud.create_pipeline(db=db, pipeline=pipeline)

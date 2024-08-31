@@ -27,7 +27,8 @@ class Pipelines(Base):
     desc = Column(String, index=False)
     jobs = Column(JSON, index=False)
 
-    releases = relationship("ReleasePipelines", back_populates="pipeline")
+    releases = relationship("PipelineReleases", back_populates="pipeline")
+    logs = relationship("PipelineLogs", back_populates="pipeline")
 
 
 class PipelineReleases(Base):

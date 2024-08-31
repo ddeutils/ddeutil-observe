@@ -30,8 +30,8 @@ pip install ddeutil-observe
 
 This project implement the best scalable FastAPI web application structure.
 
-## Testing
+## Deployment
 
 ```shell
-uvicorn src.ddeutil.observe.app:app --host 127.0.0.1 --port 80
+(env) $ uvicorn src.ddeutil.observe.app:app --host 127.0.0.1 --port 88
 ```

@@ -13,14 +13,20 @@ def get_pipeline(db: Session, pipeline_id: int):
 
 def get_pipeline_by_name(db: Session, name: str):
     return (
-        db.query(models.Pipelines)
-        .filter(models.Pipelines.email == name)
-        .first()
+        db.query(models.Pipelines).filter(models.Pipelines.name == name).first()
     )
 
 
-def create_pipeline(db: Session, pipeline: schemas.PipelineCreate):
-    db_pipeline = models.Pipelines(email=pipeline.name, desc="dummy create")
+def create_pipeline(
+    db: Session, pipeline: schemas.PipelineCreate
+) -> models.Pipelines:
+    db_pipeline = models.Pipelines(
+        name=pipeline.name,
+        desc=pipeline.desc,
+        params=pipeline.params,
+        on=pipeline.on,
+        jobs=pipeline.jobs,
+    )
     db.add(db_pipeline)
     db.commit()
     db.refresh(db_pipeline)

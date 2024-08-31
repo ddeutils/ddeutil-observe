@@ -20,4 +20,4 @@ class PipelineLogs(Base):
     delete_flag = Column(Boolean, index=False)
     pipeline_id = Column(Integer, ForeignKey("pipelines.id"))
 
-    pipeline = relationship("Pipelines", back_populates="releases")
+    pipeline = relationship("Pipelines", back_populates="logs")

@@ -20,16 +20,16 @@ from pydantic import BaseModel, ConfigDict
 class PipelineBase(BaseModel):
     name: str
     desc: Optional[str] = None
-
-
-class PipelineCreate(PipelineBase):
     params: dict[str, Any]
     on: list[dict[str, Any]]
     jobs: dict[str, Any]
+
+
+class PipelineCreate(PipelineBase):
+    pass
 
 
 class Pipeline(PipelineBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    name: str
