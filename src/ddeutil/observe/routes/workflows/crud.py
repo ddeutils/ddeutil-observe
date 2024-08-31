@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import false
 
 from . import models, schemas
 
@@ -25,7 +26,7 @@ def get_pipeline_by_name(db: Session, name: str):
         db.query(models.Pipelines)
         .filter(
             models.Pipelines.name == name,
-            models.Pipelines.delete_flag is False,
+            models.Pipelines.delete_flag == false(),
         )
         .first()
     )
@@ -47,3 +48,27 @@ def create_pipeline(
     db.commit()
     db.refresh(db_pipeline)
     return db_pipeline
+
+
+def list_pipelines(db: Session, skip: int = 0, limit: int = 1000):
+    return (
+        db.query(models.Pipelines)
+        .filter(models.Pipelines.delete_flag == false())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+
+
+def search_pipeline(db: Session, search_text: str):
+    if len(search_text) > 1:
+        if not (search_text := search_text.strip().lower()):
+            return []
+
+        results = []
+        for pipeline in list_pipelines(db=db):
+            text: str = f"{pipeline.name} {pipeline.desc or ''}".lower()
+            if search_text in text:
+                results.append(pipeline)
+        return results
+    return list_pipelines(db=db)

@@ -45,7 +45,6 @@ async def index(
     templates: Jinja2Templates = Depends(get_templates),
     db: Session = Depends(get_db),
 ):
-    logger.info(str(db))
     return templates.TemplateResponse(
         request=request, name="home/index.html", context={}
     )

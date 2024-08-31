@@ -10,12 +10,16 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
 from fastapi import status as st
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from ...db import engine
 from ...deps import get_db, get_templates
+from ...utils import get_logger
 from . import crud, models
-from .schemas import Pipeline, PipelineCreate
+from .schemas import Pipeline, PipelineCreate, Pipelines
+
+logger = get_logger("ddeutil.observe")
 
 
 @asynccontextmanager
@@ -33,16 +37,20 @@ workflows = APIRouter(
 @workflows.get("/")
 def read_workflows(
     request: Request,
-    hx_request: Annotated[Optional[str], Header(...)] = None,
+    db: Session = Depends(get_db),
     templates=Depends(get_templates),
 ):
     """Return all workflows."""
-    if hx_request:
-        return templates.TemplateResponse(
-            "workflows/partials/show_workflows.html", {"request": request}
-        )
+    pipelines: list[Pipeline] = Pipelines.validate_python(
+        crud.list_pipelines(db)
+    )
     return templates.TemplateResponse(
-        request=request, name="workflows/index.html"
+        request=request,
+        name="workflows/index.html",
+        context={
+            "pipelines": pipelines,
+            "search_text": "",
+        },
     )
 
 
@@ -56,3 +64,29 @@ def create_workflow(pipeline: PipelineCreate, db: Session = Depends(get_db)):
         )
     pipeline = crud.create_pipeline(db=db, pipeline=pipeline)
     return pipeline
+
+
+@workflows.get("/search")
+def search_workflows(
+    request: Request,
+    search_text: str,
+    hx_request: Annotated[Optional[str], Header(...)] = None,
+    db: Session = Depends(get_db),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    pipelines: list[Pipeline] = Pipelines.validate_python(
+        crud.search_pipeline(db=db, search_text=search_text)
+    )
+    if hx_request:
+        return templates.TemplateResponse(
+            "workflows/partials/search_results.html",
+            {"request": request, "pipelines": pipelines},
+        )
+    return templates.TemplateResponse(
+        request=request,
+        name="workflows/index.html",
+        context={
+            "pipelines": pipelines,
+            "search_text": search_text,
+        },
+    )

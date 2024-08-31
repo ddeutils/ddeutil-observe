@@ -15,7 +15,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 
 class PipelineBase(BaseModel):
@@ -34,6 +34,9 @@ class Pipeline(PipelineBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+
+
+Pipelines = TypeAdapter(list[Pipeline])
 
 
 class ReleaseBase(BaseModel):

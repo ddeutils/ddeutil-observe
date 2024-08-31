@@ -1,0 +1,22 @@
+<table class="table" id="search-results">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Param</th>
+        <th>On</th>
+        <th>Job</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for pipeline in pipelines %}
+    <tr>
+        <td>{{ pipeline.id }}</td>
+        <td>{{ pipeline.name }}</td>
+        <td>{{ pipeline.params }}</td>
+        <td>{{ pipeline.on }}</td>
+        <td>{{ pipeline.jobs }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
