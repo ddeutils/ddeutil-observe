@@ -12,7 +12,7 @@ Read more: https://fastapi.tiangolo.com/tutorial/sql-databases/?h=database
 
 from __future__ import annotations
 
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict
 
@@ -23,7 +23,9 @@ class PipelineBase(BaseModel):
 
 
 class PipelineCreate(PipelineBase):
-    pass
+    params: dict[str, Any]
+    on: list[dict[str, Any]]
+    jobs: dict[str, Any]
 
 
 class Pipeline(PipelineBase):

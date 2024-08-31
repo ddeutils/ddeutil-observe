@@ -13,6 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from .__about__ import __version__
 from .deps import get_db, get_templates
 from .routes import logs, workflows
 from .utils import get_logger
@@ -20,7 +21,10 @@ from .utils import get_logger
 load_dotenv()
 logger = get_logger("ddeutil.observe")
 
-app = FastAPI()
+app = FastAPI(
+    titile="Observe Web",
+    version=__version__,
+)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
