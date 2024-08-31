@@ -12,6 +12,7 @@ Read more: https://fastapi.tiangolo.com/tutorial/sql-databases/?h=database
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Optional
 
 from pydantic import BaseModel, ConfigDict
@@ -30,6 +31,16 @@ class PipelineCreate(PipelineBase):
 
 
 class Pipeline(PipelineBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+
+
+class ReleaseBase(BaseModel):
+    release: datetime
+
+
+class Release(ReleaseBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

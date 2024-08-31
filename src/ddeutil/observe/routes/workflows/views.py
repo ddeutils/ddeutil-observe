@@ -9,6 +9,7 @@ from contextlib import asynccontextmanager
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request
+from fastapi import status as st
 from sqlalchemy.orm import Session
 
 from ...db import engine
@@ -50,6 +51,8 @@ def create_workflow(pipeline: PipelineCreate, db: Session = Depends(get_db)):
     db_pipeline = crud.get_pipeline_by_name(db, name=pipeline.name)
     if db_pipeline:
         raise HTTPException(
-            status_code=400, detail="Pipeline already registered to observe db"
+            status_code=st.HTTP_302_FOUND,
+            detail="Pipeline already registered to observe database.",
         )
-    return crud.create_pipeline(db=db, pipeline=pipeline)
+    pipeline = crud.create_pipeline(db=db, pipeline=pipeline)
+    return pipeline

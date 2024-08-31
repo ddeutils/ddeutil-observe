@@ -168,6 +168,7 @@ cython_debug/
 observe.db
 observe.db-shm
 observe.db-wal
+observe.db-journal
 
 # Assets
 *.bkp

@@ -23,21 +23,24 @@ class Pipelines(Base):
     __tablename__ = "pipelines"
 
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, unique=True, index=True)
-    desc = Column(String, index=False)
-    jobs = Column(JSON, index=False)
+    name = Column(String, index=True)
+    desc = Column(String)
+    params = Column(JSON)
+    on = Column(JSON)
+    jobs = Column(JSON)
+    delete_flag = Column(Boolean, default=False)
+    valid_start = Column(DateTime)
+    valid_end = Column(DateTime)
 
     releases = relationship("PipelineReleases", back_populates="pipeline")
-    logs = relationship("PipelineLogs", back_populates="pipeline")
 
 
 class PipelineReleases(Base):
     __tablename__ = "pipeline_releases"
 
     id = Column(Integer, primary_key=True, index=True)
-    run_id = Column(String, index=True)
-    release = Column(DateTime, index=False)
-    delete_flag = Column(Boolean, index=False)
+    release = Column(DateTime, index=True)
     pipeline_id = Column(Integer, ForeignKey("pipelines.id"))
 
     pipeline = relationship("Pipelines", back_populates="releases")
+    logs = relationship("PipelineLogs", back_populates="release")

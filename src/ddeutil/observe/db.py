@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import os
+from typing import Any
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.engine import Engine
@@ -16,12 +17,16 @@ from sqlalchemy.orm import declarative_base, sessionmaker
 def set_sqlite_pragma(dbapi_connection, _):
     """Read more:"""
     cursor = dbapi_connection.cursor()
-    cursor.execute("PRAGMA journal_mode = 'WAL';")
-    cursor.execute("PRAGMA foreign_keys = ON")
-    cursor.execute("PRAGMA page_size = 4096;")
-    cursor.execute("PRAGMA cache_size = 10000;")
-    cursor.execute("PRAGMA locking_mode = 'EXCLUSIVE';")
-    cursor.execute("PRAGMA synchronous = 'NORMAL';")
+    settings: dict[str, Any] = {
+        "journal_mode": "WAL",
+        "foreign_keys": "ON",
+        "page_size": 4096,
+        "cache_size": 10000,
+        # "locking_mode": 'EXCLUSIVE',
+        "synchronous": "NORMAL",
+    }
+    for k, v in settings.items():
+        cursor.execute(f"PRAGMA {k} = {v};")
     cursor.close()
 
 
