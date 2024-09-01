@@ -35,6 +35,11 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = [
+    "httpx==0.27.2",
+]
+
 [project.urls]
 Homepage = "https://github.com/ddeutils/ddeutil-observe/"
 "Source Code" = "https://github.com/ddeutils/ddeutil-observe/"
