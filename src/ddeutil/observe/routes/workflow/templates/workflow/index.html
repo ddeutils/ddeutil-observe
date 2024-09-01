@@ -12,13 +12,13 @@
         <input class="form-control" type="text"
                name="search_text" placeholder="Search by Workflow Name ..."
                value="{{ search_text }}"
-               hx-get="/workflows/search"
+               hx-get="/workflow/search"
                hx-trigger="keyup changed delay:500ms"
                hx-target="#search-results"
                hx-push-url="true"
                hx-indicator=".htmx-indicator">
 
-        {% include 'workflows/partials/search_results.html' %}
+        {% include 'workflow/partials/search_results.html' %}
 
     </div>
     <div></div>

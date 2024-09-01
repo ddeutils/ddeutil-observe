@@ -11,11 +11,11 @@ from sqlalchemy.orm import relationship
 from ...db import Base
 
 
-class PipelineLogs(Base):
-    __tablename__ = "pipeline_logs"
+class WorkflowLogs(Base):
+    __tablename__ = "workflow_logs"
 
     run_id = Column(String, primary_key=True, index=True)
     log = Column(JSON)
-    release_id = Column(DateTime, ForeignKey("pipeline_releases.id"))
+    release_id = Column(DateTime, ForeignKey("workflow_releases.id"))
 
-    release = relationship("PipelineReleases", back_populates="logs")
+    release = relationship("WorkflowReleases", back_populates="logs")

@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session
 
 from .__about__ import __version__
 from .deps import get_db, get_templates
-from .routes import logs, workflows
+from .routes import log, workflow
 from .utils import get_logger
 
 load_dotenv()
@@ -34,8 +34,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-app.include_router(workflows)
-app.include_router(logs)
+app.include_router(workflow)
+app.include_router(log)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 

@@ -9,13 +9,13 @@
     </tr>
     </thead>
     <tbody>
-    {% for pipeline in pipelines %}
+    {% for workflow in workflows %}
     <tr>
-        <td>{{ pipeline.id }}</td>
-        <td>{{ pipeline.name }}</td>
-        <td>{{ pipeline.params }}</td>
-        <td>{{ pipeline.on }}</td>
-        <td>{{ pipeline.jobs }}</td>
+        <td>{{ workflow.id }}</td>
+        <td>{{ workflow.name }}</td>
+        <td>{{ workflow.params }}</td>
+        <td>{{ workflow.on }}</td>
+        <td>{{ workflow.jobs }}</td>
     </tr>
     {% endfor %}
     </tbody>

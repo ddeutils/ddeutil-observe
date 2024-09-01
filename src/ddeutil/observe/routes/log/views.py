@@ -22,10 +22,10 @@ async def lifespan(_: FastAPI):
     yield
 
 
-logs = APIRouter(prefix="/logs", tags=["logs"], lifespan=lifespan)
+log = APIRouter(prefix="/log", tags=["log"], lifespan=lifespan)
 
 
-@logs.get("/")
+@log.get("/")
 def read_logs(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
@@ -34,6 +34,6 @@ def read_logs(
     """Return all workflows."""
     if hx_request:
         return templates.TemplateResponse(
-            "logs/partials/show_add_author_form.html", {"request": request}
+            "log/partials/show_add_author_form.html", {"request": request}
         )
-    return templates.TemplateResponse(request=request, name="logs/index.html")
+    return templates.TemplateResponse(request=request, name="log/index.html")

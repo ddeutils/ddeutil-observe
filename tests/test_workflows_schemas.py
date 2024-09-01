@@ -1,10 +1,10 @@
-from ddeutil.observe.routes.workflows.schemas import PipelineCreate
+from ddeutil.observe.routes.workflow.schemas import PipelineCreate
 
 
 def test_workflow_schema():
     # NOTE: This data return from ddeutil-workflow api.
     value = {
-        "name": "pipe-scheduling",
+        "name": "wf-scheduling",
         "params": {"asat-dt": {"type": "datetime"}},
         "on": [
             {"cronjob": "*/3 * * * *", "timezone": "Asia/Bangkok"},

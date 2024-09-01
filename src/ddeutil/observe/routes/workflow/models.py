@@ -19,8 +19,8 @@ from sqlalchemy.orm import relationship
 from ...db import Base
 
 
-class Pipelines(Base):
-    __tablename__ = "pipelines"
+class Workflows(Base):
+    __tablename__ = "workflows"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, index=True)
@@ -32,15 +32,15 @@ class Pipelines(Base):
     valid_start = Column(DateTime)
     valid_end = Column(DateTime)
 
-    releases = relationship("PipelineReleases", back_populates="pipeline")
+    releases = relationship("WorkflowReleases", back_populates="workflow")
 
 
-class PipelineReleases(Base):
-    __tablename__ = "pipeline_releases"
+class WorkflowReleases(Base):
+    __tablename__ = "workflow_releases"
 
     id = Column(Integer, primary_key=True, index=True)
     release = Column(DateTime, index=True)
-    pipeline_id = Column(Integer, ForeignKey("pipelines.id"))
+    workflow_id = Column(Integer, ForeignKey("workflows.id"))
 
-    pipeline = relationship("Pipelines", back_populates="releases")
-    logs = relationship("PipelineLogs", back_populates="release")
+    workflow = relationship("Workflows", back_populates="releases")
+    logs = relationship("WorkflowLogs", back_populates="release")

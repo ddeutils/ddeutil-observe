@@ -17,7 +17,7 @@ from ...db import engine
 from ...deps import get_db, get_templates
 from ...utils import get_logger
 from . import crud, models
-from .schemas import Pipeline, PipelineCreate, Pipelines
+from .schemas import Workflow, WorkflowCreate, Workflows
 
 logger = get_logger("ddeutil.observe")
 
@@ -29,44 +29,41 @@ async def lifespan(_: FastAPI):
     yield
 
 
-workflows = APIRouter(
-    prefix="/workflows", tags=["workflows"], lifespan=lifespan
-)
+workflow = APIRouter(prefix="/workflow", tags=["workflow"], lifespan=lifespan)
 
 
-@workflows.get("/")
+@workflow.get("/")
 def read_workflows(
     request: Request,
     db: Session = Depends(get_db),
     templates=Depends(get_templates),
 ):
     """Return all workflows."""
-    pipelines: list[Pipeline] = Pipelines.validate_python(
-        crud.list_pipelines(db)
+    workflows: list[Workflow] = Workflows.validate_python(
+        crud.list_workflows(db)
     )
     return templates.TemplateResponse(
         request=request,
-        name="workflows/index.html",
+        name="workflow/index.html",
         context={
-            "pipelines": pipelines,
+            "workflows": workflows,
             "search_text": "",
         },
     )
 
 
-@workflows.post("/", response_model=Pipeline)
-def create_workflow(pipeline: PipelineCreate, db: Session = Depends(get_db)):
-    db_pipeline = crud.get_pipeline_by_name(db, name=pipeline.name)
-    if db_pipeline:
+@workflow.post("/", response_model=Workflow)
+def create_workflow(wf: WorkflowCreate, db: Session = Depends(get_db)):
+    db_workflow = crud.get_workflow_by_name(db, name=wf.name)
+    if db_workflow:
         raise HTTPException(
             status_code=st.HTTP_302_FOUND,
-            detail="Pipeline already registered to observe database.",
+            detail="Workflow already registered to observe database.",
         )
-    pipeline = crud.create_pipeline(db=db, pipeline=pipeline)
-    return pipeline
+    return crud.create_workflow(db=db, workflow=wf)
 
 
-@workflows.get("/search")
+@workflow.get("/search")
 def search_workflows(
     request: Request,
     search_text: str,
@@ -74,19 +71,19 @@ def search_workflows(
     db: Session = Depends(get_db),
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    pipelines: list[Pipeline] = Pipelines.validate_python(
-        crud.search_pipeline(db=db, search_text=search_text)
+    workflows: list[Workflow] = Workflows.validate_python(
+        crud.search_workflow(db=db, search_text=search_text)
     )
     if hx_request:
         return templates.TemplateResponse(
-            "workflows/partials/search_results.html",
-            {"request": request, "pipelines": pipelines},
+            "workflow/partials/search_results.html",
+            {"request": request, "workflows": workflows},
         )
     return templates.TemplateResponse(
         request=request,
-        name="workflows/index.html",
+        name="workflow/index.html",
         context={
-            "pipelines": pipelines,
+            "workflows": workflows,
             "search_text": search_text,
         },
     )

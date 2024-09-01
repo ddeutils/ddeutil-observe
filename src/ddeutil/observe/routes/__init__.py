@@ -1,2 +1,2 @@
-from .logs.views import logs
-from .workflows.views import workflows
+from .log.views import log
+from .workflow.views import workflow

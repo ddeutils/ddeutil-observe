@@ -18,7 +18,7 @@ from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 
-class PipelineBase(BaseModel):
+class WorkflowBase(BaseModel):
     name: str
     desc: Optional[str] = None
     params: dict[str, Any]
@@ -26,17 +26,17 @@ class PipelineBase(BaseModel):
     jobs: dict[str, Any]
 
 
-class PipelineCreate(PipelineBase):
+class WorkflowCreate(WorkflowBase):
     pass
 
 
-class Pipeline(PipelineBase):
+class Workflow(WorkflowBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
 
 
-Pipelines = TypeAdapter(list[Pipeline])
+Workflows = TypeAdapter(list[Workflow])
 
 
 class ReleaseBase(BaseModel):
