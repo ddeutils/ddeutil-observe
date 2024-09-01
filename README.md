@@ -30,6 +30,12 @@ pip install ddeutil-observe
 
 This project implement the best scalable FastAPI web application structure.
 
+## Configuration
+
+| Environment              | Component | Default  | Description                              |
+|--------------------------|-----------|----------|------------------------------------------|
+| `OBSERVE_LOG_DEBUG_MODE` | Log       | true     | Logging mode of this observe application |
+
 ## Deployment
 
 ```shell
