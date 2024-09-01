@@ -1,4 +1,4 @@
-from ddeutil.observe.routes.workflow.schemas import PipelineCreate
+from ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
 
 def test_workflow_schema():
@@ -23,5 +23,5 @@ def test_workflow_schema():
             }
         },
     }
-    rs = PipelineCreate.model_validate(value)
+    rs = WorkflowCreate.model_validate(value)
     print(rs)
