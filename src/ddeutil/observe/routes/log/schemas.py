@@ -15,5 +15,8 @@ class LogBase(BaseModel):
     release_id = int
 
 
+class LogCreate(LogBase): ...
+
+
 class Log(LogBase):
     model_config = ConfigDict(from_attributes=True)

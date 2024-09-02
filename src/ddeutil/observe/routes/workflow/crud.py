@@ -13,7 +13,7 @@ from sqlalchemy.sql import false
 from . import models, schemas
 
 
-def get_workflow(db: Session, workflow_id: int):
+def get_workflow(db: Session, workflow_id: int) -> models.Workflows:
     return (
         db.query(models.Workflows)
         .filter(models.Workflows.id == workflow_id)
@@ -21,7 +21,7 @@ def get_workflow(db: Session, workflow_id: int):
     )
 
 
-def get_workflow_by_name(db: Session, name: str):
+def get_workflow_by_name(db: Session, name: str) -> models.Workflows:
     return (
         db.query(models.Workflows)
         .filter(
@@ -33,7 +33,8 @@ def get_workflow_by_name(db: Session, name: str):
 
 
 def create_workflow(
-    db: Session, workflow: schemas.WorkflowCreate
+    db: Session,
+    workflow: schemas.WorkflowCreate,
 ) -> models.Workflows:
     db_workflow = models.Workflows(
         name=workflow.name,
@@ -50,7 +51,11 @@ def create_workflow(
     return db_workflow
 
 
-def list_workflows(db: Session, skip: int = 0, limit: int = 1000):
+def list_workflows(
+    db: Session,
+    skip: int = 0,
+    limit: int = 1000,
+) -> list[models.Workflows]:
     return (
         db.query(models.Workflows)
         .filter(models.Workflows.delete_flag == false())
@@ -60,7 +65,10 @@ def list_workflows(db: Session, skip: int = 0, limit: int = 1000):
     )
 
 
-def search_workflow(db: Session, search_text: str):
+def search_workflow(
+    db: Session,
+    search_text: str,
+) -> list[models.Workflows]:
     if len(search_text) > 1:
         if not (search_text := search_text.strip().lower()):
             return []
