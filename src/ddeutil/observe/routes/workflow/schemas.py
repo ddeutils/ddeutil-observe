@@ -1,15 +1,3 @@
-"""
-To avoid confusion between the SQLAlchemy models and the Pydantic models, we
-will have the file models.py with the SQLAlchemy models, and the file schemas.py
-with the Pydantic models.
-
-These Pydantic models define more or less a "schema" (a valid data shape).
-
-So this will help us avoiding confusion while using both.
-
-Read more: https://fastapi.tiangolo.com/tutorial/sql-databases/?h=database
-"""
-
 from __future__ import annotations
 
 from datetime import datetime
@@ -19,6 +7,10 @@ from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 
 class WorkflowBase(BaseModel):
+    """Base Workflow Pydantic model that does not include surrogate key column
+    that create on the observe database.
+    """
+
     name: str
     desc: Optional[str] = None
     params: dict[str, Any]
@@ -26,14 +18,20 @@ class WorkflowBase(BaseModel):
     jobs: dict[str, Any]
 
 
-class WorkflowCreate(WorkflowBase):
-    pass
+class WorkflowCreate(WorkflowBase): ...
 
 
 class Workflow(WorkflowBase):
+    """Workflow Pydantic model that receive the Workflows model object
+    from SQLAlchemy ORM.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    delete_flag: bool
+    valid_start: datetime
+    valid_end: datetime
 
 
 Workflows = TypeAdapter(list[Workflow])
@@ -41,6 +39,7 @@ Workflows = TypeAdapter(list[Workflow])
 
 class ReleaseBase(BaseModel):
     release: datetime
+    workflow_id: int
 
 
 class Release(ReleaseBase):

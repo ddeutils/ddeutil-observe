@@ -87,3 +87,8 @@ def search_workflows(
             "search_text": search_text,
         },
     )
+
+
+@workflow.get("/{name}/release")
+def get_workflow_release(name: str, request: Request):
+    return {}
