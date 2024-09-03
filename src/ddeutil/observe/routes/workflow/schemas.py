@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, ConfigDict, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 
 class WorkflowBase(BaseModel):
@@ -38,10 +38,11 @@ Workflows = TypeAdapter(list[Workflow])
 
 
 class ReleaseBase(BaseModel):
-    release: datetime
+    """Base Release Pydantic model that does not include surrogate key column
+    that create on the observe database.
+    """
 
-
-class ReleaseCreate(ReleaseBase): ...
+    release: int
 
 
 class Release(ReleaseBase):
@@ -51,18 +52,13 @@ class Release(ReleaseBase):
     workflow_id: int
 
 
-class ReleaseLog(ReleaseBase):
-    log: dict[str, Any]
-
-
 class LogBase(BaseModel):
     """Base Log Pydantic model that does not include surrogate key column
     that create on the observe database.
     """
 
     run_id: str
-    log: dict[str, Any]
-    release_id: int
+    context: dict[str, Any] = Field(default_factory=dict)
 
 
 class LogCreate(LogBase): ...
@@ -70,3 +66,16 @@ class LogCreate(LogBase): ...
 
 class Log(LogBase):
     model_config = ConfigDict(from_attributes=True)
+
+    release_id: int
+
+
+class ReleaseLogCreate(ReleaseBase):
+    logs: list[LogCreate] = Field(default_factory=list)
+
+
+class ReleaseLog(ReleaseBase):
+    model_config = ConfigDict(from_attributes=True)
+
+    logs: list[Log]
+    workflow_id: int

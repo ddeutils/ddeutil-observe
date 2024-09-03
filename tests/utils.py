@@ -2,9 +2,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ddeutil.observe.routes.workflow.crud import create_workflow
+from ddeutil.observe.routes.workflow.crud import (
+    create_workflow,
+)
 from ddeutil.observe.routes.workflow.models import Base
-from ddeutil.observe.routes.workflow.schemas import LogCreate, WorkflowCreate
+from ddeutil.observe.routes.workflow.schemas import (
+    ReleaseLogCreate,
+    WorkflowCreate,
+)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -57,11 +62,85 @@ def initial_db(db_path: Path | None = None):
         create_workflow(db=db, workflow=wf)
 
     for _ in [
-        LogCreate(
-            run_id="",
-            log={},
-            release_id=1,
-        )
+        ReleaseLogCreate(
+            release="20240902093600",
+            logs=[
+                {
+                    "run_id": "635351540020240902093554579053",
+                    "context": {
+                        "name": "wf-scheduling",
+                        "on": "*/3 * * * *",
+                        "release": "2024-09-02 09:36:00+07:00",
+                        "context": {
+                            "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
+                            "jobs": {
+                                "condition-job": {
+                                    "matrix": {},
+                                    "stages": {
+                                        "6708019737": {"outputs": {}},
+                                        "0663452000": {"outputs": {}},
+                                    },
+                                }
+                            },
+                        },
+                        "parent_run_id": "635351540020240902093554579053",
+                        "run_id": "635351540020240902093554579053",
+                        "update": "2024-09-02 09:35:54.579053",
+                    },
+                },
+                {
+                    "run_id": "635351540020240902093554573333",
+                    "context": {
+                        "name": "wf-scheduling",
+                        "on": "*/3 * * * *",
+                        "release": "2024-09-02 09:36:00+07:00",
+                        "context": {
+                            "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
+                            "jobs": {
+                                "condition-job": {
+                                    "matrix": {},
+                                    "stages": {
+                                        "6708019737": {"outputs": {}},
+                                        "0663452000": {"outputs": {}},
+                                    },
+                                }
+                            },
+                        },
+                        "parent_run_id": "635351540020240902093554573333",
+                        "run_id": "635351540020240902093554573333",
+                        "update": "2024-09-02 09:35:54.579053",
+                    },
+                },
+            ],
+        ),
+        ReleaseLogCreate(
+            release="20240901114700",
+            logs=[
+                {
+                    "run_id": "635351540020240901114649502176",
+                    "context": {
+                        "name": "wf-scheduling",
+                        "on": "* * * * *",
+                        "release": "2024-09-01 11:47:00+07:00",
+                        "context": {
+                            "params": {"asat-dt": "2024-09-01 11:47:00+07:00"},
+                            "jobs": {
+                                "condition-job": {
+                                    "matrix": {},
+                                    "stages": {
+                                        "6708019737": {"outputs": {}},
+                                        "0663452000": {"outputs": {}},
+                                    },
+                                }
+                            },
+                        },
+                        "parent_run_id": "635351540020240901114649502176",
+                        "run_id": "635351540020240901114649502176",
+                        "update": "2024-09-01 11:46:49.503175",
+                    },
+                }
+            ],
+        ),
     ]:
         pass
 

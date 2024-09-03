@@ -39,7 +39,7 @@ class WorkflowReleases(Base):
     __tablename__ = "workflow_releases"
 
     id = Column(Integer, primary_key=True, index=True)
-    release = Column(DateTime, index=True)
+    release = Column(Integer, index=True)
     workflow_id = Column(Integer, ForeignKey("workflows.id"))
 
     workflow = relationship("Workflows", back_populates="releases")
@@ -50,7 +50,7 @@ class WorkflowLogs(Base):
     __tablename__ = "workflow_logs"
 
     run_id = Column(String, primary_key=True, index=True)
-    log = Column(JSON)
-    release_id = Column(DateTime, ForeignKey("workflow_releases.id"))
+    context = Column(JSON)
+    release_id = Column(Integer, ForeignKey("workflow_releases.id"))
 
     release = relationship("WorkflowReleases", back_populates="logs")
