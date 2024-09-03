@@ -44,3 +44,13 @@ class WorkflowReleases(Base):
 
     workflow = relationship("Workflows", back_populates="releases")
     logs = relationship("WorkflowLogs", back_populates="release")
+
+
+class WorkflowLogs(Base):
+    __tablename__ = "workflow_logs"
+
+    run_id = Column(String, primary_key=True, index=True)
+    log = Column(JSON)
+    release_id = Column(DateTime, ForeignKey("workflow_releases.id"))
+
+    release = relationship("WorkflowReleases", back_populates="logs")

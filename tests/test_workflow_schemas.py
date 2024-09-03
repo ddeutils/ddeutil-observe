@@ -24,4 +24,4 @@ def test_workflow_schema():
         },
     }
     rs = WorkflowCreate.model_validate(value)
-    print(rs)
+    assert rs.name == "wf-scheduling"

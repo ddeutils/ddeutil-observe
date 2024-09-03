@@ -4,7 +4,7 @@ from pathlib import Path
 
 from ddeutil.observe.routes.workflow.crud import create_workflow
 from ddeutil.observe.routes.workflow.models import Base
-from ddeutil.observe.routes.workflow.schemas import WorkflowCreate
+from ddeutil.observe.routes.workflow.schemas import LogCreate, WorkflowCreate
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -55,6 +55,15 @@ def initial_db(db_path: Path | None = None):
         ),
     ]:
         create_workflow(db=db, workflow=wf)
+
+    for _ in [
+        LogCreate(
+            run_id="",
+            log={},
+            release_id=1,
+        )
+    ]:
+        pass
 
     db.close()
 

@@ -80,3 +80,71 @@ def search_workflow(
                 results.append(workflow)
         return results
     return list_workflows(db=db)
+
+
+def get_release(
+    db: Session,
+    release: datetime,
+) -> models.WorkflowReleases:
+    return (
+        db.query(models.WorkflowReleases)
+        .filter(models.WorkflowReleases.release == release)
+        .first()
+    )
+
+
+def create_release(
+    db: Session,
+    workflow: schemas.Workflow,
+    release: schemas.ReleaseCreate,
+) -> schemas.ReleaseCreate:
+    db_release = models.WorkflowReleases(
+        release=release.release,
+        workflow_id=workflow.id,
+    )
+    db.add(db_release)
+    db.commit()
+    db.refresh(db_release)
+    return db_release
+
+
+def get_log(db: Session, run_id: str) -> models.WorkflowLogs:
+    return (
+        db.query(models.WorkflowLogs)
+        .filter(models.WorkflowLogs.run_id == run_id)
+        .first()
+    )
+
+
+def create_log(
+    db: Session,
+    log: schemas.LogCreate,
+) -> models.WorkflowLogs:
+    db_log = models.WorkflowLogs(
+        run_id=log.run_id,
+        log=log.log,
+        release_id=log.release_id,
+    )
+    db.add(db_log)
+    db.commit()
+    db.refresh(db_log)
+    return db_log
+
+
+def list_logs(
+    db: Session,
+    skip: int = 0,
+    limit: int = 1000,
+) -> list[models.WorkflowLogs]:
+    return db.query(models.WorkflowLogs).offset(skip).limit(limit).all()
+
+
+def list_logs_by_release(
+    db: Session,
+    release_id: datetime,
+) -> list[models.WorkflowLogs]:
+    return (
+        db.query(models.WorkflowLogs)
+        .filter(models.WorkflowLogs.release_id == release_id)
+        .all()
+    )

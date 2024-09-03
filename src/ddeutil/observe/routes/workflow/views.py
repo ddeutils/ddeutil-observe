@@ -17,7 +17,7 @@ from ...db import engine
 from ...deps import get_db, get_templates
 from ...utils import get_logger
 from . import crud, models
-from .schemas import Workflow, WorkflowCreate, Workflows
+from .schemas import ReleaseCreate, Workflow, WorkflowCreate, Workflows
 
 logger = get_logger("ddeutil.observe")
 
@@ -44,7 +44,7 @@ def read_workflows(
     )
     return templates.TemplateResponse(
         request=request,
-        name="workflow/index.html",
+        name="workflow/workflow.html",
         context={
             "workflows": workflows,
             "search_text": "",
@@ -81,7 +81,7 @@ def search_workflows(
         )
     return templates.TemplateResponse(
         request=request,
-        name="workflow/index.html",
+        name="workflow/workflow.html",
         context={
             "workflows": workflows,
             "search_text": search_text,
@@ -90,5 +90,33 @@ def search_workflows(
 
 
 @workflow.get("/{name}/release")
-def get_workflow_release(name: str, request: Request):
+def read_workflow_release(name: str, request: Request):
     return {}
+
+
+@workflow.post("/{name}/release", response_model=Workflow)
+def create_workflow_release(
+    name: str, rl: ReleaseCreate, db: Session = Depends(get_db)
+):
+    db_workflow = crud.get_workflow_by_name(db, name=name)
+    db_release = crud.get_release(db, release=rl.release)
+    if db_release:
+        raise HTTPException(
+            status_code=st.HTTP_302_FOUND,
+            detail="Release already create on the observe database.",
+        )
+    return crud.create_release(db=db, workflow=db_workflow, release=rl)
+
+
+@workflow.get("/logs")
+def read_workflow_logs(
+    request: Request,
+    hx_request: Annotated[Optional[str], Header(...)] = None,
+    templates=Depends(get_templates),
+):
+    """Return all workflows."""
+    if hx_request:
+        return templates.TemplateResponse(
+            "workflow/partials/show_add_author_form.html", {"request": request}
+        )
+    return templates.TemplateResponse(request=request, name="workflow/log.html")

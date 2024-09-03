@@ -39,10 +39,34 @@ Workflows = TypeAdapter(list[Workflow])
 
 class ReleaseBase(BaseModel):
     release: datetime
-    workflow_id: int
+
+
+class ReleaseCreate(ReleaseBase): ...
 
 
 class Release(ReleaseBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    workflow_id: int
+
+
+class ReleaseLog(ReleaseBase):
+    log: dict[str, Any]
+
+
+class LogBase(BaseModel):
+    """Base Log Pydantic model that does not include surrogate key column
+    that create on the observe database.
+    """
+
+    run_id: str
+    log: dict[str, Any]
+    release_id: int
+
+
+class LogCreate(LogBase): ...
+
+
+class Log(LogBase):
+    model_config = ConfigDict(from_attributes=True)

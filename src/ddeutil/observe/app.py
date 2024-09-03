@@ -11,11 +11,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
 
 from .__about__ import __version__
-from .deps import get_db, get_templates
-from .routes import log, workflow
+from .deps import get_templates
+from .routes import workflow
 from .utils import get_logger
 
 load_dotenv()
@@ -35,7 +34,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(workflow)
-app.include_router(log)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
@@ -43,7 +41,6 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def index(
     request: Request,
     templates: Jinja2Templates = Depends(get_templates),
-    db: Session = Depends(get_db),
 ):
     return templates.TemplateResponse(
         request=request, name="home/index.html", context={}
