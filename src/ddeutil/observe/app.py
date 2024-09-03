@@ -6,14 +6,13 @@
 from __future__ import annotations
 
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
+from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 
 from .__about__ import __version__
-from .deps import get_templates
 from .routes import workflow
 from .utils import get_logger
 
@@ -37,11 +36,8 @@ app.include_router(workflow)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
-@app.get("/", response_class=HTMLResponse)
-async def index(
-    request: Request,
-    templates: Jinja2Templates = Depends(get_templates),
-):
-    return templates.TemplateResponse(
-        request=request, name="home/index.html", context={}
+@app.get("/")
+async def index(request: Request):
+    return RedirectResponse(
+        request.url_for("read_workflows"), status_code=st.HTTP_303_SEE_OTHER
     )

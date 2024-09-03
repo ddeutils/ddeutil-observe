@@ -1,22 +1,28 @@
-<table class="table" id="search-results">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Params</th>
-        <th>On</th>
-        <th>Jobs</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for workflow in workflows %}
-    <tr>
-        <td>{{ workflow.id }}</td>
-        <td>{{ workflow.name }}</td>
-        <td>{{ workflow.params }}</td>
-        <td>{{ workflow.on }}</td>
-        <td>{{ workflow.jobs }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<div class="table-responsive">
+
+    <table class="table" id="search-results">
+        <thead>
+        <tr>
+            <th></th>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Params</th>
+            <th>On</th>
+            <th>Jobs</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for workflow in workflows %}
+        <tr>
+            <td>...</td>
+            <td>{{ workflow.id }}</td>
+            <td>{{ workflow.name }}</td>
+            <td>{{ workflow.params }}</td>
+            <td>{{ workflow.on }}</td>
+            <td>{{ workflow.jobs }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>

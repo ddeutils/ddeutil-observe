@@ -1,5 +1,18 @@
+* {
+    padding: 0px;
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+}
+
 .container {
     display: grid;
+    justify-content: center;
+    width: 100%;
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    line-height: .9;
     grid-template-columns: 5% 1fr 5%;
 }
 
