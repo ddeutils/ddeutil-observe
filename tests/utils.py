@@ -3,6 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from ddeutil.observe.routes.workflow.crud import (
+    create_release_log,
     create_workflow,
 )
 from ddeutil.observe.routes.workflow.models import Base
@@ -61,7 +62,7 @@ def initial_db(db_path: Path | None = None):
     ]:
         create_workflow(db=db, workflow=wf)
 
-    for _ in [
+    for data in [
         ReleaseLogCreate(
             release="20240902093600",
             logs=[
@@ -142,7 +143,7 @@ def initial_db(db_path: Path | None = None):
             ],
         ),
     ]:
-        pass
+        create_release_log(db, 1, data)
 
     db.close()
 

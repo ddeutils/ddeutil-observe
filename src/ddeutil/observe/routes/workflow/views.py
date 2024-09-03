@@ -96,7 +96,13 @@ def search_workflows(
 
 
 @workflow.get("/{name}/release")
-def read_workflow_releases(name: str, request: Request):
+def read_workflow_releases(name: str, db: Session = Depends(get_db)):
+    db_workflow = crud.get_workflow_by_name(db, name=name)
+    if not db_workflow:
+        raise HTTPException(
+            status_code=st.HTTP_302_FOUND,
+            detail="Workflow does not registered in observe database.",
+        )
     return {}
 
 
@@ -115,11 +121,6 @@ def create_workflow_release(
         workflow_id=db_workflow.id,
         release_log=rl,
     )
-
-
-@workflow.get("/{name}/release/{release}")
-def read_workflow_release_logs(name: str, request: Request):
-    return {}
 
 
 @workflow.get("/logs")
