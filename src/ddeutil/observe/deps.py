@@ -6,12 +6,15 @@
 from __future__ import annotations
 
 import pathlib
+from collections.abc import AsyncIterator, Iterator
 
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import ChoiceLoader, FileSystemLoader
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 
-from .db import SessionLocal
+from .db import AsyncSessionLocal, SessionLocal
 
 
 def get_templates(request: Request) -> Jinja2Templates:
@@ -33,10 +36,22 @@ def get_templates(request: Request) -> Jinja2Templates:
     )
 
 
-def get_db() -> SessionLocal:
+def get_session() -> Iterator[Session]:
     """Return the database local session instance."""
-    db = SessionLocal()
+    session: Session = SessionLocal()
     try:
-        yield db
+        yield session
     finally:
-        db.close()
+        session.close()
+
+
+async def get_async_session() -> AsyncIterator[AsyncSession]:
+    """Return the database local async session instance."""
+    session: AsyncSession = AsyncSessionLocal()
+    try:
+        yield session
+    except Exception:
+        await session.rollback()
+        raise
+    finally:
+        await session.close()

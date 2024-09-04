@@ -13,7 +13,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .__about__ import __version__
-from .routes import workflow
+from .routes import api_router, workflow
 from .utils import get_logger
 
 load_dotenv()
@@ -32,7 +32,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(api_router, prefix="/api/v1")
 app.include_router(workflow)
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 

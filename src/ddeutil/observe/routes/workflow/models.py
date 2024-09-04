@@ -5,6 +5,8 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
+
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -14,7 +16,10 @@ from sqlalchemy import (
     Integer,
     String,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy.sql.expression import select
+from typing_extensions import Self
 
 from ...db import Base
 
@@ -33,6 +38,23 @@ class Workflows(Base):
     valid_end = Column(DateTime)
 
     releases = relationship("WorkflowReleases", back_populates="workflow")
+
+    @classmethod
+    async def get_all(
+        cls,
+        session: AsyncSession,
+        skip: int = 0,
+        limit: int = 100,
+        include_release: bool = False,
+    ) -> AsyncIterator[Self]:
+        stmt = select(cls)
+        if include_release:
+            stmt = stmt.options(selectinload(cls.releases))
+        if skip > 0 and limit > 0:
+            stmt = stmt.offset(skip).limit(limit)
+        stream = await session.stream(stmt.order_by(cls.id))
+        async for row in stream.scalars():
+            yield row
 
 
 class WorkflowReleases(Base):

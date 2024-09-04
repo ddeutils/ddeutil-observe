@@ -1,0 +1,26 @@
+<div class="table-responsive">
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th></th>
+            <th>Workflow Name</th>
+            <th>Run ID</th>
+            <th>Context</th>
+            <th>Release ID</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>...</td>
+            <td>{{ log.release.workflow.name }}</td>
+            <td>{{ log.run_id }}</td>
+            <td>{{ log.context }}</td>
+            <td>{{ log.release.release }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+</div>
