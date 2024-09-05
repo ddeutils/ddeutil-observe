@@ -66,7 +66,7 @@ def after_cursor_execute(
 
 
 SQLALCHEMY_DATABASE_URL: str = os.getenv(
-    "OBSERVE_SQLALCHEMY_DATABASE_URL", "sqlite:///./observe.db"
+    "OBSERVE_SQLALCHEMY_DB_URL", "sqlite:///./observe.db"
 )
 
 engine = create_engine(
@@ -78,24 +78,6 @@ SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, future=True, bind=engine
 )
 
-SQLALCHEMY_DATABASE_ASYNC_URL: str = os.getenv(
-    "OBSERVE_SQLALCHEMY_DATABASE_ASYNC_URL", "sqlite+aiosqlite:///./observe.db"
-)
-
-async_engine = create_async_engine(
-    SQLALCHEMY_DATABASE_ASYNC_URL,
-    echo=False,
-    pool_pre_ping=True,
-    connect_args={"check_same_thread": False},
-)
-AsyncSessionLocal = async_sessionmaker(
-    bind=async_engine,
-    autoflush=False,
-    autocommit=False,
-    future=True,
-    expire_on_commit=False,
-)
-
 
 class DatabaseSessionManager:
     def __init__(self):
@@ -103,11 +85,22 @@ class DatabaseSessionManager:
         self._sessionmaker: async_sessionmaker | None = None
 
     def init(self, host: str):
-        self._engine = create_async_engine(host)
+        self._engine = create_async_engine(
+            host,
+            echo=False,
+            pool_pre_ping=True,
+            connect_args={"check_same_thread": False},
+        )
         self._sessionmaker = async_sessionmaker(
+            autoflush=False,
             autocommit=False,
+            future=True,
+            expire_on_commit=False,
             bind=self._engine,
         )
+
+    def is_opened(self) -> bool:
+        return self._engine is not None
 
     async def close(self):
         if self._engine is None:

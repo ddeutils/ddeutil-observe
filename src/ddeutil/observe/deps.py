@@ -14,7 +14,7 @@ from jinja2 import ChoiceLoader, FileSystemLoader
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from .db import AsyncSessionLocal, SessionLocal
+from .db import SessionLocal, sessionmanager
 
 
 def get_templates(request: Request) -> Jinja2Templates:
@@ -29,6 +29,12 @@ def get_templates(request: Request) -> Jinja2Templates:
         )
         if route_path.exists():
             choices.insert(0, FileSystemLoader(route_path))
+        else:
+            auth_path: pathlib.Path = (
+                pathlib.Path(__file__).parent / "auth/templates"
+            )
+            if auth_path.exists():
+                choices.insert(0, FileSystemLoader(auth_path))
 
     return Jinja2Templates(
         directory="templates",
@@ -46,12 +52,5 @@ def get_session() -> Iterator[Session]:
 
 
 async def get_async_session() -> AsyncIterator[AsyncSession]:
-    """Return the database local async session instance."""
-    session: AsyncSession = AsyncSessionLocal()
-    try:
+    async with sessionmanager.session() as session:
         yield session
-    except Exception:
-        await session.rollback()
-        raise
-    finally:
-        await session.close()

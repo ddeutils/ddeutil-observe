@@ -11,17 +11,17 @@ from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi import status as st
 from sqlalchemy.orm.session import Session
 
-from ...db import async_engine
+from ...db import sessionmanager
 from ...deps import get_session
 from . import crud, models
-from .crud import ReadWorkflows
+from .crud import WorkflowsCRUD
 from .schemas import ReleaseLog, ReleaseLogCreate, Workflow, WorkflowCreate
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     """Lifespan for create workflow tables on target database."""
-    async with async_engine.begin() as conn:
+    async with sessionmanager.connect() as conn:
         # await conn.run_sync(models.Base.metadata.drop_all)
         await conn.run_sync(models.Base.metadata.create_all)
     yield
@@ -39,9 +39,9 @@ workflow = APIRouter(
 async def read_all(
     skip: int = 0,
     limit: int = 100,
-    service: ReadWorkflows = Depends(ReadWorkflows),
+    service: WorkflowsCRUD = Depends(WorkflowsCRUD),
 ):
-    return [wf async for wf in service.execute(skip=skip, limit=limit)]
+    return [wf async for wf in service.get_all(skip=skip, limit=limit)]
 
 
 @workflow.post("/", response_model=Workflow)

@@ -6,10 +6,9 @@
 from __future__ import annotations
 
 import logging
-import os
 from functools import lru_cache
 
-from ddeutil.core import str2bool
+from .conf import config
 
 
 @lru_cache
@@ -27,7 +26,7 @@ def get_logger(name: str):
     stream = logging.StreamHandler()
     stream.setFormatter(formatter)
     logger.addHandler(stream)
-
-    debug: bool = str2bool(os.getenv("OBSERVE_LOG_DEBUG_MODE", "true"))
-    logger.setLevel(logging.DEBUG if debug else logging.INFO)
+    logger.setLevel(
+        logging.DEBUG if config.OBSERVE_LOG_DEBUG_MODE else logging.INFO
+    )
     return logger

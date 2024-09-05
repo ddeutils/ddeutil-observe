@@ -28,7 +28,7 @@ workflow = APIRouter(prefix="/workflow", tags=["workflow"])
 def read_workflows(
     request: Request,
     session: Session = Depends(get_session),
-    templates=Depends(get_templates),
+    templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all workflows."""
     workflows: list[Workflow] = Workflows.validate_python(
@@ -57,8 +57,9 @@ def search_workflows(
     )
     if hx_request:
         return templates.TemplateResponse(
-            "workflow/partials/workflow_results.html",
-            {"request": request, "workflows": workflows},
+            request=request,
+            name="workflow/partials/workflow_results.html",
+            context={"workflows": workflows},
         )
     return templates.TemplateResponse(
         request=request,
@@ -74,7 +75,7 @@ def search_workflows(
 def read_logs(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
-    templates=Depends(get_templates),
+    templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all workflows."""
     if hx_request:

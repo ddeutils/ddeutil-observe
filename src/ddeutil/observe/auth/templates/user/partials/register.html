@@ -1,0 +1,22 @@
+<form id="register-form"
+      hx-post="{{ url_for('register') }}"
+      hx-trigger="submit">
+    <div>
+        <input id="email-input"
+               autocomplete="off"
+               type="text"
+               name="email"
+               placeholder="Email...">
+        <input id="username-input"
+               autocomplete="off"
+               type="text"
+               name="username"
+               placeholder="Username...">
+        <input id="password-input"
+               autocomplete="off"
+               type="password"
+               name="password"
+               placeholder="Password...">
+        <button type="submit">Submit</button>
+    </div>
+</form>
