@@ -6,9 +6,9 @@
     <div class="container-center">
         <div>
         {% if content == 'login' %}
-            {% include 'user/partials/login.html' with context %}
+            {% include 'auth/partials/login.html' with context %}
         {% else %}
-            {% include 'user/partials/register.html' with context %}
+            {% include 'auth/partials/register.html' with context %}
         {% endif %}
         </div>
     </div>

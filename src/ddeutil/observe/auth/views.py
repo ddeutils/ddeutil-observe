@@ -16,10 +16,35 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..conf import config
 from ..deps import get_async_session, get_templates
-from .crud import authenticate
+from .crud import CreateUser, authenticate
+from .schemas import UserSchemaCreateForm
 from .securities import create_access_token
 
 auth = APIRouter(prefix="/auth", tags=["auth"])
+
+
+@auth.get("/register/", response_class=HTMLResponse)
+def register(
+    request: Request,
+    template: Jinja2Templates = Depends(get_templates),
+):
+    return template.TemplateResponse(
+        request=request,
+        name="auth/index.html",
+        context={"content": "register"},
+    )
+
+
+@auth.post("/register/")
+async def register(
+    response: Response,
+    user: UserSchemaCreateForm = Depends(UserSchemaCreateForm.as_form),
+    service: CreateUser = Depends(CreateUser),
+):
+    await service.by_form(user)
+    response.headers["HX-Redirect"] = "/auth/login/"
+    response.status_code = st.HTTP_303_SEE_OTHER
+    return {}
 
 
 @auth.get("/login/", response_class=HTMLResponse)
@@ -42,7 +67,7 @@ async def login(
 ):
     user = await authenticate(
         session,
-        email=form_data.username,
+        name=form_data.username,
         password=form_data.password,
     )
     if user is None:

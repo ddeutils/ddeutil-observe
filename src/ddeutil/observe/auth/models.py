@@ -1,5 +1,13 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from uuid import uuid4
 
+from sqlalchemy import ForeignKey
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
@@ -34,10 +42,28 @@ class User(Base):
         return transaction
 
     @classmethod
-    async def get_by_email(cls, session: AsyncSession, email: str) -> Self:
-        stmt = select(cls).where(cls.email == email)
+    async def get_by_name(cls, session: AsyncSession, name: str) -> Self | None:
         try:
-            return (await session.execute(stmt)).scalars().first()
+            return (
+                (await session.execute(select(cls).where(cls.name == name)))
+                .scalars()
+                .first()
+            )
+        except NoResultFound:
+            return None
+
+    @classmethod
+    async def get_by_email(
+        cls,
+        session: AsyncSession,
+        email: str,
+    ) -> Self | None:
+        try:
+            return (
+                (await session.execute(select(cls).where(cls.email == email)))
+                .scalars()
+                .first()
+            )
         except NoResultFound:
             return None
 
@@ -51,15 +77,18 @@ class Group(Base):
 
     id = Col(Integer, primary_key=True)
     name = Col(String, unique=True, nullable=False)
+    member = Col(Integer, ForeignKey("users.id"))
 
 
 class Role(Base):
     __tablename__ = "roles"
 
     id = Col(Integer, primary_key=True)
+    name = Col(String, unique=True, nullable=False)
 
 
 class Policy(Base):
     __tablename__ = "policies"
 
     id = Col(Integer, primary_key=True)
+    name = Col(String, unique=True, nullable=False)

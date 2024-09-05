@@ -7,12 +7,14 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict
+from fastapi import Form
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserSchemaBase(BaseModel):
+    name: str
     email: Optional[str] = None
-    full_name: Optional[str] = None
+    fullname: Optional[str] = None
 
 
 class UserSchemaCreate(UserSchemaBase):
@@ -22,4 +24,23 @@ class UserSchemaCreate(UserSchemaBase):
 class UserSchema(UserSchemaBase):
     model_config = ConfigDict(from_attributes=True)
 
-    id: str
+    id: int
+    is_active: bool
+    is_superuser: bool
+
+
+class UserSchemaCreateForm(UserSchemaBase):
+    password: str
+
+    @classmethod
+    def as_form(
+        cls,
+        email: EmailStr = Form(...),
+        username: str = Form(...),
+        password: str = Form(...),
+    ):
+        return cls(
+            name=username,
+            email=email,
+            password=password,
+        )
