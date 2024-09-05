@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends, Header, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from ...auth.securities import required_auth
 from ...deps import get_session, get_templates
 from ...utils import get_logger
 from . import crud
@@ -21,7 +22,11 @@ from .schemas import (
 
 logger = get_logger("ddeutil.observe")
 
-workflow = APIRouter(prefix="/workflow", tags=["workflow"])
+workflow = APIRouter(
+    prefix="/workflow",
+    tags=["workflow"],
+    dependencies=[Depends(required_auth)],
+)
 
 
 @workflow.get("/")

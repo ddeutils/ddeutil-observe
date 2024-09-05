@@ -53,6 +53,7 @@ oauth2_scheme = OAuth2PasswordBearerCookie(
         "me": "Read information about the current user.",
         "workflows": "Read items.",
     },
+    auto_error=False,
 )
 
 
@@ -88,6 +89,7 @@ async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     session: AsyncSession = Depends(get_async_session),
 ):
+    print(token)
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -138,3 +140,12 @@ async def get_current_active_user(
             detail="Inactive user",
         )
     return current_user
+
+
+async def required_auth(token: str = Depends(oauth2_scheme)):
+    if not token:
+        raise HTTPException(
+            status_code=st.HTTP_307_TEMPORARY_REDIRECT,
+            headers={"Location": "/auth/login"},
+        )
+    return True
