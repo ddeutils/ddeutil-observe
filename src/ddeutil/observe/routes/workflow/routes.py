@@ -29,7 +29,7 @@ async def lifespan(_: FastAPI):
 
 workflow = APIRouter(
     prefix="/workflow",
-    tags=["workflow"],
+    tags=["api", "workflow"],
     lifespan=lifespan,
     responses={st.HTTP_404_NOT_FOUND: {"description": "Not found"}},
 )

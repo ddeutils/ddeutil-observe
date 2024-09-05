@@ -48,7 +48,7 @@ class CreateUser(BaseCRUD):
         await self.async_session.flush()
 
         # # `commit`, commits (persists) those changes to the database.
-        # await session.commit()
+        await self.async_session.commit()
 
         # NOTE: persisted some changes for an object to the database and
         # need to use this updated object within the same method.

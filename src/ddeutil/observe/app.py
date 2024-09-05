@@ -15,7 +15,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
 from .__about__ import __version__
-from .auth.views import auth
+from .auth import api_auth, auth
 from .conf import config
 from .db import sessionmanager
 from .routes import api_router, workflow
@@ -48,7 +48,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# NOTE: Authentication
+app.include_router(api_auth, prefix="/api/v1")
 app.include_router(auth)
+
+# NOTE: Any routers
 app.include_router(api_router, prefix="/api/v1")
 app.include_router(workflow)
 
@@ -56,7 +60,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 
 @app.get("/")
-async def index(request: Request):
+async def home(request: Request):
     return RedirectResponse(
         request.url_for("read_workflows"), status_code=st.HTTP_303_SEE_OTHER
     )
