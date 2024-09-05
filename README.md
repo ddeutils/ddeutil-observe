@@ -7,7 +7,6 @@
 [![gh license](https://img.shields.io/github/license/ddeutils/ddeutil-observe)](https://github.com/ddeutils/ddeutil-observe/blob/main/LICENSE)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
 The **Lightweight observation web application** project was created for easy to
 make a observation web application that getting log, or trigger status from any
 data framework formats and endpoint APIs, it project will focus on the

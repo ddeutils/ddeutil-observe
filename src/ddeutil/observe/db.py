@@ -6,32 +6,63 @@
 from __future__ import annotations
 
 import os
+import time
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from typing import Any
 
 from sqlalchemy import MetaData, create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
+    AsyncConnection,
+    AsyncEngine,
+    AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, mapped_column, sessionmaker
+
+from .utils import get_logger
+
+logger = get_logger("ddeutil.observe")
 
 
 @event.listens_for(Engine, "connect")
-def set_sqlite_pragma(dbapi_connection, _):
-    """Read more:"""
+def set_sqlite_pragma(dbapi_connection, connection_record):
+    """Read more:
+    - https://docs.sqlalchemy.org/en/20/dialects/sqlite.html -
+        #foreign-key-support
+    """
     cursor = dbapi_connection.cursor()
     settings: dict[str, Any] = {
-        "journal_mode": "WAL",
+        # "journal_mode": "WAL",
+        "journal_mode": "OFF",
         "foreign_keys": "ON",
         "page_size": 4096,
         "cache_size": 10000,
         # "locking_mode": 'EXCLUSIVE',
-        "synchronous": "NORMAL",
+        # "synchronous": "NORMAL",
+        "synchronous": "OFF",
     }
     for k, v in settings.items():
         cursor.execute(f"PRAGMA {k} = {v};")
     cursor.close()
+
+
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(
+    conn, cursor, statement, parameters, context, executemany
+):
+    conn.info.setdefault("query_start_time", []).append(time.time())
+    logger.debug("Start Query: %s", statement)
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(
+    conn, cursor, statement, parameters, context, executemany
+):
+    total = time.time() - conn.info["query_start_time"].pop(-1)
+    logger.debug("Query Complete! Total Time: %f", total)
 
 
 SQLALCHEMY_DATABASE_URL: str = os.getenv(
@@ -65,6 +96,64 @@ AsyncSessionLocal = async_sessionmaker(
     expire_on_commit=False,
 )
 
+
+class DatabaseSessionManager:
+    def __init__(self):
+        self._engine: AsyncEngine | None = None
+        self._sessionmaker: async_sessionmaker | None = None
+
+    def init(self, host: str):
+        self._engine = create_async_engine(host)
+        self._sessionmaker = async_sessionmaker(
+            autocommit=False,
+            bind=self._engine,
+        )
+
+    async def close(self):
+        if self._engine is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+        await self._engine.dispose()
+        self._engine = None
+        self._sessionmaker = None
+
+    @asynccontextmanager
+    async def connect(self) -> AsyncIterator[AsyncConnection]:
+        if self._engine is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+
+        async with self._engine.begin() as connection:
+            try:
+                yield connection
+            except Exception:
+                await connection.rollback()
+                raise
+
+    @asynccontextmanager
+    async def session(self) -> AsyncIterator[AsyncSession]:
+        if self._sessionmaker is None:
+            raise Exception("DatabaseSessionManager is not initialized")
+
+        session = self._sessionmaker()
+        try:
+            yield session
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
+
+    @staticmethod
+    async def create_all(connection: AsyncConnection):
+        await connection.run_sync(Base.metadata.create_all)
+
+    @staticmethod
+    async def drop_all(connection: AsyncConnection):
+        await connection.run_sync(Base.metadata.drop_all)
+
+
+sessionmanager = DatabaseSessionManager()
+
+
 DB_INDEXES_NAMING_CONVENTION = {
     "ix": "%(column_0_label)s_idx",
     "uq": "%(table_name)s_%(column_0_name)s_key",
@@ -72,11 +161,27 @@ DB_INDEXES_NAMING_CONVENTION = {
     "fk": "%(table_name)s_%(column_0_name)s_fkey",
     "pk": "%(table_name)s_pkey",
 }
-metadata = MetaData(
-    naming_convention=DB_INDEXES_NAMING_CONVENTION,
-    # NOTE: In SQLite schema, the value should be `main` only because it does
-    #   not implement with schema system.
-    schema="main",
-)
 
-Base = declarative_base(metadata=metadata)
+
+class Base(DeclarativeBase):
+    __abstract__ = True
+
+    metadata = MetaData(
+        naming_convention=DB_INDEXES_NAMING_CONVENTION,
+        # NOTE: In SQLite schema, the value should be `main` only because it
+        #   does not implement with schema system.
+        schema="main",
+    )
+
+    def __repr__(self) -> str:
+        columns = ", ".join(
+            [
+                f"{k}={repr(v)}"
+                for k, v in self.__dict__.items()
+                if not k.startswith("_")
+            ]
+        )
+        return f"<{self.__class__.__name__}({columns})>"
+
+
+Col = mapped_column

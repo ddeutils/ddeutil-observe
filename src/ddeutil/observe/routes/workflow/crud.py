@@ -12,7 +12,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.sql import false
 
 from ...crud import BaseCRUD
+from ...utils import get_logger
 from . import models, schemas
+
+logger = get_logger("ddeutil.observe")
 
 
 def get_workflow(session: Session, workflow_id: int) -> models.Workflows:
@@ -71,13 +74,14 @@ def search_workflow(
     session: Session,
     search_text: str,
 ) -> list[models.Workflows]:
-    if len(search_text) > 1:
+    if len(search_text) > 0:
         if not (search_text := search_text.strip().lower()):
             return []
 
         results = []
         for workflow in list_workflows(session=session):
             text: str = f"{workflow.name} {workflow.desc or ''}".lower()
+            logger.debug(f"Getting text: {text} | Search {search_text}")
             if search_text in text:
                 results.append(workflow)
         return results

@@ -6,38 +6,41 @@
 from __future__ import annotations
 
 from collections.abc import AsyncIterator
+from typing import Any
 
-from sqlalchemy import (
+from sqlalchemy import ForeignKey
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, relationship, selectinload
+from sqlalchemy.sql.expression import select
+from sqlalchemy.types import (
     JSON,
     Boolean,
-    Column,
     DateTime,
-    ForeignKey,
     Integer,
     String,
 )
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship, selectinload
-from sqlalchemy.sql.expression import select
 from typing_extensions import Self
 
-from ...db import Base
+from ...db import Base, Col
 
 
 class Workflows(Base):
     __tablename__ = "workflows"
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String, index=True)
-    desc = Column(String)
-    params = Column(JSON)
-    on = Column(JSON)
-    jobs = Column(JSON)
-    delete_flag = Column(Boolean, default=False)
-    valid_start = Column(DateTime)
-    valid_end = Column(DateTime)
+    id = Col(Integer, primary_key=True, index=True)
+    name = Col(String, index=True)
+    desc = Col(String)
+    params: Mapped[dict[str, Any]] = Col(JSON)
+    on: Mapped[dict[str, Any]] = Col(JSON)
+    jobs: Mapped[dict[str, Any]] = Col(JSON)
+    delete_flag = Col(Boolean, default=False)
+    valid_start = Col(DateTime)
+    valid_end = Col(DateTime)
 
-    releases = relationship("WorkflowReleases", back_populates="workflow")
+    releases: Mapped[list[WorkflowReleases]] = relationship(
+        "WorkflowReleases",
+        back_populates="workflow",
+    )
 
     @classmethod
     async def get_all(
@@ -60,19 +63,27 @@ class Workflows(Base):
 class WorkflowReleases(Base):
     __tablename__ = "workflow_releases"
 
-    id = Column(Integer, primary_key=True, index=True)
-    release = Column(Integer, index=True)
-    workflow_id = Column(Integer, ForeignKey("workflows.id"))
+    id: Mapped[int] = Col(Integer, primary_key=True, index=True)
+    release: Mapped[int] = Col(Integer, index=True)
+    workflow_id: Mapped[int] = Col(Integer, ForeignKey("workflows.id"))
 
-    workflow = relationship("Workflows", back_populates="releases")
-    logs = relationship("WorkflowLogs", back_populates="release")
+    workflow: Mapped[Workflows] = relationship(
+        "Workflows", back_populates="releases"
+    )
+    logs: Mapped[list[WorkflowLogs]] = relationship(
+        "WorkflowLogs",
+        back_populates="release",
+    )
 
 
 class WorkflowLogs(Base):
     __tablename__ = "workflow_logs"
 
-    run_id = Column(String, primary_key=True, index=True)
-    context = Column(JSON)
-    release_id = Column(Integer, ForeignKey("workflow_releases.id"))
+    run_id: Mapped[str] = Col(String, primary_key=True, index=True)
+    context: Mapped[dict] = Col(JSON)
+    release_id: Mapped[int] = Col(Integer, ForeignKey("workflow_releases.id"))
 
-    release = relationship("WorkflowReleases", back_populates="logs")
+    release: Mapped[WorkflowReleases] = relationship(
+        "WorkflowReleases",
+        back_populates="logs",
+    )
