@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import time
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -47,6 +48,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.perf_counter()
+    response = await call_next(request)
+    process_time = time.perf_counter() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
 
 # NOTE: Authentication
 app.include_router(api_auth, prefix="/api/v1")

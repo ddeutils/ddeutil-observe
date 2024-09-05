@@ -5,6 +5,8 @@ from ddeutil.core import str2bool
 
 
 class BaseConfig:
+    API_PREFIX: str = "api/v1/"
+
     OBSERVE_SQLALCHEMY_DB_ASYNC_URL: str = os.getenv(
         "OBSERVE_SQLALCHEMY_DB_ASYNC_URL",
         (
@@ -22,7 +24,7 @@ class BaseConfig:
         os.getenv("OBSERVE_LOG_DEBUG_MODE", "true")
     )
 
-    # 60 minutes * 24 hours * 8 days = 8 days
+    # NOTE: 60 minutes * 24 hours * 8 days = 8 days
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     OBSERVE_SECRET_KEY: str = os.getenv(
         "OBSERVE_SECRET_KEY", secrets.token_urlsafe(32)

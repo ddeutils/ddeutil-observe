@@ -1,6 +1,14 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
+from __future__ import annotations
+
 from typing import Optional
 
 from fastapi import HTTPException
+from fastapi import status as st
 from sqlalchemy.orm import Session
 
 from ..crud import BaseCRUD
@@ -11,24 +19,23 @@ from .securities import get_password_hash, verify_password
 
 async def authenticate(
     session: Session,
-    *,
     name: str,
     password: str,
 ) -> Optional[User]:
     if user := await User.get_by_name(session, name=name):
-        return user if verify_password(password, user.hashed_password) else None
-    else:
-        return None
+        return (
+            user if verify_password(password, user.hashed_password) else False
+        )
+    return False
 
 
 class CreateUser(BaseCRUD):
     async def by_form(self, user: UserSchemaCreateForm) -> UserSchema:
         # NOTE: Validate by username value. By default, this will validate
         # from database with unique constraint.
-        _user = await User.get_by_name(self.async_session, user.name)
-        print(_user)
-        if _user:
-            raise HTTPException(status_code=409)
+
+        if await User.get_by_name(self.async_session, user.name):
+            raise HTTPException(status_code=st.HTTP_409_CONFLICT)
 
         hashed_password = get_password_hash(user.password)
         _user_create: User = User(
@@ -53,5 +60,4 @@ class CreateUser(BaseCRUD):
         # NOTE: persisted some changes for an object to the database and
         # need to use this updated object within the same method.
         await self.async_session.refresh(_user_create)
-        print(_user_create.__dict__)
         return UserSchema.model_validate(_user_create)

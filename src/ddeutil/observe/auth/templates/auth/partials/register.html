@@ -2,11 +2,6 @@
       hx-post="{{ url_for('register') }}"
       hx-trigger="submit">
     <div>
-        <input id="email-input"
-               autocomplete="off"
-               type="text"
-               name="email"
-               placeholder="Email...">
         <input id="username-input"
                autocomplete="off"
                type="text"
@@ -17,6 +12,11 @@
                type="password"
                name="password"
                placeholder="Password...">
+        <input id="email-input"
+               autocomplete="off"
+               type="text"
+               name="email"
+               placeholder="Email...">
         <button type="submit">Submit</button>
     </div>
 </form>

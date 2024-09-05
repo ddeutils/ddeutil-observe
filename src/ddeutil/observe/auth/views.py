@@ -79,15 +79,16 @@ async def login(
     access_token = create_access_token(
         subject={
             "sub": user.name,
-            # NOTE: OAuth2 with scopes.
+            # NOTE: OAuth2 with scopes such as `["me"]`.
             "scopes": form_data.scopes,
         },
         expires_delta=access_token_expires,
     )
     response.set_cookie(
         key="access_token",
-        value=access_token,
+        value=f"Bearer {access_token}",
         expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
     )
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
