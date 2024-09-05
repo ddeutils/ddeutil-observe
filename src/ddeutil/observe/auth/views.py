@@ -29,7 +29,7 @@ async def login(
 ):
     return templates.TemplateResponse(
         request=request,
-        name="user/index.html",
+        name="auth/index.html",
         context={"request": request, "content": "login"},
     )
 
@@ -49,6 +49,7 @@ async def login(
         response.headers["HX-Redirect"] = "/"
         response.status_code = st.HTTP_404_NOT_FOUND
         return {}
+
     access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject={
