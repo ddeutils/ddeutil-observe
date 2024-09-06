@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
+from fastapi import Form
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
@@ -60,3 +61,27 @@ class UserCreateForm(BaseModel):
     username: str
     password: str
     email: EmailStr
+    fullname: Optional[str] = None
+
+
+class UserScopeForm(BaseModel):
+    scopes_me: bool
+    scopes_workflows: bool
+
+    @classmethod
+    def as_form(
+        cls,
+        scopes_me: bool = Form(default=False),
+        scopes_workflows: bool = Form(default=False),
+    ):
+        return cls(
+            scopes_me=scopes_me,
+            scopes_workflows=scopes_workflows,
+        )
+
+    def scopes(self) -> list[str]:
+        rs: list[str] = []
+        for sc in self.__dict__:
+            if sc.startswith("scopes_") and self.__dict__[sc]:
+                rs.append(sc.split("_", maxsplit=1)[-1])
+        return rs

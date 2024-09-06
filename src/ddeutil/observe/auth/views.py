@@ -20,7 +20,7 @@ from ..deps import get_async_session, get_templates
 from .crud import UserCRUD, authenticate
 from .deps import get_current_active_user
 from .models import User
-from .schemas import UserCreateForm, UserResetPassForm
+from .schemas import UserCreateForm, UserResetPassForm, UserScopeForm
 from .securities import create_access_token
 
 auth = APIRouter(prefix="/auth", tags=["auth"])
@@ -66,6 +66,7 @@ async def login(
 async def login(
     response: Response,
     session: AsyncSession = Depends(get_async_session),
+    scopes_data: UserScopeForm = Depends(UserScopeForm.as_form),
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ):
     user = await authenticate(
@@ -73,8 +74,8 @@ async def login(
         name=form_data.username,
         password=form_data.password,
     )
-    if user is None:
-        response.headers["HX-Redirect"] = "/"
+    if not user:
+        response.headers["HX-Redirect"] = "/auth/register"
         response.status_code = st.HTTP_404_NOT_FOUND
         return {}
 
@@ -82,8 +83,8 @@ async def login(
     access_token = create_access_token(
         subject={
             "sub": user.username,
-            # NOTE: OAuth2 with scopes such as `["me"]`.
-            "scopes": form_data.scopes,
+            # NOTE: OAuth2 with scopes such as `["me", ...]`.
+            "scopes": scopes_data.scopes(),
         },
         expires_delta=access_token_expires,
     )

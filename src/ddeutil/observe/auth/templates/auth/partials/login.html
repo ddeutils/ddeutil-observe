@@ -12,11 +12,20 @@
                type="password"
                name="password"
                placeholder="Password...">
-        <input id="scope-input"
-               autocomplete="off"
-               type="text"
-               name="scope"
-               placeholder="Scopes like me,workflows">
+        <br>
+
+        <input id="checkbox-me"
+               type="checkbox"
+               name="scopes_me"
+               checked>
+        <label for="checkbox-me">me</label>
+        <input id="checkbox-workflows"
+               type="checkbox"
+               name="scopes_workflows"
+               checked>
+        <label for="checkbox-workflows">workflows</label>
+        <br>
+
         <button type="submit">Submit</button>
     </div>
 </form>
