@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Header, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from ...auth.securities import required_auth
+from ...auth.deps import required_auth
 from ...deps import get_session, get_templates
 from ...utils import get_logger
 from . import crud

@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from ..crud import BaseCRUD
 from .models import Token, User
-from .schemas import TokenRefreshCreate, UserSchema, UserSchemaCreateForm
+from .schemas import TokenRefreshCreate, UserCreateForm, UserSchema
 from .securities import get_password_hash, verify_password
 
 
@@ -47,17 +47,19 @@ async def create_token(
     return tk
 
 
-class CreateUser(BaseCRUD):
-    async def by_form(self, user: UserSchemaCreateForm) -> UserSchema:
+class UserCRUD(BaseCRUD):
+
+    async def create_by_form(self, user: UserCreateForm) -> UserSchema:
         # NOTE: Validate by username value. By default, this will validate
         # from database with unique constraint.
-
-        if await User.get_by_name(self.async_session, user.name):
+        if await User.get_by_name(self.async_session, user.username):
             raise HTTPException(status_code=st.HTTP_409_CONFLICT)
 
         hashed_password = get_password_hash(user.password)
         _user_create: User = User(
-            email=user.email, name=user.name, hashed_password=hashed_password
+            email=user.email,
+            username=user.username,
+            hashed_password=hashed_password,
         )
         self.async_session.add(_user_create)
 

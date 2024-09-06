@@ -6,8 +6,9 @@
 from __future__ import annotations
 
 from datetime import timedelta
+from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi import status as st
 from fastapi.responses import HTMLResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -16,10 +17,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..conf import config
 from ..deps import get_async_session, get_templates
-from .crud import CreateUser, authenticate
+from .crud import UserCRUD, authenticate
+from .deps import get_current_active_user
 from .models import User
-from .schemas import UserSchemaCreateForm, UserSchemaResetForm
-from .securities import create_access_token, get_current_active_user
+from .schemas import UserCreateForm, UserResetPassForm
+from .securities import create_access_token
 
 auth = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -39,12 +41,12 @@ def register(
 @auth.post("/register")
 async def register(
     response: Response,
-    user: UserSchemaCreateForm = Depends(UserSchemaCreateForm.as_form),
-    service: CreateUser = Depends(CreateUser),
+    form_user: Annotated[UserCreateForm, Form()],
+    service: UserCRUD = Depends(UserCRUD),
 ):
-    await service.by_form(user)
+    await service.create_by_form(form_user)
     response.headers["HX-Redirect"] = "/auth/login/"
-    response.status_code = st.HTTP_303_SEE_OTHER
+    response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
     return {}
 
 
@@ -79,7 +81,7 @@ async def login(
     access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject={
-            "sub": user.name,
+            "sub": user.username,
             # NOTE: OAuth2 with scopes such as `["me"]`.
             "scopes": form_data.scopes,
         },
@@ -99,12 +101,12 @@ async def login(
 @auth.post("/change-password")
 async def change_password(
     response: Response,
-    form_data: UserSchemaResetForm = Depends(UserSchemaResetForm.as_form),
+    form_data: Annotated[UserResetPassForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
 ):
     user = await authenticate(
         session,
-        name=form_data.name,
+        name=form_data.username,
         password=form_data.old_password,
     )
     if user is None:

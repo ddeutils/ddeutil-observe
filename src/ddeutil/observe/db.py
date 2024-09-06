@@ -14,6 +14,7 @@ from typing import Any
 from sqlalchemy import MetaData, create_engine, event
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
+    AsyncAttrs,
     AsyncConnection,
     AsyncEngine,
     AsyncSession,
@@ -156,7 +157,13 @@ DB_INDEXES_NAMING_CONVENTION = {
 }
 
 
-class Base(DeclarativeBase):
+# NOTE:
+#       Attributes that are lazy-loading relationships, deferred columns or
+#   expressions, or are being accessed in expiration scenarios can take
+#   advantage of the AsyncAttrs mixin.
+#   Read more: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html -
+#       #preventing-implicit-io-when-using-asyncsession
+class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 
     metadata = MetaData(

@@ -7,18 +7,16 @@ from __future__ import annotations
 
 from typing import Optional, Union
 
-from fastapi import Form
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = Field(default="Bearer")
 
 
 class TokenRefresh(Token):
     refresh_token: str
-    token_type: str = Field(default="bearer")
 
 
 class TokenRefreshCreate(TokenRefresh):
@@ -31,17 +29,6 @@ class TokenRefreshForm(BaseModel):
     password: str
     refresh_token: str
 
-    @classmethod
-    def as_form(
-        cls,
-        username: str = Form(...),
-        password: str = Form(...),
-        refresh_token: str = Form(...),
-    ):
-        return cls(
-            username=username, password=password, refresh_token=refresh_token
-        )
-
 
 class TokenData(BaseModel):
     username: Union[str, None] = None
@@ -49,13 +36,12 @@ class TokenData(BaseModel):
 
 
 class UserSchemaBase(BaseModel):
-    name: str
+    username: str
     email: Optional[str] = None
     fullname: Optional[str] = None
 
 
-class UserSchemaCreate(UserSchemaBase):
-    pass
+class UserSchemaCreate(UserSchemaBase): ...
 
 
 class UserSchema(UserSchemaBase):
@@ -66,37 +52,13 @@ class UserSchema(UserSchemaBase):
     is_superuser: bool
 
 
-class UserSchemaResetForm(BaseModel):
-    name: str
+class UserResetPassForm(BaseModel):
+    username: str
     old_password: str
     new_password: str
 
-    @classmethod
-    def as_form(
-        cls,
-        username: str = Form(...),
-        old_password: str = Form(...),
-        new_password: str = Form(...),
-    ):
-        return cls(
-            name=username,
-            old_password=old_password,
-            new_password=new_password,
-        )
 
-
-class UserSchemaCreateForm(UserSchemaBase):
+class UserCreateForm(BaseModel):
+    username: str
     password: str
-
-    @classmethod
-    def as_form(
-        cls,
-        email: EmailStr = Form(...),
-        username: str = Form(...),
-        password: str = Form(...),
-    ):
-        return cls(
-            name=username,
-            email=email,
-            password=password,
-        )
+    email: EmailStr

@@ -22,7 +22,7 @@ class User(Base):
     __tablename__ = "users"
 
     id = Col(Integer, primary_key=True)
-    name = Col(String, unique=True, nullable=False)
+    username = Col(String, unique=True, nullable=False)
     email = Col(String, nullable=True)
     hashed_password = Col(String, nullable=False)
     fullname = Col(String, nullable=True)
@@ -46,7 +46,7 @@ class User(Base):
     async def get_by_name(cls, session: AsyncSession, name: str) -> Self | None:
         try:
             return (
-                (await session.execute(select(cls).where(cls.name == name)))
+                (await session.execute(select(cls).where(cls.username == name)))
                 .scalars()
                 .first()
             )
