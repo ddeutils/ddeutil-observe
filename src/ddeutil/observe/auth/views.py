@@ -26,11 +26,11 @@ from .securities import create_access_token
 auth = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@auth.get("/register", response_class=HTMLResponse)
+@auth.get("/register")
 def register(
     request: Request,
     template: Jinja2Templates = Depends(get_templates),
-):
+) -> HTMLResponse:
     return template.TemplateResponse(
         request=request,
         name="auth/authenticate.html",
@@ -50,11 +50,11 @@ async def register(
     return {}
 
 
-@auth.get("/login", response_class=HTMLResponse)
+@auth.get("/login")
 async def login(
     request: Request,
     templates: Jinja2Templates = Depends(get_templates),
-):
+) -> HTMLResponse:
     return templates.TemplateResponse(
         request=request,
         name="auth/authenticate.html",

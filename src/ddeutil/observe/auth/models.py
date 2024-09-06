@@ -122,6 +122,11 @@ class Token(Base):
         server_default=text("current_timestamp"),
     )
 
+    user = relationship(
+        "User",
+        back_populates="tokens",
+    )
+
 
 class TokenBlacklist(Base):
     __tablename__ = "token_blacklists"

@@ -12,8 +12,9 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from sqlalchemy.exc import OperationalError
 
 from .__about__ import __version__
 from .auth import api_auth, auth
@@ -59,6 +60,14 @@ async def add_process_time_header(request: Request, call_next):
     return response
 
 
+@app.exception_handler(OperationalError)
+async def sqlalchemy_exception_handler(_: Request, exc):
+    return PlainTextResponse(
+        str(exc.detail),
+        status_code=exc.status_code,
+    )
+
+
 # NOTE: Authentication
 app.include_router(api_auth, prefix="/api/v1")
 app.include_router(auth)
@@ -73,5 +82,5 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/")
 async def home(request: Request):
     return RedirectResponse(
-        request.url_for("read_workflows"), status_code=st.HTTP_303_SEE_OTHER
+        request.url_for("login"), status_code=st.HTTP_303_SEE_OTHER
     )
