@@ -33,7 +33,7 @@ def register(
 ):
     return template.TemplateResponse(
         request=request,
-        name="auth/index.html",
+        name="auth/authenticate.html",
         context={"content": "register"},
     )
 
@@ -57,7 +57,7 @@ async def login(
 ):
     return templates.TemplateResponse(
         request=request,
-        name="auth/index.html",
+        name="auth/authenticate.html",
         context={"request": request, "content": "login"},
     )
 
@@ -93,9 +93,20 @@ async def login(
         expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         httponly=True,
     )
+    # response.set_cookie(
+    #     key="refresh_token",
+    #     value=refresh_token,
+    #     httponly=True,
+    #     secure=True,
+    #     samesite="Lax",
+    #     max_age=max_age,
+    # )
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
-    return {}
+    return {
+        "access_token": access_token,
+        "exp": access_token_expires,
+    }
 
 
 @auth.post("/change-password")

@@ -134,7 +134,9 @@ def get_log(session: Session, run_id: str) -> models.WorkflowLogs:
 class WorkflowsCRUD(BaseCRUD):
 
     async def get_all(
-        self, skip: int = 0, limit: int = 100
+        self,
+        skip: int = 0,
+        limit: int = 100,
     ) -> AsyncIterator[schemas.Workflow]:
         async for wf in models.Workflows.get_all(
             self.async_session,

@@ -16,4 +16,4 @@ api_router.include_router(workflow_api)
 
 @api_router.get("/", tags=["api"])
 async def health():
-    return {"message": "Standby ..."}
+    return {"message": "Observe Application Standby ..."}

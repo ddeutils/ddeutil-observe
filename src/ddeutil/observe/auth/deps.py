@@ -49,7 +49,9 @@ async def get_current_user(
         raise credentials_exception from None
 
     if not (
-        user := await models.User.get_by_name(session, name=token_data.username)
+        user := await models.User.get_by_username(
+            session, username=token_data.username
+        )
     ):
         raise credentials_exception
 

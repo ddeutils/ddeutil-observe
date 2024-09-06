@@ -6,13 +6,14 @@
 from __future__ import annotations
 
 from datetime import datetime
-from uuid import uuid4
+from uuid import UUID, uuid4
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped, relationship, selectinload
 from sqlalchemy.sql import select
-from sqlalchemy.types import Boolean, DateTime, Integer, String
+from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ..db import Base, Col
@@ -21,13 +22,39 @@ from ..db import Base, Col
 class User(Base):
     __tablename__ = "users"
 
-    id = Col(Integer, primary_key=True)
-    username = Col(String, unique=True, nullable=False)
+    id = Col(Integer, primary_key=True, index=True)
+    username = Col(String, unique=True, nullable=False, index=True)
     email = Col(String, nullable=True)
     hashed_password = Col(String, nullable=False)
+
     fullname = Col(String, nullable=True)
-    is_active = Col(Boolean, default=True)
-    is_superuser = Col(Boolean, default=False)
+
+    is_verified: Mapped[bool] = Col(Boolean, default=False)
+    is_active: Mapped[bool] = Col(Boolean, default=True)
+    is_superuser: Mapped[bool] = Col(Boolean, default=False)
+    profile_image_url: Mapped[str] = Col(
+        String,
+        default="https://profileimageurl.com",
+    )
+    uuid: Mapped[UUID] = Col(
+        UUID,
+        default=uuid4,
+        primary_key=True,
+        unique=True,
+    )
+
+    created_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
+    updated_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
+    deleted_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
+
+    tokens = relationship(
+        "Token",
+        back_populates="user",
+        order_by="Token.created_at",
+        cascade=(
+            "save-update, merge, refresh-expire, expunge, delete, delete-orphan"
+        ),
+    )
 
     @classmethod
     async def create(
@@ -43,15 +70,17 @@ class User(Base):
         return transaction
 
     @classmethod
-    async def get_by_name(cls, session: AsyncSession, name: str) -> Self | None:
-        try:
-            return (
-                (await session.execute(select(cls).where(cls.username == name)))
-                .scalars()
-                .first()
-            )
-        except NoResultFound:
-            return None
+    async def get_by_username(
+        cls,
+        session: AsyncSession,
+        username: str,
+        *,
+        include_tokens: bool = False,
+    ) -> Self | None:
+        stmt = select(cls).where(cls.username == username)
+        if include_tokens:
+            stmt = stmt.options(selectinload(cls.tokens))
+        return (await session.execute(stmt)).scalar_one_or_none()
 
     @classmethod
     async def get_by_email(
@@ -80,7 +109,47 @@ class Token(Base):
     access_token = Col(String(450), primary_key=True)
     refresh_token = Col(String(450), nullable=False)
     status = Col(Boolean, default=True)
-    created_date = Col(DateTime, default=datetime.now)
+
+    created_at: Mapped[datetime] = Col(
+        DateTime,
+        default=datetime.now,
+        server_default=text("current_timestamp"),
+    )
+    updated_at: Mapped[datetime] = Col(
+        DateTime,
+        nullable=True,
+        onupdate=datetime.now,
+        server_default=text("current_timestamp"),
+    )
+
+
+class TokenBlacklist(Base):
+    __tablename__ = "token_blacklists"
+
+    id: Mapped[int] = Col(
+        Integer,
+        primary_key=True,
+    )
+    token: Mapped[str] = Col(String, unique=True, index=True)
+    expires_at: Mapped[datetime] = Col(DateTime)
+
+    @classmethod
+    async def get(cls, session: AsyncSession, token: str) -> Self | None:
+        return (
+            await session.execute(select(cls).where(cls.token == token))
+        ).scalar_one_or_none()
+
+    @classmethod
+    async def create(
+        cls,
+        session: AsyncSession,
+        **kwargs,
+    ):
+        transaction = cls(**kwargs)
+        session.add(transaction)
+        await session.commit()
+        await session.refresh(transaction)
+        return transaction
 
 
 class Group(Base):

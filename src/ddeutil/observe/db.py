@@ -80,7 +80,7 @@ SessionLocal = sessionmaker(
 )
 
 
-class DatabaseSessionManager:
+class DBSessionManager:
     def __init__(self):
         self._engine: AsyncEngine | None = None
         self._sessionmaker: async_sessionmaker | None = None
@@ -145,10 +145,10 @@ class DatabaseSessionManager:
         await connection.run_sync(Base.metadata.drop_all)
 
 
-sessionmanager = DatabaseSessionManager()
+sessionmanager = DBSessionManager()
 
 
-DB_INDEXES_NAMING_CONVENTION = {
+DB_INDEXES_NAMING_CONVENTION: dict[str, str] = {
     "ix": "%(column_0_label)s_idx",
     "uq": "%(table_name)s_%(column_0_name)s_key",
     "ck": "%(table_name)s_%(constraint_name)s_check",
@@ -163,6 +163,7 @@ DB_INDEXES_NAMING_CONVENTION = {
 #   advantage of the AsyncAttrs mixin.
 #   Read more: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html -
 #       #preventing-implicit-io-when-using-asyncsession
+#
 class Base(AsyncAttrs, DeclarativeBase):
     __abstract__ = True
 

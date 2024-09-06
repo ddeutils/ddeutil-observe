@@ -25,8 +25,6 @@ class TokenRefreshCreate(TokenRefresh):
 
 
 class TokenRefreshForm(BaseModel):
-    username: str
-    password: str
     refresh_token: str
 
 
