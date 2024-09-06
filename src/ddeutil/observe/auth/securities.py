@@ -6,13 +6,13 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
+import bcrypt
 import jwt
 from fastapi import Depends, HTTPException, Request, Security
 from fastapi import status as st
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from fastapi.security.utils import get_authorization_scheme_param
 from jwt.exceptions import InvalidTokenError
-from passlib.context import CryptContext
 from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -21,7 +21,6 @@ from ..deps import get_async_session
 from . import models
 from .schemas import TokenData
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
@@ -99,11 +98,11 @@ def create_refresh_token(
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
 
 async def get_current_user(

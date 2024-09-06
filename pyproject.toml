@@ -36,7 +36,6 @@ dependencies = [
     "email-validator==2.2.0",
 
     # Auth Security.
-    "passlib==1.7.4",
     "pyjwt==2.9.0",
     "bcrypt==3.2.2",
 ]
