@@ -5,7 +5,6 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from datetime import timedelta
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -13,15 +12,20 @@ from fastapi import status as st
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..conf import config
 from ..deps import get_async_session
 from . import models
-from .crud import authenticate
+from .crud import authenticate, create_token
 from .schemas import (
-    Token,
+    TokenRefresh,
+    TokenRefreshCreate,
+    TokenRefreshForm,
     UserSchema,
 )
-from .securities import create_access_token, get_current_active_user
+from .securities import (
+    create_access_token,
+    create_refresh_token,
+    get_current_active_user,
+)
 
 auth = APIRouter(prefix="/auth", tags=["api", "auth"])
 
@@ -40,10 +44,10 @@ async def read_user_all(session: AsyncSession = Depends(get_async_session)):
 
 
 @auth.post("/token")
-async def login_for_access_token(
+async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
-) -> Token:
+) -> TokenRefresh:
     user = await authenticate(
         session,
         name=form_data.username,
@@ -55,15 +59,38 @@ async def login_for_access_token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        subject={
-            "sub": user.name,
-            "scopes": form_data.scopes,
-        },
-        expires_delta=access_token_expires,
+        subject={"sub": user.name, "scopes": form_data.scopes}
     )
-    return Token(access_token=access_token, token_type="bearer")
+    refresh_token = create_refresh_token(
+        subject={"sub": user.name, "scopes": form_data.scopes}
+    )
+    return await create_token(
+        session=session,
+        token_create=TokenRefreshCreate(
+            user_id=user.id,
+            access_token=access_token,
+            refresh_token=refresh_token,
+        ),
+    )
+
+
+@auth.post("/refresh")
+async def refresh(
+    form_refresh: TokenRefreshForm = Depends(TokenRefreshForm.as_form),
+    session: AsyncSession = Depends(get_async_session),
+) -> TokenRefresh:
+    user = await authenticate(
+        session,
+        name=form_refresh.username,
+        password=form_refresh.password,
+    )
+    if not user:
+        raise HTTPException(
+            status_code=st.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 @auth.get("/token/me/", response_model=UserSchema)

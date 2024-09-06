@@ -60,7 +60,7 @@ def initial_db(db_path: Path | None = None):
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
     ]:
-        create_workflow(db=db, workflow=wf)
+        create_workflow(session=db, workflow=wf)
 
     for data in [
         ReleaseLogCreate(

@@ -9,11 +9,12 @@ from typing import Optional
 
 from fastapi import HTTPException
 from fastapi import status as st
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
 from ..crud import BaseCRUD
-from .models import User
-from .schemas import UserSchema, UserSchemaCreateForm
+from .models import Token, User
+from .schemas import TokenRefreshCreate, UserSchema, UserSchemaCreateForm
 from .securities import get_password_hash, verify_password
 
 
@@ -27,6 +28,23 @@ async def authenticate(
             user if verify_password(password, user.hashed_password) else False
         )
     return False
+
+
+async def create_token(
+    session: AsyncSession,
+    token_create: TokenRefreshCreate,
+):
+    tk = Token(
+        user_id=token_create.user_id,
+        access_token=token_create.access_token,
+        refresh_token=token_create.refresh_token,
+        status=token_create.status,
+    )
+    session.add(tk)
+    await session.flush()
+    await session.commit()
+    await session.refresh(tk)
+    return tk
 
 
 class CreateUser(BaseCRUD):

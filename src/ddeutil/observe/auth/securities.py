@@ -4,7 +4,7 @@
 # license information.
 # ------------------------------------------------------------------------------
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any, Optional, Union
+from typing import Any, Optional, Union
 
 import jwt
 from fastapi import Depends, HTTPException, Request, Security
@@ -31,7 +31,7 @@ class OAuth2PasswordBearerCookie(OAuth2PasswordBearer):
     #   `from __future__ import annotations` on above script file.
     async def __call__(self, request: Request) -> Optional[str]:
         if request.headers.get("Authorization"):
-            return super().__call__(request)
+            return await super().__call__(request)
 
         authorization: str = request.cookies.get("access_token")
         scheme, param = get_authorization_scheme_param(authorization)
@@ -62,9 +62,9 @@ def create_access_token(
     expires_delta: Union[timedelta, None] = None,
 ) -> str:
     if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
+        expire: datetime = datetime.now(timezone.utc) + expires_delta
     else:
-        expire = datetime.now(timezone.utc) + timedelta(
+        expire: datetime = datetime.now(timezone.utc) + timedelta(
             minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
@@ -73,7 +73,29 @@ def create_access_token(
         to_encode.update({"exp": expire})
     else:
         to_encode = {"exp": expire, "sub": str(subject)}
+
     return jwt.encode(to_encode, config.OBSERVE_SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(
+    subject: Union[str, Any], expires_delta: Union[timedelta, None] = None
+) -> str:
+    if expires_delta:
+        expire: datetime = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire: datetime = datetime.now(timezone.utc) + timedelta(
+            minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES
+        )
+
+    if isinstance(subject, dict):
+        to_encode = subject.copy()
+        to_encode.update({"exp": expire})
+    else:
+        to_encode = {"exp": expire, "sub": str(subject)}
+
+    return jwt.encode(
+        to_encode, config.OBSERVE_REFRESH_SECRET_KEY, algorithm=ALGORITHM
+    )
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -86,10 +108,9 @@ def get_password_hash(password: str) -> str:
 
 async def get_current_user(
     security_scopes: SecurityScopes,
-    token: Annotated[str, Depends(oauth2_scheme)],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(get_async_session),
 ):
-    print(token)
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -129,10 +150,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: Annotated[
-        models.User,
-        Security(get_current_user, scopes=["me"]),
-    ],
+    current_user: models.User = Security(get_current_user, scopes=["me"]),
 ):
     if not current_user.is_active:
         raise HTTPException(

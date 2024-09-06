@@ -5,13 +5,14 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import select
-from sqlalchemy.types import Boolean, Integer, String
+from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ..db import Base, Col
@@ -70,6 +71,16 @@ class User(Base):
     @classmethod
     async def get_all(cls, session: AsyncSession) -> list[Self]:
         return (await session.execute(select(cls))).scalars().all()
+
+
+class Token(Base):
+    __tablename__ = "tokens"
+
+    user_id = Col(Integer, ForeignKey("users.id"))
+    access_token = Col(String(450), primary_key=True)
+    refresh_token = Col(String(450), nullable=False)
+    status = Col(Boolean, default=True)
+    created_date = Col(DateTime, default=datetime.now)
 
 
 class Group(Base):

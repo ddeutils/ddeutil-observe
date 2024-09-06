@@ -38,7 +38,7 @@ def event_loop(request):
 @pytest.fixture(scope="session")
 def setup_db() -> Iterator[None]:
     engine = create_engine(
-        f"sqlite:///{Path(__file__).parent.parent / 'observe.db'}",
+        f"sqlite:///{Path(__file__).parent.parent / 'observe.test.db'}",
         connect_args={"check_same_thread": False},
     )
 
