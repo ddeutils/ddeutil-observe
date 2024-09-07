@@ -1,3 +1,3 @@
 from .policies import Tier
-from .token import Token, TokenBlacklist
+from .token import Token
 from .user import User

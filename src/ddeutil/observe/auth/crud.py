@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 
 from ..conf import config
 from ..crud import BaseCRUD
-from .models import Token, TokenBlacklist, User
+from .models import Token, User
 from .schemas import TokenData, TokenRefreshCreate, UserCreateForm, UserSchema
 from .securities import ALGORITHM, get_password_hash, verify_password
 
@@ -92,7 +92,7 @@ class UserCRUD(BaseCRUD):
 
 
 async def verify_token(token: str, session: AsyncSession) -> TokenData | None:
-    if await TokenBlacklist.get(session, token=token):
+    if await Token.get(session, token=token):
         return None
 
     try:
@@ -111,7 +111,7 @@ async def add_blacklist_token(token: str, session: AsyncSession) -> None:
         token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
     )
     expires_at = datetime.fromtimestamp(payload.get("exp"))
-    await TokenBlacklist.create(
+    await Token.create(
         session,
         **{"token": token, "expires_at": expires_at},
     )

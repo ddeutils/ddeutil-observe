@@ -53,7 +53,7 @@ async def token(
     session: AsyncSession = Depends(get_async_session),
 ) -> TokenRefresh:
     if form_data.grant_type == "password":
-        logger.info("With password authenticate")
+        logger.debug("Authentication with user-password")
 
     user = await authenticate(
         session,
