@@ -11,45 +11,45 @@ from uuid import UUID, uuid4
 from sqlalchemy import text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, relationship, selectinload
+from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.sql import select
 from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from ...db import Base, Col
+from ...db import Base, Col, Dtype
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = Col(Integer, primary_key=True, index=True)
-    username = Col(String, unique=True, nullable=False, index=True)
-    email = Col(String, nullable=True)
-    hashed_password = Col(String, nullable=False)
+    id: Dtype[int] = Col(Integer, primary_key=True, index=True)
+    username: Dtype[str] = Col(
+        String(64), unique=True, nullable=False, index=True
+    )
+    fullname = Col(String(256), nullable=True)
+    email: Dtype[str] = Col(String(128), nullable=True)
+    hashed_password: Dtype[str] = Col(String, nullable=False)
 
-    fullname = Col(String, nullable=True)
-
-    is_verified: Mapped[bool] = Col(Boolean, default=False)
-    is_active: Mapped[bool] = Col(Boolean, default=True)
-    is_superuser: Mapped[bool] = Col(Boolean, default=False)
-    profile_image_url: Mapped[str] = Col(
+    is_verified: Dtype[bool] = Col(Boolean, default=False)
+    is_active: Dtype[bool] = Col(Boolean, default=True)
+    is_superuser: Dtype[bool] = Col(Boolean, default=False)
+    profile_image_url: Dtype[str] = Col(
         String, default="https://profileimageurl.com"
     )
-    uuid: Mapped[UUID] = Col(
+    uuid: Dtype[UUID] = Col(
         UUID,
         default=uuid4,
-        primary_key=True,
         unique=True,
     )
 
-    created_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
-    updated_at: Mapped[datetime] = Col(
+    created_at: Dtype[datetime] = Col(DateTime, default=datetime.now)
+    updated_at: Dtype[datetime] = Col(
         DateTime,
         nullable=True,
         onupdate=datetime.now,
         server_default=text("current_timestamp"),
     )
-    deleted_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
+    deleted_at: Dtype[datetime] = Col(DateTime, default=datetime.now)
 
     tokens = relationship(
         "Token",

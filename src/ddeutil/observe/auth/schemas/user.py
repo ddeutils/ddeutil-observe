@@ -5,7 +5,8 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import Optional
+from datetime import datetime
+from typing import Annotated, Optional
 
 from fastapi import Form
 from pydantic import BaseModel, ConfigDict, EmailStr
@@ -13,32 +14,41 @@ from pydantic import BaseModel, ConfigDict, EmailStr
 
 class UserSchemaBase(BaseModel):
     username: str
-    email: Optional[str] = None
+
+
+class UserDetailSchema(UserSchemaBase):
+    email: EmailStr
     fullname: Optional[str] = None
 
 
-class UserSchemaCreate(UserSchemaBase): ...
-
-
-class UserSchema(UserSchemaBase):
+class UserSchema(UserDetailSchema):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    is_verified: bool
     is_active: bool
     is_superuser: bool
+    created_at: datetime
 
 
-class UserResetPassForm(BaseModel):
+class UserResetPassForm(UserSchemaBase):
     username: str
     old_password: str
     new_password: str
 
 
-class UserCreateForm(BaseModel):
-    username: str
+class UserCreateForm(UserDetailSchema):
     password: str
-    email: EmailStr
-    fullname: Optional[str] = None
+
+    # TODO: Move this validation step to client side.
+    # @field_validator('password', mode='before')
+    # def validate_strong_password(cls, value: str) -> str:
+    #     if re.match(
+    #         r'((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,64})',
+    #         value,
+    #     ):
+    #         return value
+    #     raise ValueError("Password does not strong")
 
 
 class UserScopeForm(BaseModel):
@@ -48,17 +58,18 @@ class UserScopeForm(BaseModel):
     @classmethod
     def as_form(
         cls,
-        scopes_me: bool = Form(default=False),
-        scopes_workflows: bool = Form(default=False),
+        scopes_me: Annotated[bool, Form()] = False,
+        scopes_workflows: Annotated[bool, Form()] = False,
     ):
         return cls(
             scopes_me=scopes_me,
             scopes_workflows=scopes_workflows,
         )
 
+    @property
     def scopes(self) -> list[str]:
-        rs: list[str] = []
-        for sc in self.__dict__:
-            if sc.startswith("scopes_") and self.__dict__[sc]:
-                rs.append(sc.split("_", maxsplit=1)[-1])
-        return rs
+        return [
+            sc.split("_", maxsplit=1)[-1]
+            for sc in self.__dict__
+            if sc.startswith("scopes_") and self.__dict__[sc]
+        ]

@@ -69,7 +69,7 @@ async def login(
 async def login(
     response: Response,
     session: AsyncSession = Depends(get_async_session),
-    scopes_data: UserScopeForm = Depends(UserScopeForm.as_form),
+    form_scopes: UserScopeForm = Depends(UserScopeForm.as_form),
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ):
     user = await authenticate(
@@ -87,7 +87,7 @@ async def login(
         # NOTE: OAuth2 with scopes such as `["me", ...]`.
         subject={
             "sub": user.username,
-            "scopes": scopes_data.scopes(),
+            "scopes": form_scopes.scopes,
         },
         expires_delta=access_token_expires,
     )

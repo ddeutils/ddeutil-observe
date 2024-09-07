@@ -64,7 +64,7 @@ async def add_process_time_header(request: Request, call_next):
 async def sqlalchemy_exception_handler(_: Request, exc):
     return PlainTextResponse(
         str(exc.detail),
-        status_code=exc.status_code,
+        status_code=st.HTTP_500_INTERNAL_SERVER_ERROR,
     )
 
 
