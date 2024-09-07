@@ -5,6 +5,8 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from typing import Optional
+
 import jwt
 from fastapi import Depends, HTTPException, Security
 from fastapi import status as st
@@ -21,8 +23,8 @@ from .securities import ALGORITHM, oauth2_scheme
 
 
 async def get_current_access_token(
-    token: str | None = Depends(oauth2_scheme),
-) -> str | None:
+    token: Optional[str] = Depends(oauth2_scheme),
+) -> Optional[str]:
     return token
 
 

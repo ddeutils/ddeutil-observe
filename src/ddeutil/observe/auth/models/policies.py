@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Optional
 
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
@@ -24,10 +25,10 @@ class Tier(Base):
         default=datetime.now,
         nullable=False,
     )
-    updated_at: Mapped[datetime | None] = Col(
+    updated_at: Mapped[Optional[datetime]] = Col(
         DateTime(timezone=True),
         default=None,
-        nulable=True,
+        nullable=True,
     )
 
 

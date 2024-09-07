@@ -8,6 +8,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import UUID, uuid4
 
+from sqlalchemy import text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, relationship, selectinload
@@ -32,8 +33,7 @@ class User(Base):
     is_active: Mapped[bool] = Col(Boolean, default=True)
     is_superuser: Mapped[bool] = Col(Boolean, default=False)
     profile_image_url: Mapped[str] = Col(
-        String,
-        default="https://profileimageurl.com",
+        String, default="https://profileimageurl.com"
     )
     uuid: Mapped[UUID] = Col(
         UUID,
@@ -43,7 +43,12 @@ class User(Base):
     )
 
     created_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
-    updated_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
+    updated_at: Mapped[datetime] = Col(
+        DateTime,
+        nullable=True,
+        onupdate=datetime.now,
+        server_default=text("current_timestamp"),
+    )
     deleted_at: Mapped[datetime] = Col(DateTime, default=datetime.now)
 
     tokens = relationship(

@@ -21,10 +21,11 @@ class Token(Base):
     __tablename__ = "tokens"
 
     id: Mapped[int] = Col(Integer, primary_key=True)
-    user_id = Col(Integer, ForeignKey("users.id"))
     access_token = Col(String(450), primary_key=True)
     refresh_token = Col(String(450), nullable=False)
     status = Col(Boolean, default=True)
+
+    user_id = Col(Integer, ForeignKey("users.id"))
 
     expires_at: Mapped[datetime] = Col(DateTime)
     created_at: Mapped[datetime] = Col(
@@ -44,21 +45,10 @@ class Token(Base):
         back_populates="tokens",
     )
 
-
-class TokenBlacklist(Base):
-    __tablename__ = "token_blacklists"
-
-    id: Mapped[int] = Col(
-        Integer,
-        primary_key=True,
-    )
-    token: Mapped[str] = Col(String, unique=True, index=True)
-    expires_at: Mapped[datetime] = Col(DateTime)
-
     @classmethod
     async def get(cls, session: AsyncSession, token: str) -> Self | None:
         return (
-            await session.execute(select(cls).where(cls.token == token))
+            await session.execute(select(cls).where(cls.access_token == token))
         ).scalar_one_or_none()
 
     @classmethod
