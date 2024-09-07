@@ -28,6 +28,6 @@ class TokenRefreshForm(BaseModel):
     refresh_token: str
 
 
-class TokenData(BaseModel):
+class TokenDataSchema(BaseModel):
     username: Union[str, None] = None
     scopes: list[str] = []

@@ -6,26 +6,30 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Union
 
 import jwt
 from fastapi import HTTPException
 from fastapi import status as st
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
 from ..conf import config
 from ..crud import BaseCRUD
 from .models import Token, User
-from .schemas import TokenData, TokenRefreshCreate, UserCreateForm, UserSchema
+from .schemas import (
+    TokenDataSchema,
+    TokenRefreshCreate,
+    UserCreateForm,
+    UserSchema,
+)
 from .securities import ALGORITHM, get_password_hash, verify_password
 
 
 async def authenticate(
-    session: Session,
+    session: AsyncSession,
     name: str,
     password: str,
-) -> Optional[User]:
+) -> Union[User, bool]:
     if user := await User.get_by_username(session, username=name):
         return (
             user if verify_password(password, user.hashed_password) else False
@@ -33,26 +37,20 @@ async def authenticate(
     return False
 
 
-async def create_token(
-    session: AsyncSession,
-    token_create: TokenRefreshCreate,
-):
-    tk = Token(
-        user_id=token_create.user_id,
-        access_token=token_create.access_token,
-        refresh_token=token_create.refresh_token,
-        status=token_create.status,
-    )
-    session.add(tk)
-    await session.flush()
-    await session.commit()
-    await session.refresh(tk)
-    return tk
-
-
 class TokenCRUD(BaseCRUD):
 
-    async def create(self, token: TokenRefreshCreate): ...
+    async def create(self, token: TokenRefreshCreate):
+        db_token = Token(
+            user_id=token.user_id,
+            access_token=token.access_token,
+            refresh_token=token.refresh_token,
+            status=token.status,
+        )
+        self.async_session.add(db_token)
+        await self.async_session.flush()
+        await self.async_session.commit()
+        await self.async_session.refresh(db_token)
+        return db_token
 
 
 class UserCRUD(BaseCRUD):
@@ -64,12 +62,12 @@ class UserCRUD(BaseCRUD):
             raise HTTPException(status_code=st.HTTP_409_CONFLICT)
 
         hashed_password = get_password_hash(user.password)
-        _user_create: User = User(
+        db_user: User = User(
             email=user.email,
             username=user.username,
             hashed_password=hashed_password,
         )
-        self.async_session.add(_user_create)
+        self.async_session.add(db_user)
 
         # `flush`, communicates a series of operations to the database
         # (insert, update, delete). The database maintains them as pending
@@ -87,11 +85,14 @@ class UserCRUD(BaseCRUD):
 
         # NOTE: persisted some changes for an object to the database and
         # need to use this updated object within the same method.
-        await self.async_session.refresh(_user_create)
-        return UserSchema.model_validate(_user_create)
+        await self.async_session.refresh(db_user)
+        return UserSchema.model_validate(db_user)
 
 
-async def verify_token(token: str, session: AsyncSession) -> TokenData | None:
+async def verify_token(
+    token: str,
+    session: AsyncSession,
+) -> TokenDataSchema | None:
     if await Token.get(session, token=token):
         return None
 
@@ -100,7 +101,7 @@ async def verify_token(token: str, session: AsyncSession) -> TokenData | None:
             token, config.OBSERVE_REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
         )
         if username := payload.get("sub"):
-            return TokenData(username=username)
+            return TokenDataSchema(username=username)
         return None
     except jwt.InvalidTokenError:
         return None

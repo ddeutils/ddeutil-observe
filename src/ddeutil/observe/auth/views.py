@@ -84,9 +84,9 @@ async def login(
 
     access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
+        # NOTE: OAuth2 with scopes such as `["me", ...]`.
         subject={
             "sub": user.username,
-            # NOTE: OAuth2 with scopes such as `["me", ...]`.
             "scopes": scopes_data.scopes(),
         },
         expires_delta=access_token_expires,

@@ -17,14 +17,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..conf import config
 from ..deps import get_async_session
-from . import models
-from .schemas import TokenData
+from .models import User
+from .schemas import TokenDataSchema
 from .securities import ALGORITHM, oauth2_scheme
 
 
 async def get_current_access_token(
     token: Optional[str] = Depends(oauth2_scheme),
 ) -> Optional[str]:
+    """Get the current access token."""
     return token
 
 
@@ -53,12 +54,12 @@ async def get_current_user(
             raise credentials_exception
 
         token_scopes = payload.get("scopes", [])
-        token_data = TokenData(scopes=token_scopes, username=username)
+        token_data = TokenDataSchema(scopes=token_scopes, username=username)
     except (InvalidTokenError, ValidationError):
         raise credentials_exception from None
 
     if not (
-        user := await models.User.get_by_username(
+        user := await User.get_by_username(
             session, username=token_data.username
         )
     ):
@@ -75,7 +76,7 @@ async def get_current_user(
 
 
 async def get_current_active_user(
-    current_user: models.User = Security(get_current_user, scopes=["me"]),
+    current_user: User = Security(get_current_user, scopes=["me"]),
 ):
     if not current_user.is_active:
         raise HTTPException(

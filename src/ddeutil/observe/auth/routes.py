@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi import status as st
@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..deps import get_async_session
 from ..utils import get_logger
 from . import models
-from .crud import authenticate, create_token, verify_token
+from .crud import TokenCRUD, authenticate, verify_token
 from .deps import get_current_active_user
 from .schemas import (
     Token,
@@ -51,15 +51,23 @@ async def read_user_all(
 async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
+    service: TokenCRUD = Depends(TokenCRUD),
 ) -> TokenRefresh:
     if form_data.grant_type == "password":
         logger.debug("Authentication with user-password")
-
-    user = await authenticate(
-        session,
-        name=form_data.username,
-        password=form_data.password,
-    )
+        user = await authenticate(
+            session,
+            name=form_data.username,
+            password=form_data.password,
+        )
+    else:
+        raise HTTPException(
+            status_code=st.HTTP_406_NOT_ACCEPTABLE,
+            detail=(
+                f"grant type: {form_data.grant_type} does not support for this "
+                f"application yet."
+            ),
+        )
 
     if not user:
         raise HTTPException(
@@ -67,15 +75,14 @@ async def token(
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    access_token = create_access_token(
-        subject={"sub": user.username, "scopes": form_data.scopes}
-    )
-    refresh_token = create_refresh_token(
-        subject={"sub": user.username, "scopes": form_data.scopes}
-    )
-    return await create_token(
-        session=session,
-        token_create=TokenRefreshCreate(
+    sub: dict[str, Any] = {
+        "sub": user.username,
+        "scopes": form_data.scopes,
+    }
+    access_token = create_access_token(subject=sub)
+    refresh_token = create_refresh_token(subject=sub)
+    return await service.create(
+        token=TokenRefreshCreate(
             user_id=user.id,
             access_token=access_token,
             refresh_token=refresh_token,
