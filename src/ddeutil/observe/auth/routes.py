@@ -108,4 +108,5 @@ async def refresh(
 async def read_user_me(
     current_user: Annotated[models.User, Depends(get_current_active_user)],
 ):
+    """Get current active user from the current token."""
     return current_user

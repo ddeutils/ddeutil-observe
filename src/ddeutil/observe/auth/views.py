@@ -23,7 +23,7 @@ from .models import User
 from .schemas import UserCreateForm, UserResetPassForm, UserScopeForm
 from .securities import create_access_token
 
-auth = APIRouter(prefix="/auth", tags=["auth"])
+auth = APIRouter(prefix="/auth", tags=["auth", "frontend"])
 
 
 @auth.get("/register")
@@ -44,6 +44,9 @@ async def register(
     form_user: Annotated[UserCreateForm, Form()],
     service: UserCRUD = Depends(UserCRUD),
 ):
+    """Register information of user to this application for able to access any
+    routes.
+    """
     await service.create_by_form(form_user)
     response.headers["HX-Redirect"] = "/auth/login/"
     response.status_code = st.HTTP_307_TEMPORARY_REDIRECT

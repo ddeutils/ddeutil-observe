@@ -5,33 +5,10 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import Optional, Union
+from typing import Optional
 
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
-
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str = Field(default="Bearer")
-
-
-class TokenRefresh(Token):
-    refresh_token: str
-
-
-class TokenRefreshCreate(TokenRefresh):
-    user_id: int
-    status: bool = Field(default=True)
-
-
-class TokenRefreshForm(BaseModel):
-    refresh_token: str
-
-
-class TokenData(BaseModel):
-    username: Union[str, None] = None
-    scopes: list[str] = []
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserSchemaBase(BaseModel):

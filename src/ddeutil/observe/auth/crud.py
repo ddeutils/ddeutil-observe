@@ -50,6 +50,11 @@ async def create_token(
     return tk
 
 
+class TokenCRUD(BaseCRUD):
+
+    async def create(self, token: TokenRefreshCreate): ...
+
+
 class UserCRUD(BaseCRUD):
 
     async def create_by_form(self, user: UserCreateForm) -> UserSchema:

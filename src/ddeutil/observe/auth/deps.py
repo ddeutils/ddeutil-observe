@@ -20,11 +20,18 @@ from .schemas import TokenData
 from .securities import ALGORITHM, oauth2_scheme
 
 
+async def get_current_access_token(
+    token: str | None = Depends(oauth2_scheme),
+) -> str | None:
+    return token
+
+
 async def get_current_user(
     security_scopes: SecurityScopes,
-    token: str = Depends(oauth2_scheme),
+    token: str = Depends(get_current_access_token),
     session: AsyncSession = Depends(get_async_session),
 ):
+    """Get the current user async function that will."""
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:

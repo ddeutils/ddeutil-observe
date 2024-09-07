@@ -20,13 +20,17 @@ ALGORITHM: str = "HS256"
 
 class OAuth2PasswordBearerCookie(OAuth2PasswordBearer):
 
-    # NOTE: it will raise Request does not exists when use
+    # IMPORTANT: it will raise Request does not exists when use
     #   `from __future__ import annotations` on above script file.
     async def __call__(self, request: Request) -> Optional[str]:
+
+        # NOTE: if the header has authorization key, it will use this value with
+        #   the first priority.
         if request.headers.get("Authorization"):
             return await super().__call__(request)
 
-        authorization: str = request.cookies.get("access_token")
+        # NOTE: get authorization key from the cookie.
+        authorization: Optional[str] = request.cookies.get("access_token")
         scheme, param = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
             if self.auto_error:
@@ -44,7 +48,7 @@ oauth2_scheme = OAuth2PasswordBearerCookie(
     tokenUrl="api/v1/auth/token",
     scopes={
         "me": "Read information about the current user.",
-        "workflows": "Read items.",
+        "workflows": "Read workflows and release logging.",
     },
     auto_error=False,
 )
