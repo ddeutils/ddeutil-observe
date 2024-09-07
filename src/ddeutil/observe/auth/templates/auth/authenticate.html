@@ -7,6 +7,8 @@
         <div>
         {% if content == 'login' %}
             {% include 'auth/partials/login.html' with context %}
+        {% elif content == 'change-password' %}
+            {% include 'auth/partials/change-password.html' with context %}
         {% else %}
             {% include 'auth/partials/register.html' with context %}
         {% endif %}

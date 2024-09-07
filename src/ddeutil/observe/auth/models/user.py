@@ -22,9 +22,16 @@ from ...db import Base, Col, Dtype
 class User(Base):
     __tablename__ = "users"
 
-    id: Dtype[int] = Col(Integer, primary_key=True, index=True)
+    id: Dtype[int] = Col(
+        Integer,
+        primary_key=True,
+        index=True,
+    )
     username: Dtype[str] = Col(
-        String(64), unique=True, nullable=False, index=True
+        String(64),
+        unique=True,
+        nullable=False,
+        index=True,
     )
     fullname = Col(String(256), nullable=True)
     email: Dtype[str] = Col(String(128), nullable=True)

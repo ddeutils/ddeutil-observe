@@ -20,6 +20,7 @@ from .schemas import (
     TokenDataSchema,
     TokenRefreshCreate,
     UserCreateForm,
+    UserResetPassForm,
     UserSchema,
 )
 from .securities import ALGORITHM, get_password_hash, verify_password
@@ -54,6 +55,26 @@ class TokenCRUD(BaseCRUD):
 
 
 class UserCRUD(BaseCRUD):
+
+    async def change_password(self, user: UserResetPassForm) -> UserSchema:
+        db_user = await authenticate(
+            self.async_session,
+            name=user.username,
+            password=user.old_password,
+        )
+        if db_user is None:
+            raise HTTPException(
+                status_code=st.HTTP_400_BAD_REQUEST,
+                detail="User not found with old password",
+            )
+
+        encrypted_password = get_password_hash(user.new_password)
+        db_user.password = encrypted_password
+        await self.async_session.flush()
+        await self.async_session.commit()
+        await self.async_session.refresh(db_user)
+
+        return UserSchema.model_validate(db_user)
 
     async def create_by_form(self, user: UserCreateForm) -> UserSchema:
         # NOTE: Validate by username value. By default, this will validate

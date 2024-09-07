@@ -5,10 +5,9 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Union
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi import status as st
 from fastapi.responses import HTMLResponse, Response
 from fastapi.security import OAuth2PasswordRequestForm
@@ -21,7 +20,7 @@ from .crud import UserCRUD, authenticate
 from .deps import get_current_active_user
 from .models import User
 from .schemas import UserCreateForm, UserResetPassForm, UserScopeForm
-from .securities import create_access_token
+from .securities import create_access_token, create_refresh_token
 
 auth = APIRouter(prefix="/auth", tags=["auth", "frontend"])
 
@@ -72,7 +71,7 @@ async def login(
     form_scopes: UserScopeForm = Depends(UserScopeForm.as_form),
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
 ):
-    user = await authenticate(
+    user: Union[User, bool] = await authenticate(
         session,
         name=form_data.username,
         password=form_data.password,
@@ -82,63 +81,63 @@ async def login(
         response.status_code = st.HTTP_404_NOT_FOUND
         return {}
 
-    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    # NOTE: OAuth2 with scopes such as `["me", ...]`.
     access_token = create_access_token(
-        # NOTE: OAuth2 with scopes such as `["me", ...]`.
         subject={
             "sub": user.username,
             "scopes": form_scopes.scopes,
         },
-        expires_delta=access_token_expires,
     )
+    refresh_token = create_refresh_token(
+        subject={
+            "sub": user.username,
+            "scopes": form_scopes.scopes,
+        },
+    )
+
+    # NOTE: Set cookies for access token and refresh token.
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
         expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         httponly=True,
     )
-    # response.set_cookie(
-    #     key="refresh_token",
-    #     value=refresh_token,
-    #     httponly=True,
-    #     secure=True,
-    #     samesite="Lax",
-    #     max_age=max_age,
-    # )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+    )
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
     return {
         "access_token": access_token,
-        "exp": access_token_expires,
+        "exp": config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "token_type": "Bearer",
     }
+
+
+@auth.get("/change-password")
+async def change_password(
+    request: Request,
+    templates: Jinja2Templates = Depends(get_templates),
+) -> HTMLResponse:
+    return templates.TemplateResponse(
+        request=request,
+        name="auth/authenticate.html",
+        context={"request": request, "content": "change-password"},
+    )
 
 
 @auth.post("/change-password")
 async def change_password(
     response: Response,
     form_data: Annotated[UserResetPassForm, Depends()],
-    session: AsyncSession = Depends(get_async_session),
+    service: UserCRUD = Depends(UserCRUD),
 ):
-    user = await authenticate(
-        session,
-        name=form_data.username,
-        password=form_data.old_password,
-    )
-    if user is None:
-        raise HTTPException(
-            status_code=st.HTTP_400_BAD_REQUEST,
-            detail="User not found",
-        )
-
-    # if not verify_password(form_data.old_password, user.password):
-    #     raise HTTPException(
-    #         status_code=st.HTTP_400_BAD_REQUEST,
-    #         detail="Invalid old password"
-    #     )
-    #
-    # encrypted_password = get_hashed_password(form_data.new_password)
-    # user.password = encrypted_password
-    await session.commit()
+    await service.change_password(form_data)
 
     response.headers["HX-Redirect"] = "/auth/login"
     response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
@@ -172,10 +171,17 @@ async def logout(
     #     db.add(existing_token)
     #     db.commit()
     #     db.refresh(existing_token)
+
+    # NOTE: Delete cookies for access token and refresh token.
     response.delete_cookie(
         key="access_token",
         httponly=True,
     )
+    response.delete_cookie(
+        key="refresh_token",
+        httponly=True,
+    )
+
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
     return {"message": "Logout Successfully"}
