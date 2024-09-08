@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Union
 
 from pydantic import BaseModel, Field
@@ -21,6 +22,7 @@ class TokenRefresh(Token):
 
 class TokenRefreshCreate(TokenRefresh):
     user_id: int
+    expires_at: datetime
     status: bool = Field(default=True)
 
 

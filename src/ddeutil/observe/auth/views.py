@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, Form, Request
@@ -21,6 +22,7 @@ from .deps import get_current_active_user
 from .models import User
 from .schemas import (
     TokenRefresh,
+    TokenRefreshCreate,
     UserCreateForm,
     UserResetPassForm,
     UserScopeForm,
@@ -75,6 +77,7 @@ async def login(
     session: AsyncSession = Depends(get_async_session),
     form_scopes: UserScopeForm = Depends(UserScopeForm.as_form),
     form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm),
+    service: TokenCRUD = Depends(TokenCRUD),
 ):
     user: Union[User, bool] = await authenticate(
         session,
@@ -115,6 +118,19 @@ async def login(
         samesite="Lax",
         max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
     )
+
+    await service.create(
+        TokenRefreshCreate(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user_id=user.id,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
+        )
+    )
+
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
     return {
@@ -176,7 +192,12 @@ async def logout(
     return {
         "message": "Logout Successfully",
         "logout": [
-            TokenRefresh.model_validate(token).model_dump()
+            TokenRefresh.model_validate(
+                {
+                    "access_token": token.access_token,
+                    "refresh_token": token.refresh_token,
+                }
+            ).model_dump()
             for token in db_tokens
         ],
     }

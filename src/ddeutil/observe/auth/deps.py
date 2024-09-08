@@ -35,6 +35,7 @@ async def get_current_user(
     session: AsyncSession = Depends(get_async_session),
 ):
     """Get the current user async function that will."""
+    print(f"This line, {token}")
     if security_scopes.scopes:
         authenticate_value = f'Bearer scope="{security_scopes.scope_str}"'
     else:
@@ -49,13 +50,15 @@ async def get_current_user(
         payload = jwt.decode(
             token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
         )
+        print(payload)
 
         if not (username := payload.get("sub")):
             raise credentials_exception
 
         token_scopes = payload.get("scopes", [])
         token_data = TokenDataSchema(scopes=token_scopes, username=username)
-    except (InvalidTokenError, ValidationError):
+    except (InvalidTokenError, ValidationError) as err:
+        print(err)
         raise credentials_exception from None
 
     if not (

@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -12,11 +13,12 @@ from fastapi import status as st
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from ..conf import config
 from ..deps import get_async_session
 from ..utils import get_logger
-from . import models
 from .crud import TokenCRUD, authenticate, verify_token
 from .deps import get_current_active_user
+from .models import User
 from .schemas import (
     Token,
     TokenRefresh,
@@ -37,14 +39,14 @@ async def read_user(
     username: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> UserSchema:
-    return await models.User.get_by_username(session, username=username)
+    return await User.get_by_username(session, username=username)
 
 
 @auth.get("/user")
 async def read_user_all(
     session: AsyncSession = Depends(get_async_session),
 ) -> list[UserSchema]:
-    return await models.User.get_all(session)
+    return await User.get_all(session)
 
 
 @auth.post("/token")
@@ -86,6 +88,10 @@ async def token(
             user_id=user.id,
             access_token=access_token,
             refresh_token=refresh_token,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
         ),
     )
 
@@ -113,7 +119,7 @@ async def refresh(
 
 @auth.get("/token/me/", response_model=UserSchema)
 async def read_user_me(
-    current_user: Annotated[models.User, Depends(get_current_active_user)],
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     """Get current active user from the current token."""
     return current_user

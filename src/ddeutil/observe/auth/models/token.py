@@ -9,31 +9,30 @@ from datetime import datetime
 
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import select, true
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from ...db import Base, Col
+from ...db import Base, Col, Dtype
 
 
 class Token(Base):
     __tablename__ = "tokens"
 
-    id: Mapped[int] = Col(Integer, primary_key=True)
-    access_token = Col(String(450), primary_key=True)
-    refresh_token = Col(String(450), nullable=False)
-    status = Col(Boolean, default=True)
+    id: Dtype[int] = Col(Integer, primary_key=True)
+    access_token: Dtype[str] = Col(String(450), nullable=False, unique=True)
+    refresh_token: Dtype[str] = Col(String(450), nullable=False)
+    status: Dtype[bool] = Col(Boolean, default=True)
+    user_id: Dtype[int] = Col(Integer, ForeignKey("users.id"))
 
-    user_id = Col(Integer, ForeignKey("users.id"))
-
-    expires_at: Mapped[datetime] = Col(DateTime)
-    created_at: Mapped[datetime] = Col(
+    expires_at: Dtype[datetime] = Col(DateTime)
+    created_at: Dtype[datetime] = Col(
         DateTime,
         default=datetime.now,
         server_default=text("current_timestamp"),
     )
-    updated_at: Mapped[datetime] = Col(
+    updated_at: Dtype[datetime] = Col(
         DateTime,
         nullable=True,
         onupdate=datetime.now,
