@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ddeutil.observe.auth.schemas import UserCreateForm
 from ddeutil.observe.routes.workflow.crud import (
     create_release_log,
     create_workflow,
@@ -13,6 +14,30 @@ from ddeutil.observe.routes.workflow.schemas import (
 )
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
+
+def initial_auth(db_path: Path | None = None):
+    db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
+    engine = create_engine(
+        f"sqlite:///{db_path}",
+        connect_args={"check_same_thread": False},
+    )
+    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    Base.metadata.create_all(bind=engine)
+
+    db = SessionLocal()
+    _ = db
+
+    for _ in [
+        UserCreateForm(
+            username="admin", email="admin@mail.com", password="admin"
+        ),
+        UserCreateForm(username="user", email="user@mail.com", password="user"),
+        UserCreateForm(username="lead", email="lead@mail.com", password="lead"),
+        UserCreateForm(username="anon", email="anon@mail.com", password="anon"),
+    ]:
+        ...
 
 
 def initial_db(db_path: Path | None = None):

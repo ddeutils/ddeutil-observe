@@ -7,23 +7,19 @@ from __future__ import annotations
 
 from typing import Optional
 
-import jwt
 from fastapi import Depends, HTTPException, Security
 from fastapi import status as st
 from fastapi.security import SecurityScopes
-from jwt.exceptions import InvalidTokenError
-from pydantic import ValidationError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..conf import config
 from ..deps import get_async_session
+from .crud import verify_access_token
 from .models import User
-from .schemas import TokenDataSchema
-from .securities import ALGORITHM, oauth2_scheme
+from .securities import OAuth2Schema
 
 
 async def get_current_access_token(
-    token: Optional[str] = Depends(oauth2_scheme),
+    token: Optional[str] = Depends(OAuth2Schema),
 ) -> Optional[str]:
     """Get the current access token."""
     return token
@@ -45,18 +41,8 @@ async def get_current_user(
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    try:
-        payload = jwt.decode(
-            token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
-        )
-
-        if not (username := payload.get("sub")):
-            raise credentials_exception
-
-        token_scopes = payload.get("scopes", [])
-        token_data = TokenDataSchema(scopes=token_scopes, username=username)
-    except (InvalidTokenError, ValidationError):
-        raise credentials_exception from None
+    if (token_data := await verify_access_token(token, session)) is None:
+        raise credentials_exception
 
     if not (
         user := await User.get_by_username(
@@ -86,7 +72,7 @@ async def get_current_active_user(
     return current_user
 
 
-async def required_auth(token: str = Depends(oauth2_scheme)):
+async def required_auth(token: str = Depends(OAuth2Schema)):
     if not token:
         raise HTTPException(
             status_code=st.HTTP_307_TEMPORARY_REDIRECT,

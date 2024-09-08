@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import select, true
+from sqlalchemy.sql import false, or_, select, true
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
@@ -60,6 +60,22 @@ class Token(Base):
             .scalars()
             .all()
         )
+
+    @classmethod
+    async def get_disable(
+        cls, session: AsyncSession, token: str
+    ) -> Self | None:
+        return (
+            await session.execute(
+                select(cls).where(
+                    or_(
+                        cls.access_token == token,
+                        cls.refresh_token == token,
+                    ),
+                    cls.status == false(),
+                )
+            )
+        ).scalar_one_or_none()
 
     @classmethod
     async def get(cls, session: AsyncSession, token: str) -> Self | None:

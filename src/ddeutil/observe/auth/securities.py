@@ -18,7 +18,7 @@ from ..conf import config
 ALGORITHM: str = "HS256"
 
 
-class OAuth2PasswordBearerCookie(OAuth2PasswordBearer):
+class OAuth2PasswordBearerOrCookie(OAuth2PasswordBearer):
 
     # IMPORTANT: it will raise Request does not exists when use
     #   `from __future__ import annotations` on above script file.
@@ -44,18 +44,20 @@ class OAuth2PasswordBearerCookie(OAuth2PasswordBearer):
         return param
 
 
-oauth2_scheme = OAuth2PasswordBearerCookie(
+OAuth2Schema = OAuth2PasswordBearerOrCookie(
     tokenUrl="api/v1/auth/token",
     scopes={
         "me": "Read information about the current user.",
-        "workflows": "Read workflows and release logging.",
+        "workflows.get": "Read workflows and release logging.",
+        "workflows.develop": "Create and update workflows and release logging.",
+        "workflows.manage": "Drop and manage workflows and release logging.",
     },
     auto_error=False,
 )
 
 
 def create_access_token(
-    subject: Union[str, dict[str, Any]],
+    subject: dict[str, Any],
     expires_delta: Union[timedelta, None] = None,
 ) -> str:
     if expires_delta:
@@ -65,17 +67,13 @@ def create_access_token(
             minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
         )
 
-    if isinstance(subject, dict):
-        to_encode = subject.copy()
-        to_encode.update({"exp": expire})
-    else:
-        to_encode = {"exp": expire, "sub": str(subject)}
-
+    to_encode = subject.copy()
+    to_encode.update({"exp": expire})
     return jwt.encode(to_encode, config.OBSERVE_SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(
-    subject: Union[str, dict[str, Any]],
+    subject: dict[str, Any],
     expires_delta: Union[timedelta, None] = None,
 ) -> str:
     if expires_delta:
@@ -85,18 +83,15 @@ def create_refresh_token(
             minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES
         )
 
-    if isinstance(subject, dict):
-        to_encode = subject.copy()
-        to_encode.update({"exp": expire})
-    else:
-        to_encode = {"exp": expire, "sub": str(subject)}
-
+    to_encode = subject.copy()
+    to_encode.update({"exp": expire})
     return jwt.encode(
         to_encode, config.OBSERVE_REFRESH_SECRET_KEY, algorithm=ALGORITHM
     )
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Return True if the password is equal."""
     return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
 
 

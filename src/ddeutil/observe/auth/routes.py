@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..conf import config
 from ..deps import get_async_session
 from ..utils import get_logger
-from .crud import TokenCRUD, authenticate, verify_token
+from .crud import TokenCRUD, authenticate, verify_refresh_token
 from .deps import get_current_active_user
 from .models import User
 from .schemas import (
@@ -107,7 +107,7 @@ async def refresh(
             status_code=st.HTTP_404_NOT_FOUND, detail="Refresh token missing."
         )
 
-    if not (user_data := await verify_token(refresh_token, session)):
+    if not (user_data := await verify_refresh_token(refresh_token, session)):
         raise HTTPException(
             status_code=st.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token.",

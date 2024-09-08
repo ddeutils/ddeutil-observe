@@ -11,6 +11,7 @@ from typing import Union
 import jwt
 from fastapi import HTTPException
 from fastapi import status as st
+from pydantic import ValidationError
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import false
@@ -145,11 +146,13 @@ class UserCRUD(BaseCRUD):
         return UserSchema.model_validate(db_user)
 
 
-async def verify_token(
+async def verify_refresh_token(
     token: str,
     session: AsyncSession,
 ) -> TokenDataSchema | None:
-    if await Token.get(session, token=token):
+
+    # NOTE: check token is disable or not.
+    if await Token.get_disable(session, token=token):
         return None
 
     try:
@@ -157,9 +160,34 @@ async def verify_token(
             token, config.OBSERVE_REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
         )
         if username := payload.get("sub"):
-            return TokenDataSchema(username=username)
+            return TokenDataSchema(
+                username=username,
+                scopes=payload.get("scopes", []),
+            )
         return None
-    except jwt.InvalidTokenError:
+    except (jwt.InvalidTokenError, ValidationError):
+        return None
+
+
+async def verify_access_token(
+    token: str,
+    session: AsyncSession,
+) -> TokenDataSchema | None:
+    # NOTE: check token is disable or not.
+    if await Token.get_disable(session, token=token):
+        return None
+
+    try:
+        payload = jwt.decode(
+            token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
+        )
+        if username := payload.get("sub"):
+            return TokenDataSchema(
+                username=username,
+                scopes=payload.get("scopes", []),
+            )
+        return None
+    except (jwt.InvalidTokenError, ValidationError):
         return None
 
 

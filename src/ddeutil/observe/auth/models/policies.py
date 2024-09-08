@@ -20,6 +20,14 @@ class Group(Base):
 
 
 class Role(Base):
+    """
+    Initial roles that will create when start this application:
+        - Admin
+        - Develop
+        - User
+        - Anon
+    """
+
     __tablename__ = "roles"
 
     id = Col(Integer, primary_key=True)
@@ -27,6 +35,13 @@ class Role(Base):
 
 
 class Policy(Base):
+    """
+    Initial roles that will create when start this application:
+        - create: Post, Put
+        - delete: Delete
+        - get: Get
+    """
+
     __tablename__ = "policies"
 
     id = Col(Integer, primary_key=True)
