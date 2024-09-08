@@ -16,10 +16,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..conf import config
 from ..deps import get_async_session, get_templates
-from .crud import UserCRUD, authenticate
+from .crud import TokenCRUD, UserCRUD, authenticate
 from .deps import get_current_active_user
 from .models import User
-from .schemas import UserCreateForm, UserResetPassForm, UserScopeForm
+from .schemas import (
+    TokenRefresh,
+    UserCreateForm,
+    UserResetPassForm,
+    UserScopeForm,
+)
 from .securities import create_access_token, create_refresh_token
 
 auth = APIRouter(prefix="/auth", tags=["auth", "frontend"])
@@ -146,31 +151,15 @@ async def change_password(
 
 @auth.post("/logout")
 async def logout(
+    request: Request,
     response: Response,
     user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(get_async_session),
+    service: TokenCRUD = Depends(TokenCRUD),
 ):
-    # token_record = db.query(models.TokenTable).all()
-    # info = []
-    # for record in token_record:
-    #     print("record", record)
-    #     if (datetime.utcnow() - record.created_date).days > 1:
-    #         info.append(record.user_id)
-    #
-    # if info:
-    #     existing_token = db.query(models.TokenTable).where(
-    #         TokenTable.user_id.in_(info)).delete()
-    #     db.commit()
-    #
-    # existing_token = db.query(models.TokenTable).filter(
-    #     models.TokenTable.user_id == user_id,
-    #     models.TokenTable.access_toke == token).first()
-    #
-    # if existing_token:
-    #     existing_token.status = False
-    #     db.add(existing_token)
-    #     db.commit()
-    #     db.refresh(existing_token)
+    refresh_token = request.cookies.get("refresh_token")
+    await service.retention_by_user(user.id)
+
+    db_tokens = await service.update_logout(refresh_token)
 
     # NOTE: Delete cookies for access token and refresh token.
     response.delete_cookie(
@@ -184,4 +173,10 @@ async def logout(
 
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
-    return {"message": "Logout Successfully"}
+    return {
+        "message": "Logout Successfully",
+        "logout": [
+            TokenRefresh.model_validate(token).model_dump()
+            for token in db_tokens
+        ],
+    }

@@ -10,7 +10,7 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, relationship
-from sqlalchemy.sql import select
+from sqlalchemy.sql import select, true
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
@@ -46,10 +46,46 @@ class Token(Base):
     )
 
     @classmethod
+    async def get_active_by_user(
+        cls, session: AsyncSession, user_id: int
+    ) -> list[Self]:
+        return (
+            (
+                await session.execute(
+                    select(cls).where(
+                        cls.user_id == user_id,
+                        cls.status == true(),
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+
+    @classmethod
     async def get(cls, session: AsyncSession, token: str) -> Self | None:
         return (
             await session.execute(select(cls).where(cls.access_token == token))
         ).scalar_one_or_none()
+
+    @classmethod
+    async def get_by_refresh(
+        cls, session: AsyncSession, token: str
+    ) -> Self | None:
+        return (
+            (
+                await session.execute(
+                    select(cls)
+                    .where(
+                        cls.refresh_token == token,
+                        cls.status == true(),
+                    )
+                    .order_by(cls.created_at)
+                )
+            )
+            .scalars()
+            .all()
+        )
 
     @classmethod
     async def create(

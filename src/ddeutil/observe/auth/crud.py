@@ -11,7 +11,9 @@ from typing import Union
 import jwt
 from fastapi import HTTPException
 from fastapi import status as st
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql import false
 
 from ..conf import config
 from ..crud import BaseCRUD
@@ -39,6 +41,38 @@ async def authenticate(
 
 
 class TokenCRUD(BaseCRUD):
+
+    async def retention_by_user(self, user_id: int):
+        db_tokens: list[Token] = await Token.get_active_by_user(
+            self.async_session, user_id
+        )
+        info: list[str] = []
+        for record in db_tokens:
+            if (datetime.now() - record.created_at).days > 1:
+                info.append(record.id)
+
+        if info:
+            await self.async_session.execute(
+                delete(Token).where(Token.id.in_(info))
+            )
+            await self.async_session.flush()
+            await self.async_session.commit()
+
+    async def update_logout(self, refresh_token: str):
+        db_tokens = await Token.get_by_refresh(
+            self.async_session, token=refresh_token
+        )
+        if db_tokens:
+            rs = await self.async_session.execute(
+                update(Token)
+                .where(Token.get_by_refresh == refresh_token)
+                .values(status=false())
+                .returning(Token.access_token, Token.refresh_token)
+            )
+            await self.async_session.flush()
+            await self.async_session.commit()
+            return rs
+        return []
 
     async def create(self, token: TokenRefreshCreate):
         db_token = Token(
