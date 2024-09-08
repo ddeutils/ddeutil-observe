@@ -1,3 +1,3 @@
-from .policies import Tier
+from .ratelimit import Tier
 from .token import Token
 from .user import User

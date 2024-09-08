@@ -1,22 +1,25 @@
-<nav>
-    <span>
-        <a class="nav-item" href="/workflow/">Workflow</a>
-        <a class="nav-item" href="/workflow/logs">Running Logs</a>
-    </span>
-    <span>
-        <a class="nav-item" href="/auth/login">
-            <span class="material-symbols-outlined">person</span>
-        </a>
-        <a class="nav-item" href="/auth/register">
-            <span class="material-symbols-outlined">person_add</span>
-        </a>
-        <a class="nav-item" href="/auth/change-password">
-            <span class="material-symbols-outlined">settings_backup_restore</span>
-        </a>
-        <a href="/auth/login"
-           hx-post="/auth/logout"
-           hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
-            <span class="material-symbols-outlined">logout</span>
-        </a>
-    </span>
-</nav>
+<header class="navbar">
+    <nav>
+        <span>
+            <a class="nav-item" href="/workflow/">Workflow</a>
+            <a class="nav-item" href="/workflow/logs">Running Logs</a>
+        </span>
+
+        <span>
+            <a class="nav-item" href="/auth/login">
+                <span class="material-symbols-outlined">person</span>
+            </a>
+            <a class="nav-item" href="/auth/register">
+                <span class="material-symbols-outlined">person_add</span>
+            </a>
+            <a class="nav-item" href="/auth/change-password">
+                <span class="material-symbols-outlined">settings_backup_restore</span>
+            </a>
+            <a href="/auth/login"
+               hx-post="/auth/logout"
+               hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
+                <span class="material-symbols-outlined">logout</span>
+            </a>
+        </span>
+    </nav>
+</header>

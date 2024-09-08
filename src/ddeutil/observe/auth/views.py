@@ -172,10 +172,12 @@ async def logout(
     user: User = Depends(get_current_active_user),
     service: TokenCRUD = Depends(TokenCRUD),
 ):
-    refresh_token = request.cookies.get("refresh_token")
     await service.retention_by_user(user.id)
 
-    db_tokens = await service.update_logout(refresh_token)
+    db_tokens = []
+    refresh_token = request.cookies.get("refresh_token")
+    if refresh_token:
+        db_tokens = await service.update_logout(refresh_token)
 
     # NOTE: Delete cookies for access token and refresh token.
     response.delete_cookie(
