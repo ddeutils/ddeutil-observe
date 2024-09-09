@@ -34,35 +34,13 @@ logger = get_logger("ddeutil.observe")
 auth = APIRouter(prefix="/auth", tags=["api", "auth"])
 
 
-@auth.get("/user/{username}")
-async def read_user(
-    username: str,
-    session: AsyncSession = Depends(get_async_session),
-) -> UserSchema:
-    return await User.get_by_username(session, username=username)
-
-
-@auth.get("/user")
-async def read_user_all(
-    session: AsyncSession = Depends(get_async_session),
-) -> list[UserSchema]:
-    return await User.get_all(session)
-
-
 @auth.post("/token")
 async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
     service: TokenCRUD = Depends(TokenCRUD),
 ) -> TokenRefresh:
-    if form_data.grant_type == "password":
-        logger.debug("Authentication with user-password")
-        user = await authenticate(
-            session,
-            name=form_data.username,
-            password=form_data.password,
-        )
-    else:
+    if form_data.grant_type != "password":
         raise HTTPException(
             status_code=st.HTTP_406_NOT_ACCEPTABLE,
             detail=(
@@ -71,6 +49,12 @@ async def token(
             ),
         )
 
+    logger.debug("Authentication with user-password")
+    user = await authenticate(
+        session,
+        name=form_data.username,
+        password=form_data.password,
+    )
     if not user:
         raise HTTPException(
             status_code=st.HTTP_401_UNAUTHORIZED,
@@ -81,7 +65,7 @@ async def token(
         "sub": user.username,
         "scopes": form_data.scopes,
     }
-    access_token = create_access_token(subject=sub)
+    access_token = create_access_token(subject=sub | {"id": user.id})
     refresh_token = create_refresh_token(subject=sub)
     return await service.create(
         token=TokenRefreshCreate(
@@ -101,6 +85,7 @@ async def refresh(
     request: Request,
     session: AsyncSession = Depends(get_async_session),
 ) -> Token:
+    # NOTE: Getting the refresh token from the client cookie.
     refresh_token: str | None = request.cookies.get("refresh_token")
     if not refresh_token:
         raise HTTPException(
@@ -123,3 +108,18 @@ async def read_user_me(
 ):
     """Get current active user from the current token."""
     return current_user
+
+
+@auth.get("/user/{username}")
+async def read_user(
+    username: str,
+    session: AsyncSession = Depends(get_async_session),
+) -> UserSchema:
+    return await User.get_by_username(session, username=username)
+
+
+@auth.get("/user")
+async def read_user_all(
+    session: AsyncSession = Depends(get_async_session),
+) -> list[UserSchema]:
+    return await User.get_all(session)

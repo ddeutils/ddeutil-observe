@@ -39,9 +39,18 @@ This project implement the best scalable FastAPI web application structure.
 
 ## Configuration
 
-| Environment              | Component | Default  | Description                              |
-|--------------------------|-----------|----------|------------------------------------------|
-| `OBSERVE_LOG_DEBUG_MODE` | Log       | true     | Logging mode of this observe application |
+| Environment                                 | Component | Default | Description                              |
+|---------------------------------------------|-----------|---------|------------------------------------------|
+| `OBSERVE_CORE_TIMEZONE`                     | Core      |         |                                          |
+| `OBSERVE_CORE_SQLALCHEMY_DB_URL`            | Core      |         |                                          |
+| `OBSERVE_CORE_SQLALCHEMY_DB_ASYNC_URL`      | Core      |         |                                          |
+| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      |         |                                          |
+| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      |         |                                          |
+| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      |         |                                          |
+| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      |         |                                          |
+| `OBSERVE_WEB_ADMIN_USER`                    | Web       |         |                                          |
+| `OBSERVE_WEB_ADMIN_PASS`                    | Web       |         |                                          |
+| `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true    | Logging mode of this observe application |
 
 ## Deployment
 

@@ -33,8 +33,16 @@ class User(Base):
         nullable=False,
         index=True,
     )
-    fullname = Col(String(256), nullable=True)
-    email: Dtype[str] = Col(String(128), nullable=True)
+    fullname = Col(
+        String(256),
+        nullable=True,
+        index=True,
+    )
+    email: Dtype[str] = Col(
+        String(128),
+        nullable=False,
+        index=True,
+    )
     hashed_password: Dtype[str] = Col(String, nullable=False)
 
     is_verified: Dtype[bool] = Col(Boolean, default=False)
@@ -49,7 +57,11 @@ class User(Base):
         unique=True,
     )
 
-    created_at: Dtype[datetime] = Col(DateTime, default=datetime.now)
+    created_at: Dtype[datetime] = Col(
+        DateTime,
+        nullable=False,
+        default=datetime.now,
+    )
     updated_at: Dtype[datetime] = Col(
         DateTime,
         nullable=True,

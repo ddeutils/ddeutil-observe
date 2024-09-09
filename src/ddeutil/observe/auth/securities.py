@@ -19,6 +19,10 @@ ALGORITHM: str = "HS256"
 
 
 class OAuth2PasswordBearerOrCookie(OAuth2PasswordBearer):
+    """OAuth2 flow for authentication using a bearer token obtained with a
+    password. The token that will obtained able to be refresh token from the
+    client cookie with `refresh_token` key.
+    An instance of it would be used as a dependency."""
 
     # IMPORTANT: it will raise Request does not exists when use
     #   `from __future__ import annotations` on above script file.
@@ -46,6 +50,7 @@ class OAuth2PasswordBearerOrCookie(OAuth2PasswordBearer):
 
 OAuth2Schema = OAuth2PasswordBearerOrCookie(
     tokenUrl="api/v1/auth/token",
+    scheme_name="OAuth2PasswordBearerOrCookie",
     scopes={
         "me": "Read information about the current user.",
         "workflows.get": "Read workflows and release logging.",
@@ -96,4 +101,5 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 
 def get_password_hash(password: str) -> str:
+    """Return hashed password."""
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()

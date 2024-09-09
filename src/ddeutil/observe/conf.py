@@ -32,7 +32,7 @@ class BaseConfig:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     OBSERVE_SECRET_KEY: str = env(
-        "OBSERVE_SECRET_KEY", secrets.token_urlsafe(32)
+        "OBSERVE_CORE_ACCESS_SECRET_KEY", secrets.token_urlsafe(32)
     )
     OBSERVE_REFRESH_SECRET_KEY: str = env(
         "OBSERVE_REFRESH_SECRET_KEY", secrets.token_urlsafe(32)

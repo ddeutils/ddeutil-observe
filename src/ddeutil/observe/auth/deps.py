@@ -22,6 +22,9 @@ async def get_current_access_token(
     token: Optional[str] = Depends(OAuth2Schema),
 ) -> Optional[str]:
     """Get the current access token."""
+
+    # TODO: If the token does not able to verify it will regenerate with the
+    #  refresh token.
     return token
 
 
