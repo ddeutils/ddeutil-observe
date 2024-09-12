@@ -37,7 +37,7 @@ dependencies = [
 
     # Auth Security.
     "pyjwt==2.9.0",
-    "bcrypt==3.2.2",
+    "bcrypt==4.2.0",
 ]
 dynamic = ["version"]
 
