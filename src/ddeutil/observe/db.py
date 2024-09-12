@@ -11,7 +11,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from sqlalchemy import MetaData, create_engine, event
+from sqlalchemy import MetaData, create_engine, event, inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -21,7 +21,13 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
+from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
+    Session,
+    mapped_column,
+    sessionmaker,
+)
 
 from .utils import get_logger
 
@@ -66,18 +72,32 @@ def after_cursor_execute(
     logger.debug("Query Complete! Total Time: %f", total)
 
 
-SQLALCHEMY_DATABASE_URL: str = os.getenv(
-    "OBSERVE_SQLALCHEMY_DB_URL", "sqlite:///./observe.db"
-)
-
+# NOTE: Create engine and session maker for the sync.
 engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
+    os.getenv(
+        "OBSERVE_SQLALCHEMY_DB_URL",
+        "sqlite:///./observe.db",
+    ),
     echo=False,
     connect_args={"check_same_thread": False},
 )
 SessionLocal = sessionmaker(
     autocommit=False, autoflush=False, future=True, bind=engine
 )
+
+
+@event.listens_for(Session, "before_commit")
+def before_commit(session):
+    logger.debug(f"before commit: {session.info}")
+    session.info["before_commit_hook"] = "yup"
+
+
+@event.listens_for(Session, "after_commit")
+def after_commit(session):
+    logger.debug(
+        f"before commit: {session.info['before_commit_hook']}, "
+        f"after update: {session.info.get('after_update_hook', 'null')}"
+    )
 
 
 class DBSessionManager:
@@ -187,3 +207,9 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 Col = mapped_column
 Dtype = Mapped
+
+
+@event.listens_for(Base, "after_update")
+def after_update(mapper, connection, target):
+    session = inspect(target).session
+    session.info["after_update_hook"] = "yup"

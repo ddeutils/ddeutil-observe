@@ -28,7 +28,7 @@ class Workflows(Base):
     __tablename__ = "workflows"
 
     id = Col(Integer, primary_key=True, index=True)
-    name = Col(String, index=True)
+    name = Col(String(128), index=True)
     desc = Col(String)
     params: Mapped[dict[str, Any]] = Col(JSON)
     on: Mapped[dict[str, Any]] = Col(JSON)
@@ -55,8 +55,10 @@ class Workflows(Base):
             stmt = stmt.options(selectinload(cls.releases))
         if skip > 0 and limit > 0:
             stmt = stmt.offset(skip).limit(limit)
-        stream = await session.stream(stmt.order_by(cls.id))
-        async for row in stream.scalars():
+
+        async for row in (
+            await session.stream(stmt.order_by(cls.id))
+        ).scalars():
             yield row
 
 
