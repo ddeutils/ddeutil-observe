@@ -16,7 +16,7 @@ data framework formats and endpoint APIs, it project will focus on the
 > This project is the best fit with `ddeutil-workflow` package. The first propose
 > is monitor and observe from worker nodes that deploy workflow application.
 
-## Installation
+## :round_pushpin: Installation
 
 ```shell
 pip install ddeutil-observe
@@ -24,7 +24,7 @@ pip install ddeutil-observe
 
 > I added this feature to the main milestone.
 >
-> **Docker Images** supported:
+> :egg: **Docker Images** supported:
 >
 > | Docker Image               | Python Version | Support |
 > |----------------------------|----------------|---------|
@@ -33,11 +33,15 @@ pip install ddeutil-observe
 > | ddeutil-observe:python3.11 | `3.11`         | :x:     |
 > | ddeutil-observe:python3.12 | `3.12`         | :x:     |
 
-## Getting Started
+## :beers: Getting Started
 
 This project implement the best scalable FastAPI web application structure.
 
-## Configuration
+### Main Page
+
+### Workflow Release Page
+
+## :cookie: Configuration
 
 | Environment                                 | Component | Default | Description                              |
 |---------------------------------------------|-----------|---------|------------------------------------------|
@@ -52,8 +56,12 @@ This project implement the best scalable FastAPI web application structure.
 | `OBSERVE_WEB_ADMIN_PASS`                    | Web       |         |                                          |
 | `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true    | Logging mode of this observe application |
 
-## Deployment
+## :rocket: Deployment
 
 ```shell
 (env) $ uvicorn src.ddeutil.observe.app:app --host 127.0.0.1 --port 88
 ```
+
+> [!NOTE]
+> If this package already deploy, it able to use
+> `uvicorn ddeutil.workflow.api:app --host 127.0.0.1 --port 88 --workers 4`
