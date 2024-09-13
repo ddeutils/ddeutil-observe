@@ -5,12 +5,14 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-import time
+# import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from sqlalchemy import MetaData, event, inspect
+from sqlalchemy import MetaData, event
+
+# from sqlalchemy import inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -23,13 +25,16 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
-    Session,
     mapped_column,
 )
 
+# from sqlalchemy.orm import Session
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
+
+
+class DatabaseManageException(Exception): ...
 
 
 @event.listens_for(Engine, "connect")
@@ -54,34 +59,34 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-@event.listens_for(Engine, "before_cursor_execute")
-def before_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):
-    conn.info.setdefault("query_start_time", []).append(time.time())
-    logger.debug("Start Query: %s", statement)
+# @event.listens_for(Engine, "before_cursor_execute")
+# def before_cursor_execute(
+#     conn, cursor, statement, parameters, context, executemany
+# ):
+#     conn.info.setdefault("query_start_time", []).append(time.time())
+#     logger.debug("Start Query: %s", statement)
+#
+#
+# @event.listens_for(Engine, "after_cursor_execute")
+# def after_cursor_execute(
+#     conn, cursor, statement, parameters, context, executemany
+# ):
+#     total = time.time() - conn.info["query_start_time"].pop(-1)
+#     logger.debug("Query Complete! Total Time: %f", total)
 
 
-@event.listens_for(Engine, "after_cursor_execute")
-def after_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):
-    total = time.time() - conn.info["query_start_time"].pop(-1)
-    logger.debug("Query Complete! Total Time: %f", total)
-
-
-@event.listens_for(Session, "before_commit")
-def before_commit(session):
-    logger.debug(f"before commit: {session.info}")
-    session.info["before_commit_hook"] = "yup"
-
-
-@event.listens_for(Session, "after_commit")
-def after_commit(session):
-    logger.debug(
-        f"before commit: {session.info['before_commit_hook']}, "
-        f"after update: {session.info.get('after_update_hook', 'null')}"
-    )
+# @event.listens_for(Session, "before_commit")
+# def before_commit(session):
+#     logger.debug(f"before commit: {session.info}")
+#     session.info["before_commit_hook"] = "yup"
+#
+#
+# @event.listens_for(Session, "after_commit")
+# def after_commit(session):
+#     logger.debug(
+#         f"before commit: {session.info['before_commit_hook']}, "
+#         f"after update: {session.info.get('after_update_hook', 'null')}"
+#     )
 
 
 class DBSessionManager:
@@ -109,7 +114,9 @@ class DBSessionManager:
 
     async def close(self):
         if self._engine is None:
-            raise Exception("DatabaseSessionManager is not initialized")
+            raise DatabaseManageException(
+                "DatabaseSessionManager is not initialized"
+            )
         await self._engine.dispose()
         self._engine = None
         self._sessionmaker = None
@@ -117,7 +124,9 @@ class DBSessionManager:
     @asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
         if self._engine is None:
-            raise Exception("DatabaseSessionManager is not initialized")
+            raise DatabaseManageException(
+                "DatabaseSessionManager is not initialized"
+            )
 
         async with self._engine.begin() as connection:
             try:
@@ -129,7 +138,9 @@ class DBSessionManager:
     @asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
         if self._sessionmaker is None:
-            raise Exception("DatabaseSessionManager is not initialized")
+            raise DatabaseManageException(
+                "DatabaseSessionManager is not initialized"
+            )
 
         session = self._sessionmaker()
         try:
@@ -193,7 +204,7 @@ Col = mapped_column
 Dtype = Mapped
 
 
-@event.listens_for(Base, "after_update")
-def after_update(mapper, connection, target):
-    session = inspect(target).session
-    session.info["after_update_hook"] = "yup"
+# @event.listens_for(Base, "after_update")
+# def after_update(mapper, connection, target):
+#     session = inspect(target).session
+#     session.info["after_update_hook"] = "yup"

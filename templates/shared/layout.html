@@ -15,21 +15,25 @@
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
-        <link rel="stylesheet" href="/static/css/site.css"/>
+        <link rel="stylesheet" href="/static/css/base.css"/>
 
         {% block additional_css %}
         {% endblock %}
     </head>
     <body>
-        <!-- Header -->
-        {% include 'fragments/header.html' %}
+        <main>
+            <!-- ASide -->
+            {% include 'fragments/aside.html' %}
 
-        <!-- Content -->
-        <div class="main_content">
-            {% block main_content %}
-            {% endblock %}
-        </div>
+            <!-- Header -->
+            {% include 'fragments/header.html' %}
 
+            <!-- Content -->
+            <div class="main_content">
+                {% block main_content %}
+                {% endblock %}
+            </div>
+        </main>
     </body>
 
     <!-- Footer -->
