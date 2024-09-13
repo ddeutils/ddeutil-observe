@@ -5,16 +5,15 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-import pathlib
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator
+from pathlib import Path
 
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import ChoiceLoader, FileSystemLoader
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Session
 
-from .db import SessionLocal, sessionmanager
+from .db import sessionmanager
 
 
 def get_templates(request: Request) -> Jinja2Templates:
@@ -24,15 +23,13 @@ def get_templates(request: Request) -> Jinja2Templates:
     choices: list[FileSystemLoader] = [FileSystemLoader("./templates")]
     if request.url.path != "/":
         route: str = request.url.path.strip("/").split("/")[0]
-        route_path: pathlib.Path = (
-            pathlib.Path(__file__).parent / f"routes/{route}/templates"
-        )
+        route_path: Path = Path(__file__).parent / f"routes/{route}/templates"
+
+        # NOTE: Check route path exists on the current request.
         if route_path.exists():
             choices.insert(0, FileSystemLoader(route_path))
         else:
-            auth_path: pathlib.Path = (
-                pathlib.Path(__file__).parent / "auth/templates"
-            )
+            auth_path: Path = Path(__file__).parent / "auth/templates"
             if auth_path.exists():
                 choices.insert(0, FileSystemLoader(auth_path))
 
@@ -42,15 +39,7 @@ def get_templates(request: Request) -> Jinja2Templates:
     )
 
 
-def get_session() -> Iterator[Session]:
-    """Return the database local session instance."""
-    session: Session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
-
-
 async def get_async_session() -> AsyncIterator[AsyncSession]:
+    """Return the database local session instance."""
     async with sessionmanager.session() as session:
         yield session

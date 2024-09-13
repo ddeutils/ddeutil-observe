@@ -5,13 +5,12 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-import os
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from sqlalchemy import MetaData, create_engine, event, inspect
+from sqlalchemy import MetaData, event, inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -26,7 +25,6 @@ from sqlalchemy.orm import (
     Mapped,
     Session,
     mapped_column,
-    sessionmaker,
 )
 
 from .utils import get_logger
@@ -70,20 +68,6 @@ def after_cursor_execute(
 ):
     total = time.time() - conn.info["query_start_time"].pop(-1)
     logger.debug("Query Complete! Total Time: %f", total)
-
-
-# NOTE: Create engine and session maker for the sync.
-engine = create_engine(
-    os.getenv(
-        "OBSERVE_SQLALCHEMY_DB_URL",
-        "sqlite:///./observe.db",
-    ),
-    echo=False,
-    connect_args={"check_same_thread": False},
-)
-SessionLocal = sessionmaker(
-    autocommit=False, autoflush=False, future=True, bind=engine
-)
 
 
 @event.listens_for(Session, "before_commit")

@@ -8,40 +8,50 @@ from __future__ import annotations
 from collections.abc import AsyncIterator
 from datetime import datetime
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import false
 
 from ...crud import BaseCRUD
 from ...utils import get_logger
-from . import models, schemas
+from . import models as md
+from .schemas import ReleaseLogCreate, Workflow, WorkflowCreate
 
 logger = get_logger("ddeutil.observe")
 
 
-def get_workflow(session: Session, workflow_id: int) -> models.Workflows:
+async def get_workflow(
+    session: AsyncSession,
+    workflow_id: int,
+) -> md.Workflows:
     return (
-        session.query(models.Workflows)
-        .filter(models.Workflows.id == workflow_id)
-        .first()
-    )
-
-
-def get_workflow_by_name(session: Session, name: str) -> models.Workflows:
-    return (
-        session.query(models.Workflows)
-        .filter(
-            models.Workflows.name == name,
-            models.Workflows.delete_flag == false(),
+        await session.execute(
+            select(md.Workflows).filter(md.Workflows.id == workflow_id).limit(1)
         )
-        .first()
-    )
+    ).first()
 
 
-def create_workflow(
-    session: Session,
-    workflow: schemas.WorkflowCreate,
-) -> models.Workflows:
-    db_workflow = models.Workflows(
+async def get_workflow_by_name(
+    session: AsyncSession,
+    name: str,
+) -> md.Workflows:
+    return (
+        await session.execute(
+            select(md.Workflows)
+            .filter(
+                md.Workflows.name == name,
+                md.Workflows.delete_flag == false(),
+            )
+            .limit(1)
+        )
+    ).first()
+
+
+async def create_workflow(
+    session: AsyncSession,
+    workflow: WorkflowCreate,
+) -> md.Workflows:
+    db_workflow = md.Workflows(
         name=workflow.name,
         desc=workflow.desc,
         params=workflow.params,
@@ -51,84 +61,97 @@ def create_workflow(
         valid_end=datetime(2999, 12, 31),
     )
     session.add(db_workflow)
-    session.commit()
-    session.refresh(db_workflow)
+    await session.flush()
+    await session.commit()
+    await session.refresh(db_workflow)
     return db_workflow
 
 
-def list_workflows(
-    session: Session,
+async def list_workflows(
+    session: AsyncSession,
     skip: int = 0,
     limit: int = 1000,
-) -> list[models.Workflows]:
+) -> list[md.Workflows]:
     return (
-        session.query(models.Workflows)
-        .filter(models.Workflows.delete_flag == false())
-        .offset(skip)
-        .limit(limit)
+        (
+            await session.execute(
+                select(md.Workflows)
+                .filter(md.Workflows.delete_flag == false())
+                .offset(skip)
+                .limit(limit)
+            )
+        )
+        .scalars()
         .all()
     )
 
 
-def search_workflow(
-    session: Session,
+async def search_workflow(
+    session: AsyncSession,
     search_text: str,
-) -> list[models.Workflows]:
+) -> list[md.Workflows]:
     if len(search_text) > 0:
         if not (search_text := search_text.strip().lower()):
             return []
 
         results = []
-        for workflow in list_workflows(session=session):
+        for workflow in await list_workflows(session=session):
             text: str = f"{workflow.name} {workflow.desc or ''}".lower()
             logger.debug(f"Getting text: {text} | Search {search_text}")
             if search_text in text:
                 results.append(workflow)
         return results
-    return list_workflows(session=session)
+    return await list_workflows(session=session)
 
 
-def get_release(
-    session: Session,
+async def get_release(
+    session: AsyncSession,
     release: datetime,
-) -> models.WorkflowReleases:
+) -> md.WorkflowReleases:
     return (
-        session.query(models.WorkflowReleases)
-        .filter(models.WorkflowReleases.release == release)
-        .first()
-    )
+        await session.execute(
+            select(md.WorkflowReleases)
+            .filter(md.WorkflowReleases.release == release)
+            .limit(1)
+        )
+    ).first()
 
 
-def create_release_log(
-    session: Session,
+async def create_release_log(
+    session: AsyncSession,
     workflow_id: int,
-    release_log: schemas.ReleaseLogCreate,
+    release_log: ReleaseLogCreate,
 ):
-    db_release = models.WorkflowReleases(
+    db_release = md.WorkflowReleases(
         release=release_log.release,
         workflow_id=workflow_id,
     )
     session.add(db_release)
-    session.commit()
-    session.refresh(db_release)
+    await session.flush()
+    await session.commit()
+    await session.refresh(db_release)
+
     for log in release_log.logs:
-        db_log = models.WorkflowLogs(
+        db_log = md.WorkflowLogs(
             run_id=log.run_id,
             context=log.context,
             release_id=db_release.id,
         )
         session.add(db_log)
-        session.commit()
-        session.refresh(db_log)
+        await session.flush()
+        await session.commit()
+        await session.refresh(db_log)
     return db_release
 
 
-def get_log(session: Session, run_id: str) -> models.WorkflowLogs:
+async def get_log(session: AsyncSession, run_id: str) -> md.WorkflowLogs:
     return (
-        session.query(models.WorkflowLogs)
-        .filter(models.WorkflowLogs.run_id == run_id)
-        .first()
-    )
+        await session.execute(
+            select(md.WorkflowLogs)
+            .filter(md.WorkflowLogs.run_id == run_id)
+            .limit(1)
+        )
+    ).first()
 
 
 class WorkflowsCRUD(BaseCRUD):
@@ -137,11 +160,11 @@ class WorkflowsCRUD(BaseCRUD):
         self,
         skip: int = 0,
         limit: int = 100,
-    ) -> AsyncIterator[schemas.Workflow]:
-        async for wf in models.Workflows.get_all(
+    ) -> AsyncIterator[Workflow]:
+        async for wf in md.Workflows.get_all(
             self.async_session,
             skip=skip,
             limit=limit,
             include_release=True,
         ):
-            yield schemas.Workflow.model_validate(wf)
+            yield Workflow.model_validate(wf)

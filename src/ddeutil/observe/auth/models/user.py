@@ -6,17 +6,21 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
 
 from sqlalchemy import text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship, selectinload
-from sqlalchemy.sql import select
+from sqlalchemy.sql import false, select, true
 from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ...db import Base, Col, Dtype
+
+if TYPE_CHECKING:
+    from .token import Token
 
 
 class User(Base):
@@ -70,7 +74,7 @@ class User(Base):
     )
     deleted_at: Dtype[datetime] = Col(DateTime, default=datetime.now)
 
-    tokens = relationship(
+    tokens: Dtype[list[Token]] = relationship(
         "Token",
         back_populates="user",
         order_by="Token.created_at",
@@ -113,7 +117,11 @@ class User(Base):
     ) -> Self | None:
         try:
             return (
-                (await session.execute(select(cls).where(cls.email == email)))
+                (
+                    await session.execute(
+                        select(cls).where(cls.email == email).limit(1)
+                    )
+                )
                 .scalars()
                 .first()
             )
@@ -121,5 +129,13 @@ class User(Base):
             return None
 
     @classmethod
-    async def get_all(cls, session: AsyncSession) -> list[Self]:
-        return (await session.execute(select(cls))).scalars().all()
+    async def get_all(
+        cls,
+        session: AsyncSession,
+        *,
+        is_active: bool | None = None,
+    ) -> list[Self]:
+        stmt = select(cls)
+        if is_active is not None:
+            stmt = stmt.where(cls.is_active == (false if is_active else true)())
+        return (await session.execute(stmt)).scalars().all()

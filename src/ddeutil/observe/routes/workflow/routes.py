@@ -9,10 +9,10 @@ from contextlib import asynccontextmanager
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException
 from fastapi import status as st
-from sqlalchemy.orm.session import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...db import sessionmanager
-from ...deps import get_session
+from ...deps import get_async_session
 from . import crud, models
 from .crud import WorkflowsCRUD
 from .schemas import ReleaseLog, ReleaseLogCreate, Workflow, WorkflowCreate
@@ -45,29 +45,32 @@ async def read_all(
 
 
 @workflow.post("/", response_model=Workflow)
-def create_workflow(
-    wf: WorkflowCreate, session: Session = Depends(get_session)
+async def create_workflow(
+    wf: WorkflowCreate,
+    session: AsyncSession = Depends(get_async_session),
 ):
-    db_workflow = crud.get_workflow_by_name(session, name=wf.name)
+    db_workflow = await crud.get_workflow_by_name(session, name=wf.name)
     if db_workflow:
         raise HTTPException(
             status_code=st.HTTP_302_FOUND,
             detail="Workflow already registered in observe database.",
         )
-    return crud.create_workflow(session=session, workflow=wf)
+    return await crud.create_workflow(session=session, workflow=wf)
 
 
 @workflow.post("/{name}/release", response_model=ReleaseLog)
-def create_workflow_release(
-    name: str, rl: ReleaseLogCreate, session: Session = Depends(get_session)
+async def create_workflow_release(
+    name: str,
+    rl: ReleaseLogCreate,
+    session: AsyncSession = Depends(get_async_session),
 ):
-    db_workflow = crud.get_workflow_by_name(session, name=name)
+    db_workflow = await crud.get_workflow_by_name(session, name=name)
     if not db_workflow:
         raise HTTPException(
             status_code=st.HTTP_302_FOUND,
             detail="Workflow does not registered in observe database.",
         )
-    return crud.create_release_log(
+    return await crud.create_release_log(
         session=session,
         workflow_id=db_workflow.id,
         release_log=rl,

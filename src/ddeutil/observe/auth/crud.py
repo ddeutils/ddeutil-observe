@@ -157,7 +157,7 @@ async def verify_refresh_token(
 
     try:
         payload = jwt.decode(
-            token, config.OBSERVE_REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
+            token, config.REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
         )
         if username := payload.get("sub"):
             return TokenDataSchema(
@@ -178,9 +178,7 @@ async def verify_access_token(
         return None
 
     try:
-        payload = jwt.decode(
-            token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
-        )
+        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
         if username := payload.get("sub"):
             return TokenDataSchema(
                 username=username,
@@ -192,9 +190,7 @@ async def verify_access_token(
 
 
 async def add_blacklist_token(token: str, session: AsyncSession) -> None:
-    payload = jwt.decode(
-        token, config.OBSERVE_SECRET_KEY, algorithms=[ALGORITHM]
-    )
+    payload = jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
     expires_at = datetime.fromtimestamp(payload.get("exp"))
     await Token.create(
         session,

@@ -52,7 +52,9 @@ OAuth2Schema = OAuth2PasswordBearerOrCookie(
     tokenUrl="api/v1/auth/token",
     scheme_name="OAuth2PasswordBearerOrCookie",
     scopes={
+        # NOTE: Baseline scope that use to any login user
         "me": "Read information about the current user.",
+        # NOTE: Define workflow scopes.
         "workflows.get": "Read workflows and release logging.",
         "workflows.develop": "Create and update workflows and release logging.",
         "workflows.manage": "Drop and manage workflows and release logging.",
@@ -65,6 +67,7 @@ def create_access_token(
     subject: dict[str, Any],
     expires_delta: Union[timedelta, None] = None,
 ) -> str:
+    """Create access token for an input subject value."""
     if expires_delta:
         expire: datetime = datetime.now(timezone.utc) + expires_delta
     else:
@@ -74,13 +77,14 @@ def create_access_token(
 
     to_encode = subject.copy()
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, config.OBSERVE_SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, config.SECRET_KEY, algorithm=ALGORITHM)
 
 
 def create_refresh_token(
     subject: dict[str, Any],
     expires_delta: Union[timedelta, None] = None,
 ) -> str:
+    """Create refresh token for an input subject value."""
     if expires_delta:
         expire: datetime = datetime.now(timezone.utc) + expires_delta
     else:
@@ -90,9 +94,7 @@ def create_refresh_token(
 
     to_encode = subject.copy()
     to_encode.update({"exp": expire})
-    return jwt.encode(
-        to_encode, config.OBSERVE_REFRESH_SECRET_KEY, algorithm=ALGORITHM
-    )
+    return jwt.encode(to_encode, config.REFRESH_SECRET_KEY, algorithm=ALGORITHM)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:

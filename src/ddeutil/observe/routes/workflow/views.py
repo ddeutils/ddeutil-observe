@@ -9,10 +9,10 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Header, Request
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...auth.deps import required_auth
-from ...deps import get_session, get_templates
+from ...deps import get_async_session, get_templates
 from ...utils import get_logger
 from . import crud
 from .schemas import (
@@ -30,14 +30,14 @@ workflow = APIRouter(
 
 
 @workflow.get("/")
-def read_workflows(
+async def read_workflows(
     request: Request,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all workflows."""
     workflows: list[Workflow] = Workflows.validate_python(
-        crud.list_workflows(session)
+        await crud.list_workflows(session)
     )
     return templates.TemplateResponse(
         request=request,
@@ -50,15 +50,15 @@ def read_workflows(
 
 
 @workflow.get("/search")
-def search_workflows(
+async def search_workflows(
     request: Request,
     search_text: str,
     hx_request: Annotated[Optional[str], Header(...)] = None,
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_async_session),
     templates: Jinja2Templates = Depends(get_templates),
 ):
     workflows: list[Workflow] = Workflows.validate_python(
-        crud.search_workflow(session=session, search_text=search_text)
+        await crud.search_workflow(session=session, search_text=search_text)
     )
     if hx_request:
         return templates.TemplateResponse(
@@ -77,7 +77,7 @@ def search_workflows(
 
 
 @workflow.get("/logs")
-def read_logs(
+async def read_logs(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),

@@ -57,8 +57,8 @@ class Workflows(Base):
             stmt = stmt.offset(skip).limit(limit)
 
         async for row in (
-            await session.stream(stmt.order_by(cls.id))
-        ).scalars():
+            (await session.stream(stmt.order_by(cls.id))).scalars().all()
+        ):
             yield row
 
 

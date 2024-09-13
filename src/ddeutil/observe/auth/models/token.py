@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,6 +16,9 @@ from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ...db import Base, Col, Dtype
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 class Token(Base):
@@ -39,7 +43,7 @@ class Token(Base):
         server_default=text("current_timestamp"),
     )
 
-    user = relationship(
+    user: Dtype[User] = relationship(
         "User",
         back_populates="tokens",
     )
