@@ -48,7 +48,7 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(
-    titile="Observe Web",
+    titile="Observe Web Application",
     version=__version__,
     lifespan=lifespan,
 )
@@ -74,6 +74,9 @@ async def add_process_time_header(request: Request, call_next):
 
 @app.exception_handler(OperationalError)
 async def sqlalchemy_exception_handler(_: Request, exc):
+    """Exception handler for SQLAlchemy package that get the error from the
+    backend database.
+    """
     return PlainTextResponse(
         str(exc.detail),
         status_code=st.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -94,7 +97,8 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/")
 async def home(request: Request):
-    """The home page that redirect to login."""
+    """The home page that redirect to main page."""
     return RedirectResponse(
-        request.url_for("read_workflows"), status_code=st.HTTP_303_SEE_OTHER
+        request.url_for("read_workflows"),
+        status_code=st.HTTP_307_TEMPORARY_REDIRECT,
     )
