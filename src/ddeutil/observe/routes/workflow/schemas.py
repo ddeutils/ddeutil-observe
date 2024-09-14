@@ -34,7 +34,25 @@ class Workflow(WorkflowBase):
     valid_end: datetime
 
 
+class WorkflowView(Workflow):
+    model_config = ConfigDict(from_attributes=True)
+
+    def gen_row(self) -> str:
+        """Return a html row value that already map this model attributes.
+
+        :rtype: str
+        """
+        return (
+            f"<td>{self.id}</td>"
+            f"<td>{self.name}</td>"
+            f"<td>{self.params}</td>"
+            f"<td>{self.on}</td>"
+            f"<td>{self.jobs}</td>"
+        )
+
+
 Workflows = TypeAdapter(list[Workflow])
+WorkflowViews = TypeAdapter(list[WorkflowView])
 
 
 class ReleaseBase(BaseModel):

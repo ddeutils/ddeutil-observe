@@ -43,7 +43,7 @@ async def authenticate(
 
 class TokenCRUD(BaseCRUD):
 
-    async def retention_by_user(self, user_id: int):
+    async def retention_by_user(self, user_id: str):
         db_tokens: list[Token] = await Token.get_active_by_user(
             self.async_session, user_id
         )

@@ -25,7 +25,6 @@ class Tier(Base):
     )
     updated_at: Dtype[Optional[datetime]] = Col(
         DateTime(timezone=True),
-        default=None,
         nullable=True,
     )
 
@@ -46,5 +45,5 @@ class RateLimit(Base):
     )
     updated_at: Dtype[Optional[datetime]] = Col(
         DateTime(timezone=True),
-        default=None,
+        nullable=True,
     )

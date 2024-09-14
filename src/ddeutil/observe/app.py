@@ -34,6 +34,14 @@ async def lifespan(_: FastAPI):
     """Lifespan context function that make sure the session maker instance
     already close after respond the incoming request to the client.
     """
+    async with sessionmanager.connect() as conn:
+        await sessionmanager.create_all(conn)
+
+    from .init import create_admin
+
+    async with sessionmanager.session() as session:
+        await create_admin(session)
+
     yield
     if sessionmanager.is_opened():
         await sessionmanager.close()

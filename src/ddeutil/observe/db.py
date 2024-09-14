@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-# import time
+import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
@@ -29,6 +29,7 @@ from sqlalchemy.orm import (
 )
 
 # from sqlalchemy.orm import Session
+from .conf import config
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -59,20 +60,22 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-# @event.listens_for(Engine, "before_cursor_execute")
-# def before_cursor_execute(
-#     conn, cursor, statement, parameters, context, executemany
-# ):
-#     conn.info.setdefault("query_start_time", []).append(time.time())
-#     logger.debug("Start Query: %s", statement)
-#
-#
-# @event.listens_for(Engine, "after_cursor_execute")
-# def after_cursor_execute(
-#     conn, cursor, statement, parameters, context, executemany
-# ):
-#     total = time.time() - conn.info["query_start_time"].pop(-1)
-#     logger.debug("Query Complete! Total Time: %f", total)
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(
+    conn, cursor, statement, parameters, context, executemany
+):
+    conn.info.setdefault("query_start_time", []).append(time.time())
+    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+        logger.debug("Start Query: %s", statement)
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(
+    conn, cursor, statement, parameters, context, executemany
+):
+    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+        total = time.time() - conn.info["query_start_time"].pop(-1)
+        logger.debug("Query Complete! Total Time: %f", total)
 
 
 # @event.listens_for(Session, "before_commit")
@@ -200,6 +203,7 @@ class Base(AsyncAttrs, DeclarativeBase):
         return f"<{self.__class__.__name__}({columns})>"
 
 
+# NOTE: Alias function of the SQLAlchemy for shorter name.
 Col = mapped_column
 Dtype = Mapped
 

@@ -37,8 +37,9 @@ class BaseConfig:
             DB_NAME=env("OBSERVE_DB_NAME", "observe.db"),
         ),
     )
-    OBSERVE_LOG_DEBUG_MODE: bool = str2bool(
-        env("OBSERVE_LOG_DEBUG_MODE", "true")
+    LOG_DEBUG_MODE: bool = str2bool(env("OBSERVE_LOG_DEBUG_MODE", "true"))
+    LOG_SQLALCHEMY_DEBUG_MODE: bool = str2bool(
+        env("OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE", "false")
     )
 
     # NOTE:
@@ -54,6 +55,10 @@ class BaseConfig:
     REFRESH_SECRET_KEY: str = env(
         "OBSERVE_REFRESH_SECRET_KEY", secrets.token_urlsafe(32)
     )
+
+    WEB_ADMIN_USER: str = env("OBSERVE_WEB_ADMIN_USER", "observe")
+    WEB_ADMIN_PASS: str = env("OBSERVE_WEB_ADMIN_PASS", "observe")
+    WEB_ADMIN_EMAIL: str = env("OBSERVE_WEB_ADMIN_PASS", "observe@mail.com")
 
 
 # NOTE: Start initialize base config object.

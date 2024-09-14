@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
 from sqlalchemy import text
@@ -14,7 +14,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.sql import false, select, true
-from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
+from sqlalchemy.types import UUID, Boolean, DateTime, String
 from typing_extensions import Self
 
 from ...db import Base, Col, Dtype
@@ -26,9 +26,11 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "users"
 
-    id: Dtype[int] = Col(
-        Integer,
+    id: Dtype[UUID] = Col(
+        UUID(as_uuid=True),
         primary_key=True,
+        default=uuid4,
+        unique=True,
         index=True,
     )
     username: Dtype[str] = Col(
@@ -37,7 +39,7 @@ class User(Base):
         nullable=False,
         index=True,
     )
-    fullname = Col(
+    fullname: Dtype[Optional[str]] = Col(
         String(256),
         nullable=True,
         index=True,
@@ -48,31 +50,28 @@ class User(Base):
         index=True,
     )
     hashed_password: Dtype[str] = Col(String, nullable=False)
-
     is_verified: Dtype[bool] = Col(Boolean, default=False)
     is_active: Dtype[bool] = Col(Boolean, default=True)
     is_superuser: Dtype[bool] = Col(Boolean, default=False)
     profile_image_url: Dtype[str] = Col(
         String, default="https://profileimageurl.com"
     )
-    uuid: Dtype[UUID] = Col(
-        UUID,
-        default=uuid4,
-        unique=True,
-    )
 
     created_at: Dtype[datetime] = Col(
-        DateTime,
-        nullable=False,
+        DateTime(timezone=True),
         default=datetime.now,
+        nullable=False,
     )
     updated_at: Dtype[datetime] = Col(
-        DateTime,
-        nullable=True,
+        DateTime(timezone=True),
         onupdate=datetime.now,
-        server_default=text("current_timestamp"),
+        # NOTE: This default use current timezone that this application stay.
+        server_default=text("(datetime('now','localtime'))"),
     )
-    deleted_at: Dtype[datetime] = Col(DateTime, default=datetime.now)
+    deleted_at: Dtype[Optional[datetime]] = Col(
+        DateTime(timezone=True),
+        nullable=True,
+    )
 
     tokens: Dtype[list[Token]] = relationship(
         "Token",
@@ -85,16 +84,21 @@ class User(Base):
 
     @classmethod
     async def create(
-        cls, session: AsyncSession, user_id=None, **kwargs
+        cls,
+        session: AsyncSession,
+        user_id: str | None = None,
+        **kwargs,
     ) -> Self:
-        if not user_id:
-            user_id = uuid4().hex
+        """Create user from any mapping insert values.
 
-        transaction = cls(id=user_id, **kwargs)
-        session.add(transaction)
+        :rtype: Self
+        """
+        user: Self = cls(id=(user_id or uuid4().hex), **kwargs)
+        session.add(user)
+        await session.flush()
         await session.commit()
-        await session.refresh(transaction)
-        return transaction
+        await session.refresh(user)
+        return user
 
     @classmethod
     async def get_by_username(

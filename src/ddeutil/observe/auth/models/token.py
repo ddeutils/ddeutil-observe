@@ -6,13 +6,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import false, or_, select, true
-from sqlalchemy.types import Boolean, DateTime, Integer, String
+from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ...db import Base, Col, Dtype
@@ -27,20 +27,22 @@ class Token(Base):
     id: Dtype[int] = Col(Integer, primary_key=True)
     access_token: Dtype[str] = Col(String(450), nullable=False, unique=True)
     refresh_token: Dtype[str] = Col(String(450), nullable=False)
-    status: Dtype[bool] = Col(Boolean, default=True)
-    user_id: Dtype[int] = Col(Integer, ForeignKey("users.id"))
-
-    expires_at: Dtype[datetime] = Col(DateTime)
+    is_active: Dtype[bool] = Col(Boolean, default=True)
+    user_id: Dtype[UUID] = Col(UUID(as_uuid=True), ForeignKey("users.id"))
+    expires_at: Dtype[Optional[datetime]] = Col(
+        DateTime(timezone=True),
+        nullable=True,
+    )
     created_at: Dtype[datetime] = Col(
-        DateTime,
+        DateTime(timezone=True),
         default=datetime.now,
-        server_default=text("current_timestamp"),
+        nullable=False,
     )
     updated_at: Dtype[datetime] = Col(
-        DateTime,
-        nullable=True,
+        DateTime(timezone=True),
         onupdate=datetime.now,
-        server_default=text("current_timestamp"),
+        nullable=True,
+        server_default=text("(datetime('now','localtime'))"),
     )
 
     user: Dtype[User] = relationship(
@@ -50,14 +52,14 @@ class Token(Base):
 
     @classmethod
     async def get_active_by_user(
-        cls, session: AsyncSession, user_id: int
+        cls, session: AsyncSession, user_id: str
     ) -> list[Self]:
         return (
             (
                 await session.execute(
                     select(cls).where(
                         cls.user_id == user_id,
-                        cls.status == true(),
+                        cls.is_active == true(),
                     )
                 )
             )
@@ -76,7 +78,7 @@ class Token(Base):
                         cls.access_token == token,
                         cls.refresh_token == token,
                     ),
-                    cls.status == false(),
+                    cls.is_active == false(),
                 )
             )
         ).scalar_one_or_none()
@@ -97,7 +99,7 @@ class Token(Base):
                     select(cls)
                     .where(
                         cls.refresh_token == token,
-                        cls.status == true(),
+                        cls.is_active == true(),
                     )
                     .order_by(cls.created_at)
                 )
@@ -111,9 +113,10 @@ class Token(Base):
         cls,
         session: AsyncSession,
         **kwargs,
-    ):
-        transaction = cls(**kwargs)
-        session.add(transaction)
+    ) -> Self:
+        token: Self = cls(**kwargs)
+        session.add(token)
+        await session.flush()
         await session.commit()
-        await session.refresh(transaction)
-        return transaction
+        await session.refresh(token)
+        return token

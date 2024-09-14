@@ -16,8 +16,8 @@ from ...deps import get_async_session, get_templates
 from ...utils import get_logger
 from . import crud
 from .schemas import (
-    Workflow,
-    Workflows,
+    WorkflowView,
+    WorkflowViews,
 )
 
 logger = get_logger("ddeutil.observe")
@@ -36,7 +36,7 @@ async def read_workflows(
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all workflows."""
-    workflows: list[Workflow] = Workflows.validate_python(
+    workflows: list[WorkflowView] = WorkflowViews.validate_python(
         await crud.list_workflows(session)
     )
     return templates.TemplateResponse(
@@ -57,7 +57,7 @@ async def search_workflows(
     session: AsyncSession = Depends(get_async_session),
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    workflows: list[Workflow] = Workflows.validate_python(
+    workflows: list[WorkflowView] = WorkflowViews.validate_python(
         await crud.search_workflow(session=session, search_text=search_text)
     )
     if hx_request:
