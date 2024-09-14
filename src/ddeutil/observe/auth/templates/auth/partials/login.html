@@ -2,18 +2,22 @@
       hx-post="{{ url_for('login') }}"
       hx-trigger="submit">
     <div>
-        <input id="username-input"
-               autocomplete="off"
-               type="text"
-               name="username"
-               placeholder="Username...">
+        <label>Username:
+            <input id="username-input"
+                   autocomplete="off"
+                   type="text"
+                   name="username"
+                   placeholder="Username...">
+        </label>
         <br>
 
+        <label>Password:
         <input id="password-input"
                autocomplete="off"
                type="password"
                name="password"
                placeholder="Password...">
+        </label>
         <br>
 
         <input id="checkbox-me"

@@ -3,9 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>
-            {% block title %}Observe App{% endblock %}
-        </title>
+
+        <!-- Dynamic Title -->
+        <title>{% block title %}Observe App{% endblock %}</title>
 
         <link rel="preconnect" href="https://fonts.googleapis.com"/>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -15,24 +15,33 @@
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
+        <!-- Core CSS Files -->
         <link rel="stylesheet" href="/static/css/base.css"/>
+        <link rel="stylesheet" href="/static/css/navbar.css"/>
+        <link rel="stylesheet" href="/static/css/sidebar.css"/>
+        <link rel="stylesheet" href="/static/css/content.css"/>
+
+        {% block link_internal_css %}
+        {% endblock %}
 
         {% block additional_css %}
         {% endblock %}
     </head>
     <body>
         <main>
-            <!-- ASide -->
-            {% include 'fragments/aside.html' %}
+            <!-- Sidebar -->
+            {% include 'fragments/sidebar.html' %}
 
-            <!-- Header -->
+            <!-- Header & Navbar -->
             {% include 'fragments/header.html' %}
 
             <!-- Content -->
-            <div class="main_content">
-                {% block main_content %}
-                {% endblock %}
-            </div>
+            <section>
+                <div class="main_content">
+                    {% block main_content %}
+                    {% endblock %}
+                </div>
+            </section>
         </main>
     </body>
 
