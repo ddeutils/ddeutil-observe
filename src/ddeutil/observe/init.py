@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
 """
 This file will contain script that will run before the app start to create the
 super admin user.
@@ -20,7 +25,7 @@ logger = get_logger("ddeutil.observe")
 sessionmanager.init(config.OBSERVE_SQLALCHEMY_DB_ASYNC_URL)
 
 
-async def create_admin(session):
+async def create_admin(session) -> None:
     username: str = config.WEB_ADMIN_USER
     email: str = config.WEB_ADMIN_EMAIL
     hashed_password = get_password_hash(config.WEB_ADMIN_PASS)
@@ -33,15 +38,17 @@ async def create_admin(session):
     ).scalar_one_or_none()
 
     if user is None:
-        data = {
-            "username": username,
-            "email": email,
-            "hashed_password": hashed_password,
-            "is_superuser": True,
-        }
         async with sessionmanager.connect() as conn:
-            # await conn.execute()
-            await conn.execute(insert(User).values(data))
+            await conn.execute(
+                insert(User).values(
+                    {
+                        "username": username,
+                        "email": email,
+                        "hashed_password": hashed_password,
+                        "is_superuser": True,
+                    }
+                )
+            )
             await conn.commit()
 
         logger.info(f"Admin user {username} created successfully.")

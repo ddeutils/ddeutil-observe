@@ -12,8 +12,12 @@ from .conf import config
 
 
 @lru_cache
-def get_logger(name: str):
-    """Return logger with an input module name."""
+def get_logger(name: str) -> logging.Logger:  # no cov
+    """Return logger with an input module name.
+
+    :param name: A name of module that want to get logging manager
+    :rtype: logging.Logger
+    """
     logger = logging.getLogger(name)
     formatter = logging.Formatter(
         fmt=(

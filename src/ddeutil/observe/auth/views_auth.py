@@ -95,7 +95,20 @@ async def after_register(
         },
     )
 
-    # NOTE: Set cookies for access token and refresh token.
+    # NOTE: Create token on the backend database.
+    token = await service.create(
+        TokenRefreshCreate(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user_id=user.id,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
+        )
+    )
+
+    # NOTE: Set cookies for access token and refresh tokens.
     response.set_cookie(
         key="access_token",
         value=f"Bearer {access_token}",
@@ -110,17 +123,7 @@ async def after_register(
         samesite="Lax",
         max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
     )
-    return await service.create(
-        TokenRefreshCreate(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user_id=user.id,
-            expires_at=(
-                datetime.now()
-                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
-            ),
-        )
-    )
+    return token
 
 
 @auth.post("/login")
