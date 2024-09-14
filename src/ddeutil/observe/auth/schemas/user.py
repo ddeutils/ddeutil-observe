@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import Annotated, Optional
 
 from fastapi import Form
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import UUID4, BaseModel, ConfigDict, EmailStr
 
 
 class UserSchemaBase(BaseModel):
@@ -24,7 +24,7 @@ class UserDetailSchema(UserSchemaBase):
 class UserSchema(UserDetailSchema):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: UUID4
     is_verified: bool
     is_active: bool
     is_superuser: bool

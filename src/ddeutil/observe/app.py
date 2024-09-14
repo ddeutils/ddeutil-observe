@@ -96,5 +96,5 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 async def home(request: Request):
     """The home page that redirect to login."""
     return RedirectResponse(
-        request.url_for("login"), status_code=st.HTTP_303_SEE_OTHER
+        request.url_for("read_workflows"), status_code=st.HTTP_303_SEE_OTHER
     )

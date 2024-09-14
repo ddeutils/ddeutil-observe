@@ -24,7 +24,8 @@ logger = get_logger("ddeutil.observe")
 
 workflow = APIRouter(
     prefix="/workflow",
-    tags=["workflow"],
+    tags=["workflow", "frontend"],
+    # NOTE: This page require authentication step first.
     dependencies=[Depends(required_auth)],
 )
 

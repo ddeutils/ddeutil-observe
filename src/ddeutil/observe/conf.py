@@ -58,7 +58,7 @@ class BaseConfig:
 
     WEB_ADMIN_USER: str = env("OBSERVE_WEB_ADMIN_USER", "observe")
     WEB_ADMIN_PASS: str = env("OBSERVE_WEB_ADMIN_PASS", "observe")
-    WEB_ADMIN_EMAIL: str = env("OBSERVE_WEB_ADMIN_PASS", "observe@mail.com")
+    WEB_ADMIN_EMAIL: str = env("OBSERVE_WEB_ADMIN_EMAIL", "observe@mail.com")
 
 
 # NOTE: Start initialize base config object.

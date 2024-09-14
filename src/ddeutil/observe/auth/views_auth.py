@@ -19,12 +19,13 @@ from ..conf import config
 from ..deps import get_async_session, get_templates
 from .crud import TokenCRUD, UserCRUD, authenticate
 from .deps import get_current_active_user
-from .models import User
+from .models import Token, User
 from .schemas import (
     TokenRefresh,
     TokenRefreshCreate,
     UserCreateForm,
     UserResetPassForm,
+    UserSchema,
     UserScopeForm,
 )
 from .securities import create_access_token, create_refresh_token
@@ -49,12 +50,15 @@ async def register(
     response: Response,
     form_user: Annotated[UserCreateForm, Form()],
     service: UserCRUD = Depends(UserCRUD),
+    token_service: TokenCRUD = Depends(TokenCRUD),
 ):
     """Register information of user to this application for able to access any
     routes.
     """
-    await service.create_by_form(form_user)
-    response.headers["HX-Redirect"] = "/auth/login/"
+    user: UserSchema = await service.create_by_form(form_user)
+    await after_register(response, token_service, user, scopes=["me"])
+
+    response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
     return {}
 
@@ -68,6 +72,54 @@ async def login(
         request=request,
         name="auth/authenticate.html",
         context={"request": request, "content": "login"},
+    )
+
+
+async def after_register(
+    response: Response,
+    service: TokenCRUD,
+    user: User | UserSchema,
+    scopes: list[str],
+) -> Token:
+    # NOTE: OAuth2 with scopes such as `["me", ...]`.
+    access_token = create_access_token(
+        subject={
+            "sub": user.username,
+            "scopes": scopes,
+        },
+    )
+    refresh_token = create_refresh_token(
+        subject={
+            "sub": user.username,
+            "scopes": scopes,
+        },
+    )
+
+    # NOTE: Set cookies for access token and refresh token.
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        httponly=True,
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=True,
+        samesite="Lax",
+        max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+    )
+    return await service.create(
+        TokenRefreshCreate(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user_id=user.id,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
+        )
     )
 
 
@@ -89,52 +141,14 @@ async def login(
         response.status_code = st.HTTP_404_NOT_FOUND
         return {}
 
-    # NOTE: OAuth2 with scopes such as `["me", ...]`.
-    access_token = create_access_token(
-        subject={
-            "sub": user.username,
-            "scopes": form_scopes.scopes,
-        },
-    )
-    refresh_token = create_refresh_token(
-        subject={
-            "sub": user.username,
-            "scopes": form_scopes.scopes,
-        },
-    )
-
-    # NOTE: Set cookies for access token and refresh token.
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        httponly=True,
-    )
-    response.set_cookie(
-        key="refresh_token",
-        value=refresh_token,
-        httponly=True,
-        secure=True,
-        samesite="Lax",
-        max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
-    )
-
-    await service.create(
-        TokenRefreshCreate(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            user_id=user.id,
-            expires_at=(
-                datetime.now()
-                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
-            ),
-        )
+    token: Token = await after_register(
+        response, service, user, scopes=form_scopes.scopes
     )
 
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
     return {
-        "access_token": access_token,
+        "access_token": token.access_token,
         "exp": config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         "token_type": "Bearer",
     }

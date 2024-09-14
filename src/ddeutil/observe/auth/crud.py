@@ -67,7 +67,7 @@ class TokenCRUD(BaseCRUD):
             rs = await self.async_session.execute(
                 update(Token)
                 .where(Token.refresh_token == refresh_token)
-                .values(status=false())
+                .values(is_active=false())
                 .returning(Token)
             )
             await self.async_session.flush()
@@ -75,12 +75,12 @@ class TokenCRUD(BaseCRUD):
             return rs.scalars().all()
         return []
 
-    async def create(self, token: TokenRefreshCreate):
+    async def create(self, token: TokenRefreshCreate) -> Token:
         db_token = Token(
             user_id=token.user_id,
             access_token=token.access_token,
             refresh_token=token.refresh_token,
-            status=token.status,
+            is_active=token.is_active,
             expires_at=token.expires_at,
         )
         self.async_session.add(db_token)
