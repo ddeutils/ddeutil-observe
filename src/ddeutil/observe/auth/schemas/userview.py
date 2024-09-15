@@ -5,6 +5,10 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from typing import Optional
+
+from pydantic import BaseModel
+
 from .user import UserSchema
 
 
@@ -22,3 +26,15 @@ class UserView(UserSchema):
             f"<td>{self.fullname}</td>"
             f"<td>{self.is_verified}</td>"
         )
+
+
+class UserJinja(BaseModel):
+    username: Optional[str] = None
+
+    @property
+    def is_authenticated(self) -> bool:
+        return self.username is not None
+
+    @property
+    def display_name(self) -> str:
+        return self.username

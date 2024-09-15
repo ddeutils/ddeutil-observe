@@ -12,9 +12,12 @@ from fastapi import HTTPException, Request
 from fastapi import status as st
 from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
+from pydantic import BaseModel, Field
 
 from ..conf import config
+from ..utils import get_logger
 
+logger = get_logger("ddeutil.observe")
 ALGORITHM: str = "HS256"
 
 
@@ -46,6 +49,44 @@ class OAuth2PasswordBearerOrCookie(OAuth2PasswordBearer):
             else:
                 return None
         return param
+
+
+class Tokens(BaseModel):
+    access: Optional[str] = Field(default=None)
+    refresh: Optional[str] = Field(default=None)
+
+    @property
+    def has_refresh(self) -> bool:
+        return self.refresh is not None
+
+
+class OAuth2Cookie:
+
+    def __init__(self, auto_error: bool = True):
+        self.auto_error = auto_error
+
+    async def __call__(self, request: Request) -> Tokens:
+        # NOTE: get authorization and refresh key from the cookie.
+        authorization: Optional[str] = request.cookies.get("access_token")
+        refresh: Optional[str] = request.cookies.get("refresh_token")
+
+        scheme, access = get_authorization_scheme_param(authorization)
+        if not authorization or scheme.lower() != "bearer":
+            access: Optional[str] = None
+
+        if not refresh:
+            if self.auto_error:
+                raise HTTPException(
+                    status_code=st.HTTP_401_UNAUTHORIZED,
+                    detail="Not authenticated",
+                    headers={"WWW-Authenticate": "Bearer"},
+                )
+            else:
+                refresh = None
+        return Tokens(access=access, refresh=refresh)
+
+
+OAuth2SchemaView = OAuth2Cookie(auto_error=False)
 
 
 OAuth2Schema = OAuth2PasswordBearerOrCookie(

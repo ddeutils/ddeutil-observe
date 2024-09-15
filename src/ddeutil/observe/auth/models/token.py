@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Optional
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import false, or_, select, true
+from sqlalchemy.sql import false, select, true
 from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
@@ -69,22 +69,41 @@ class Token(Base):
 
     @classmethod
     async def get_disable(
-        cls, session: AsyncSession, token: str
+        cls,
+        session: AsyncSession,
+        token: str,
     ) -> Self | None:
         return (
             await session.execute(
                 select(cls).where(
-                    or_(
-                        cls.access_token == token,
-                        cls.refresh_token == token,
-                    ),
+                    cls.access_token == token,
                     cls.is_active == false(),
                 )
             )
         ).scalar_one_or_none()
 
     @classmethod
-    async def get(cls, session: AsyncSession, token: str) -> Self | None:
+    async def get_refresh_disable(
+        cls,
+        session: AsyncSession,
+        token: str,
+    ) -> Self | None:
+        return (
+            await session.execute(
+                select(cls).where(
+                    cls.access_token == token,
+                    cls.refresh_token == token,
+                    cls.is_active == false(),
+                )
+            )
+        ).scalar_one_or_none()
+
+    @classmethod
+    async def get(
+        cls,
+        session: AsyncSession,
+        token: str,
+    ) -> Self | None:
         return (
             await session.execute(select(cls).where(cls.access_token == token))
         ).scalar_one_or_none()

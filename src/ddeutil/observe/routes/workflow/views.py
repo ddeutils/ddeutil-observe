@@ -11,7 +11,7 @@ from fastapi import APIRouter, Depends, Header, Request
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...auth.deps import required_auth
+from ...auth.deps import required_current_active_user
 from ...deps import get_async_session, get_templates
 from ...utils import get_logger
 from . import crud
@@ -26,7 +26,7 @@ workflow = APIRouter(
     prefix="/workflow",
     tags=["workflow", "frontend"],
     # NOTE: This page require authentication step first.
-    dependencies=[Depends(required_auth)],
+    dependencies=[Depends(required_current_active_user)],
 )
 
 

@@ -5,7 +5,6 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, Form, Request
@@ -18,7 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..conf import config
 from ..deps import get_async_session, get_templates
 from .crud import TokenCRUD, UserCRUD, authenticate
-from .deps import get_current_active_user
+from .deps import required_current_active_user
 from .models import Token, User
 from .schemas import (
     TokenRefresh,
@@ -71,7 +70,7 @@ async def login(
     return templates.TemplateResponse(
         request=request,
         name="auth/authenticate.html",
-        context={"request": request, "content": "login"},
+        context={"content": "login"},
     )
 
 
@@ -101,10 +100,6 @@ async def after_register(
             access_token=access_token,
             refresh_token=refresh_token,
             user_id=user.id,
-            expires_at=(
-                datetime.now()
-                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
-            ),
         )
     )
 
@@ -186,7 +181,7 @@ async def change_password(
 async def logout(
     request: Request,
     response: Response,
-    user: User = Depends(get_current_active_user),
+    user: User = Depends(required_current_active_user),
     service: TokenCRUD = Depends(TokenCRUD),
 ):
     await service.retention_by_user(user.id)
@@ -197,14 +192,8 @@ async def logout(
         db_tokens = await service.update_logout(refresh_token)
 
     # NOTE: Delete cookies for access token and refresh token.
-    response.delete_cookie(
-        key="access_token",
-        httponly=True,
-    )
-    response.delete_cookie(
-        key="refresh_token",
-        httponly=True,
-    )
+    response.delete_cookie(key="access_token", httponly=True)
+    response.delete_cookie(key="refresh_token", httponly=True)
 
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND

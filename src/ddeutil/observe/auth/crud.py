@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Union
 
 import jwt
@@ -81,9 +81,22 @@ class TokenCRUD(BaseCRUD):
             access_token=token.access_token,
             refresh_token=token.refresh_token,
             is_active=token.is_active,
-            expires_at=token.expires_at,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+            ),
         )
-        self.async_session.add(db_token)
+        db_refresh = Token(
+            user_id=token.user_id,
+            access_token=token.refresh_token,
+            refresh_token=token.refresh_token,
+            is_active=token.is_active,
+            expires_at=(
+                datetime.now()
+                + timedelta(minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES)
+            ),
+        )
+        self.async_session.add_all([db_token, db_refresh])
         await self.async_session.flush()
         await self.async_session.commit()
         await self.async_session.refresh(db_token)

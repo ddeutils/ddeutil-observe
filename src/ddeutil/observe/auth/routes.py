@@ -5,7 +5,6 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
@@ -13,7 +12,6 @@ from fastapi import status as st
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..conf import config
 from ..deps import get_async_session
 from ..utils import get_logger
 from .crud import TokenCRUD, authenticate, verify_refresh_token
@@ -72,10 +70,6 @@ async def token(
             user_id=user.id,
             access_token=access_token,
             refresh_token=refresh_token,
-            expires_at=(
-                datetime.now()
-                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
-            ),
         ),
     )
 
