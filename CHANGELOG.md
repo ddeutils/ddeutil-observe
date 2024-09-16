@@ -2,6 +2,42 @@
 
 ## Latest Changes
 
+## 0.0.3
+
+### :sparkles: Features
+
+- :dart: feat: seperate getting token on frontend page and api. (_2024-09-15_)
+- :dart: feat: redirect to workflows page if user already register. (_2024-09-14_)
+- :dart: feat: change default value of datetime that use on server side. (_2024-09-14_)
+- :dart: feat: migrate sync database interface to full async. (_2024-09-13_)
+- :dart: feat: add session event listener. (_2024-09-12_)
+- :dart: feat: add verify token function on deps. (_2024-09-08_)
+
+### :black_nib: Code Changes
+
+- :test_tube: tests: add testcase for access and refresh token funcs. (_2024-09-16_)
+- :art: styled: change style of sidebar. (_2024-09-14_)
+- :art: styled: change color and pointer that use border line. (_2024-09-14_)
+- :art: styled: add border line for debug component on frontend page. (_2024-09-13_)
+- :construction: refactored: 📦 bump sqlalchemy from 2.0.32 to 2.0.34 (_2024-09-12_)
+- :construction: refactored: 📦 bump bcrypt from 3.2.2 to 4.2.0 (_2024-09-12_)
+- :art: styled: change html template include layer on base. (_2024-09-08_)
+
+### :card_file_box: Documents
+
+- :page_facing_up: docs: add emoji to readme. (_2024-09-13_)
+- :page_facing_up: docs: update readme for config values. (_2024-09-09_)
+
+### :bug: Fix Bugs
+
+- :gear: fixed: change import on workflows route. (_2024-09-14_)
+- :gear: fixed: merge change from remote repo. (_2024-09-13_)
+- :gear: fixed: logout view does not valid on remove token logic. (_2024-09-08_)
+
+### :postbox: Dependencies
+
+- :pushpin: deps: update version of fastapi to 0.114.1. (_2024-09-12_)
+
 ## 0.0.2
 
 ### :sparkles: Features
