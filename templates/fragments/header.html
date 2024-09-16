@@ -2,12 +2,14 @@
     <div class="navbar">
         <nav>
             <span>
+                {% if not request.user.is_authenticated %}
                 <a class="nav-item" href="/auth/login">
                     <span class="material-symbols-outlined">person</span>
                 </a>
                 <a class="nav-item" href="/auth/register">
                     <span class="material-symbols-outlined">person_add</span>
                 </a>
+                {% else %}
                 <a class="nav-item" href="/auth/change-password">
                     <span class="material-symbols-outlined">settings_backup_restore</span>
                 </a>
@@ -16,6 +18,7 @@
                    hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
                     <span class="material-symbols-outlined">logout</span>
                 </a>
+                {% endif %}
             </span>
         </nav>
     </div>
