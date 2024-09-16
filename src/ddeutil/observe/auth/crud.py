@@ -6,7 +6,7 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from typing import Union
+from typing import Any, Union
 
 import jwt
 from fastapi import HTTPException
@@ -26,7 +26,12 @@ from .schemas import (
     UserResetPassForm,
     UserSchema,
 )
-from .securities import ALGORITHM, get_password_hash, verify_password
+from .securities import (
+    decode_access_token,
+    decode_refresh_token,
+    get_password_hash,
+    verify_password,
+)
 
 
 async def authenticate(
@@ -76,6 +81,7 @@ class TokenCRUD(BaseCRUD):
         return []
 
     async def create(self, token: TokenRefreshCreate) -> Token:
+        """Create token"""
         db_token = Token(
             user_id=token.user_id,
             access_token=token.access_token,
@@ -163,15 +169,14 @@ async def verify_refresh_token(
     token: str,
     session: AsyncSession,
 ) -> TokenDataSchema | None:
+    """Verify a refresh token."""
 
     # NOTE: check token is disable or not.
     if await Token.get_disable(session, token=token):
         return None
 
     try:
-        payload = jwt.decode(
-            token, config.REFRESH_SECRET_KEY, algorithms=[ALGORITHM]
-        )
+        payload: dict[str, Any] = decode_refresh_token(token)
         if username := payload.get("sub"):
             return TokenDataSchema(
                 username=username,
@@ -191,7 +196,7 @@ async def verify_access_token(
         return None
 
     try:
-        payload = jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
+        payload: dict[str, Any] = decode_access_token(token)
         if username := payload.get("sub"):
             return TokenDataSchema(
                 username=username,
@@ -200,12 +205,3 @@ async def verify_access_token(
         return None
     except (jwt.InvalidTokenError, ValidationError):
         return None
-
-
-async def add_blacklist_token(token: str, session: AsyncSession) -> None:
-    payload = jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
-    expires_at = datetime.fromtimestamp(payload.get("exp"))
-    await Token.create(
-        session,
-        **{"token": token, "expires_at": expires_at},
-    )

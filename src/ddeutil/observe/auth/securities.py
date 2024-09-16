@@ -146,3 +146,11 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 def get_password_hash(password: str) -> str:
     """Return hashed password."""
     return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+
+
+def decode_access_token(token: str) -> dict[str, Any]:
+    return jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
+
+
+def decode_refresh_token(token: str) -> dict[str, Any]:
+    return jwt.decode(token, config.REFRESH_SECRET_KEY, algorithms=[ALGORITHM])

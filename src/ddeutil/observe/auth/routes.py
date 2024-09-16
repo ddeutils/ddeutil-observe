@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..deps import get_async_session
 from ..utils import get_logger
 from .crud import TokenCRUD, authenticate, verify_refresh_token
-from .deps import get_current_active_user
+from .deps import get_current_active_user, get_current_super_user
 from .models import User
 from .schemas import (
     Token,
@@ -97,22 +97,28 @@ async def refresh(
 
 
 @auth.get("/token/me/", response_model=UserSchema)
-async def read_user_me(
+async def read_token_me(
     current_user: Annotated[User, Depends(get_current_active_user)],
 ):
     """Get current active user from the current token."""
     return current_user
 
 
-@auth.get("/user/{username}")
-async def read_user(
+@auth.get(
+    path="/user/{username}",
+    dependencies=[Depends(get_current_super_user)],
+)
+async def read_user_by_username(
     username: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> UserSchema:
     return await User.get_by_username(session, username=username)
 
 
-@auth.get("/user")
+@auth.get(
+    path="/user",
+    dependencies=[Depends(get_current_super_user)],
+)
 async def read_user_all(
     session: AsyncSession = Depends(get_async_session),
 ) -> list[UserSchema]:

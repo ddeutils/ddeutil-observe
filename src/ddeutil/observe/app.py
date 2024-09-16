@@ -42,7 +42,9 @@ async def lifespan(_: FastAPI):
     async with sessionmanager.session() as session:
         await create_admin(session)
 
+    # NOTE: Start release application.
     yield
+
     if sessionmanager.is_opened():
         await sessionmanager.close()
 
@@ -65,6 +67,7 @@ app.add_middleware(
 
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
+    """Custom process time middleware."""
     start_time = time.perf_counter()
     response = await call_next(request)
     process_time = time.perf_counter() - start_time
