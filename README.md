@@ -32,6 +32,7 @@ pip install ddeutil-observe
 > | ddeutil-observe:python3.10 | `3.10`         | :x:     |
 > | ddeutil-observe:python3.11 | `3.11`         | :x:     |
 > | ddeutil-observe:python3.12 | `3.12`         | :x:     |
+> | ddeutil-observe:python3.12 | `3.13`         | :x:     |
 
 ## :beers: Getting Started
 
