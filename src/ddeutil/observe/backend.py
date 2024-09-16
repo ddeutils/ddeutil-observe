@@ -103,5 +103,5 @@ class OAuth2Middleware:
         await self.app(scope, receive, send)
 
     @staticmethod
-    def default_on_error(conn: HTTPConnection, exc: Exception) -> Response:
+    def default_on_error(_: HTTPConnection, exc: Exception) -> Response:
         return PlainTextResponse(str(exc), status_code=400)
