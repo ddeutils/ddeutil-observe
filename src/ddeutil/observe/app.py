@@ -17,6 +17,7 @@ from sqlalchemy.exc import OperationalError
 
 from .__about__ import __version__
 from .auth import api_auth, auth
+from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
 from .routes import api_router, workflow
@@ -63,6 +64,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# NOTE: Add oauth2 backend middleware.
+app.add_middleware(OAuth2Middleware, backend=OAuth2Backend())
 
 
 @app.middleware("http")

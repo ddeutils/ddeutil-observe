@@ -40,7 +40,9 @@ def register(
     return template.TemplateResponse(
         request=request,
         name="auth/authenticate.html",
-        context={"content": "register"},
+        context={
+            "content": "register",
+        },
     )
 
 

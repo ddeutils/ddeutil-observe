@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, TypeVar
 
 from fastapi import Depends, HTTPException, Security
 from fastapi import status as st
@@ -15,7 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ..deps import get_async_session
 from .crud import verify_access_token, verify_refresh_token
 from .models import Token, User
-from .securities import OAuth2Schema, OAuth2SchemaView, Tokens
+from .securities import OAuth2Schema, OAuth2SchemaView
 
 
 async def get_current_access_token(
@@ -99,19 +99,100 @@ async def get_current_super_user(
     return current_user
 
 
-async def required_refresh_token(
-    tokens: Tokens = Depends(OAuth2SchemaView),
+class BaseUser:
+    @property
+    def authorize(self) -> list[str]:
+        raise NotImplementedError()  # pragma: no cover
+
+    @property
+    def is_authenticated(self) -> bool:
+        raise NotImplementedError()  # pragma: no cover
+
+    @property
+    def display_name(self) -> str:
+        raise NotImplementedError()  # pragma: no cover
+
+    @property
+    def identity(self) -> str:
+        raise NotImplementedError()  # pragma: no cover
+
+
+class AnonymousUser(BaseUser):
+
+    @property
+    def authorize(self) -> list[str]:
+        return []
+
+    @property
+    def is_authenticated(self) -> bool:
+        return False
+
+    @property
+    def display_name(self) -> str:
+        return "anon"
+
+    @property
+    def identity(self) -> str:
+        raise NotImplementedError("Anonymous user should not get identity.")
+
+
+class SimpleUser(BaseUser):
+    """Sample API User that gives basic functionality"""
+
+    def __init__(self, username: str):
+        self.username: str = username
+
+    @property
+    def authorize(self) -> list[str]:
+        return []
+
+    @property
+    def is_authenticated(self) -> bool:
+        """Checks if the user is authenticated. This method essentially does
+        nothing, but it could implement session logic for example.
+
+        :rtype: bool
+        :return: True if the user is authenticated
+        """
+        return True
+
+    @property
+    def display_name(self) -> str:
+        """Display name of the user"""
+        return self.username
+
+    @property
+    def identity(self) -> str:
+        """Identification attribute of the user"""
+        return self.username
+
+
+SessionUser = TypeVar("SessionUser", bound=BaseUser)
+
+
+async def get_session_user(
+    token: str = Depends(OAuth2SchemaView),
+    session: AsyncSession = Depends(get_async_session),
+) -> SessionUser:
+    # Note: If token does not valid, it will return anonymous user.
+    if (token_data := await verify_refresh_token(token, session)) is None:
+        return AnonymousUser()
+    return SimpleUser(username=token_data.username)
+
+
+async def required_current_token(
+    token: Optional[str] = Depends(OAuth2SchemaView),
 ) -> str:
-    if not tokens.has_refresh:
+    if token is None:
         raise HTTPException(
             status_code=st.HTTP_307_TEMPORARY_REDIRECT,
             headers={"Location": "/auth/login"},
         )
-    return tokens.refresh
+    return token
 
 
 async def required_current_user(
-    token: str = Depends(required_refresh_token),
+    token: str = Depends(required_current_token),
     session: AsyncSession = Depends(get_async_session),
 ):
     if (token_data := await verify_refresh_token(token, session)) is None:
