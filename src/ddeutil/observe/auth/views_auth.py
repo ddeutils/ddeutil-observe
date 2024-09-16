@@ -20,8 +20,8 @@ from .crud import TokenCRUD, UserCRUD, authenticate
 from .deps import required_current_active_user
 from .models import Token, User
 from .schemas import (
-    TokenRefresh,
-    TokenRefreshCreate,
+    PlainTokenSchema,
+    TokenCreate,
     UserCreateForm,
     UserResetPassForm,
     UserSchema,
@@ -55,7 +55,7 @@ async def register(
     routes.
     """
     user: UserSchema = await service.create_by_form(form_user)
-    await after_register(response, token_service, user, scopes=["me"])
+    await create_login_session(response, token_service, user, scopes=["me"])
 
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
@@ -74,7 +74,7 @@ async def login(
     )
 
 
-async def after_register(
+async def create_login_session(
     response: Response,
     service: TokenCRUD,
     user: User | UserSchema,
@@ -95,24 +95,18 @@ async def after_register(
     )
 
     # NOTE: Create token on the backend database.
-    token = await service.create(
-        TokenRefreshCreate(
+    token: Token = await service.create(
+        TokenCreate(
             access_token=access_token,
             refresh_token=refresh_token,
             user_id=user.id,
         )
     )
 
-    # NOTE: Set cookies for access token and refresh tokens.
-    response.set_cookie(
-        key="access_token",
-        value=f"Bearer {access_token}",
-        expires=config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-        httponly=True,
-    )
+    # NOTE: Set cookies for refresh tokens.
     response.set_cookie(
         key="refresh_token",
-        value=refresh_token,
+        value=f"Bearer {refresh_token}",
         httponly=True,
         secure=True,
         samesite="Lax",
@@ -139,14 +133,14 @@ async def login(
         response.status_code = st.HTTP_404_NOT_FOUND
         return {}
 
-    token: Token = await after_register(
+    token: Token = await create_login_session(
         response, service, user, scopes=form_scopes.scopes
     )
 
     response.headers["HX-Redirect"] = "/"
     response.status_code = st.HTTP_302_FOUND
     return {
-        "access_token": token.access_token,
+        "access_token": token.token,
         "exp": config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
         "token_type": "Bearer",
     }
@@ -186,13 +180,12 @@ async def logout(
 ):
     await service.retention_by_user(user.id)
 
-    db_tokens = []
+    db_tokens: list[Token] = []
     refresh_token = request.cookies.get("refresh_token")
     if refresh_token:
-        db_tokens = await service.update_logout(refresh_token)
+        db_tokens: list[Token] = await service.update_logout(refresh_token)
 
     # NOTE: Delete cookies for access token and refresh token.
-    response.delete_cookie(key="access_token", httponly=True)
     response.delete_cookie(key="refresh_token", httponly=True)
 
     response.headers["HX-Redirect"] = "/"
@@ -200,12 +193,7 @@ async def logout(
     return {
         "message": "Logout Successfully",
         "logout": [
-            TokenRefresh.model_validate(
-                {
-                    "access_token": token.access_token,
-                    "refresh_token": token.refresh_token,
-                }
-            ).model_dump()
+            PlainTokenSchema.model_validate({"token": token.token}).model_dump()
             for token in db_tokens
         ],
     }

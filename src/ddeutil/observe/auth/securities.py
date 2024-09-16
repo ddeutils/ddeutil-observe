@@ -67,14 +67,9 @@ class OAuth2Cookie:
 
     async def __call__(self, request: Request) -> Tokens:
         # NOTE: get authorization and refresh key from the cookie.
-        authorization: Optional[str] = request.cookies.get("access_token")
-        refresh: Optional[str] = request.cookies.get("refresh_token")
-
-        scheme, access = get_authorization_scheme_param(authorization)
+        authorization: Optional[str] = request.cookies.get("refresh_token")
+        scheme, refresh = get_authorization_scheme_param(authorization)
         if not authorization or scheme.lower() != "bearer":
-            access: Optional[str] = None
-
-        if not refresh:
             if self.auto_error:
                 raise HTTPException(
                     status_code=st.HTTP_401_UNAUTHORIZED,
@@ -83,7 +78,7 @@ class OAuth2Cookie:
                 )
             else:
                 refresh = None
-        return Tokens(access=access, refresh=refresh)
+        return Tokens(access=None, refresh=refresh)
 
 
 OAuth2SchemaView = OAuth2Cookie(auto_error=False)

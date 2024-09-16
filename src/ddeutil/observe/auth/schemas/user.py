@@ -30,6 +30,10 @@ class UserSchema(UserDetailSchema):
     is_superuser: bool
     created_at: datetime
 
+    # @field_serializer("id")
+    # def serialize_id(self, user_id: UUID4):
+    #     return str(user_id)
+
 
 class UserResetPassForm(UserSchemaBase):
     username: str

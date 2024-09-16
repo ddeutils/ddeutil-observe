@@ -20,8 +20,8 @@ from ..conf import config
 from ..crud import BaseCRUD
 from .models import Token, User
 from .schemas import (
+    TokenCreate,
     TokenDataSchema,
-    TokenRefreshCreate,
     UserCreateForm,
     UserResetPassForm,
     UserSchema,
@@ -64,14 +64,12 @@ class TokenCRUD(BaseCRUD):
             await self.async_session.flush()
             await self.async_session.commit()
 
-    async def update_logout(self, refresh_token: str):
-        db_tokens = await Token.get_by_refresh(
-            self.async_session, token=refresh_token
-        )
+    async def update_logout(self, token: str):
+        db_tokens = await Token.get(self.async_session, token=token)
         if db_tokens:
             rs = await self.async_session.execute(
                 update(Token)
-                .where(Token.refresh_token == refresh_token)
+                .where(Token.token == token)
                 .values(is_active=false())
                 .returning(Token)
             )
@@ -80,12 +78,11 @@ class TokenCRUD(BaseCRUD):
             return rs.scalars().all()
         return []
 
-    async def create(self, token: TokenRefreshCreate) -> Token:
+    async def create(self, token: TokenCreate) -> Token:
         """Create token"""
         db_token = Token(
             user_id=token.user_id,
-            access_token=token.access_token,
-            refresh_token=token.refresh_token,
+            token=token.access_token,
             is_active=token.is_active,
             expires_at=(
                 datetime.now()
@@ -94,8 +91,7 @@ class TokenCRUD(BaseCRUD):
         )
         db_refresh = Token(
             user_id=token.user_id,
-            access_token=token.refresh_token,
-            refresh_token=token.refresh_token,
+            token=token.refresh_token,
             is_active=token.is_active,
             expires_at=(
                 datetime.now()

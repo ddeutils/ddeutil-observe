@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, Form, HTTPException
 from fastapi import status as st
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,9 +18,9 @@ from .crud import TokenCRUD, authenticate, verify_refresh_token
 from .deps import get_current_active_user, get_current_super_user
 from .models import User
 from .schemas import (
-    Token,
-    TokenRefresh,
-    TokenRefreshCreate,
+    TokenCreate,
+    TokenRefreshSchema,
+    TokenSchema,
     UserSchema,
 )
 from .securities import (
@@ -37,7 +37,7 @@ async def token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: AsyncSession = Depends(get_async_session),
     service: TokenCRUD = Depends(TokenCRUD),
-) -> TokenRefresh:
+) -> TokenRefreshSchema:
     if form_data.grant_type != "password":
         raise HTTPException(
             status_code=st.HTTP_406_NOT_ACCEPTABLE,
@@ -60,39 +60,48 @@ async def token(
             headers={"WWW-Authenticate": "Bearer"},
         )
     sub: dict[str, Any] = {
+        "id": str(user.id),
         "sub": user.username,
         "scopes": form_data.scopes,
     }
-    access_token = create_access_token(subject=sub | {"id": user.id})
+    access_token = create_access_token(subject=sub)
     refresh_token = create_refresh_token(subject=sub)
-    return await service.create(
-        token=TokenRefreshCreate(
+    await service.create(
+        token=TokenCreate(
             user_id=user.id,
             access_token=access_token,
             refresh_token=refresh_token,
         ),
     )
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+    }
 
 
 @auth.post("/refresh")
 async def refresh(
-    request: Request,
+    grant_type: str = Form(default="refresh_token"),
+    refresh_token: str = Form(...),
+    scopes: str = Form(default="me"),
     session: AsyncSession = Depends(get_async_session),
-) -> Token:
-    # NOTE: Getting the refresh token from the client cookie.
-    refresh_token: str | None = request.cookies.get("refresh_token")
-    if not refresh_token:
+) -> TokenSchema:
+    if grant_type != "refresh_token":
         raise HTTPException(
-            status_code=st.HTTP_404_NOT_FOUND, detail="Refresh token missing."
+            status_code=st.HTTP_404_NOT_FOUND,
+            detail="Invalid grant type.",
         )
-
     if not (user_data := await verify_refresh_token(refresh_token, session)):
         raise HTTPException(
             status_code=st.HTTP_401_UNAUTHORIZED,
             detail="Invalid refresh token.",
         )
-
-    new_access_token = create_access_token(subject={"sub": user_data.username})
+    new_access_token = create_access_token(
+        subject={
+            "sub": user_data.username,
+            "scopes": [s.strip() for s in scopes.split(",")],
+        }
+    )
     return {"access_token": new_access_token, "token_type": "Bearer"}
 
 

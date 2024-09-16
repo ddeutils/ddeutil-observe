@@ -24,9 +24,14 @@ if TYPE_CHECKING:
 class Token(Base):
     __tablename__ = "tokens"
 
-    id: Dtype[int] = Col(Integer, primary_key=True)
-    access_token: Dtype[str] = Col(String(450), nullable=False, unique=True)
-    refresh_token: Dtype[str] = Col(String(450), nullable=False)
+    id: Dtype[int] = Col(Integer, primary_key=True, index=True)
+
+    # NOTE: This JWT token should not pass the maximum length but it also has
+    #   size less or equal than 8kb.
+    token: Dtype[str] = Col(
+        String(450), nullable=False, unique=True, index=True
+    )
+
     is_active: Dtype[bool] = Col(Boolean, default=True)
     user_id: Dtype[UUID] = Col(UUID(as_uuid=True), ForeignKey("users.id"))
     expires_at: Dtype[Optional[datetime]] = Col(
@@ -49,6 +54,16 @@ class Token(Base):
         "User",
         back_populates="tokens",
     )
+
+    @classmethod
+    async def get_by_user(
+        cls, session: AsyncSession, user_id: str
+    ) -> list[Self]:
+        return (
+            (await session.execute(select(cls).where(cls.user_id == user_id)))
+            .scalars()
+            .all()
+        )
 
     @classmethod
     async def get_active_by_user(
@@ -76,23 +91,7 @@ class Token(Base):
         return (
             await session.execute(
                 select(cls).where(
-                    cls.access_token == token,
-                    cls.is_active == false(),
-                )
-            )
-        ).scalar_one_or_none()
-
-    @classmethod
-    async def get_refresh_disable(
-        cls,
-        session: AsyncSession,
-        token: str,
-    ) -> Self | None:
-        return (
-            await session.execute(
-                select(cls).where(
-                    cls.access_token == token,
-                    cls.refresh_token == token,
+                    cls.token == token,
                     cls.is_active == false(),
                 )
             )
@@ -105,27 +104,8 @@ class Token(Base):
         token: str,
     ) -> Self | None:
         return (
-            await session.execute(select(cls).where(cls.access_token == token))
+            await session.execute(select(cls).where(cls.token == token))
         ).scalar_one_or_none()
-
-    @classmethod
-    async def get_by_refresh(
-        cls, session: AsyncSession, token: str
-    ) -> Self | None:
-        return (
-            (
-                await session.execute(
-                    select(cls)
-                    .where(
-                        cls.refresh_token == token,
-                        cls.is_active == true(),
-                    )
-                    .order_by(cls.created_at)
-                )
-            )
-            .scalars()
-            .all()
-        )
 
     @classmethod
     async def create(
