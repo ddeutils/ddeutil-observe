@@ -2,6 +2,21 @@
 
 ## Latest Changes
 
+## 0.0.4
+
+### :sparkles: Features
+
+- :dart: feat: add dynamic nav bar with current session user state. (_2024-09-16_)
+- :dart: feat: add oauth middleware for checking this session has authorize. (_2024-09-16_)
+
+### :bug: Fix Bugs
+
+- :gear: fixed: remove access token when use fontend page. (_2024-09-16_)
+
+### :postbox: Dependencies
+
+- :pushpin: deps: add workflows test for python version 3.13. (_2024-09-16_)
+
 ## 0.0.3
 
 ### :sparkles: Features
