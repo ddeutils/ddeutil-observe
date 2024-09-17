@@ -9,12 +9,13 @@
 
 The **Lightweight observation web application** project was created for easy to
 make a observation web application that getting log, or trigger status from any
-data framework formats and endpoint APIs, it project will focus on the
-`ddeutil-workflow` data orchestration tool.
+data framework formats and endpoint APIs, this project focuses on the
+`ddeutil-workflow` data orchestration tool first :dart:.
 
 > [!WARNING]
-> This project is the best fit with `ddeutil-workflow` package. The first propose
-> is monitor and observe from worker nodes that deploy workflow application.
+> This project is the best fit integration with `ddeutil-workflow` package.
+> The first propose is monitor and observe from worker nodes that deploy the
+> workflow application on a target self-hosted.
 
 ## :round_pushpin: Installation
 
@@ -46,18 +47,19 @@ authentication and workflows data.
 
 ## :cookie: Configuration
 
-| Environment                                 | Component | Default | Description                              |
-|---------------------------------------------|-----------|---------|------------------------------------------|
-| `OBSERVE_CORE_TIMEZONE`                     | Core      |         |                                          |
-| `OBSERVE_CORE_SQLALCHEMY_DB_URL`            | Core      |         |                                          |
-| `OBSERVE_CORE_SQLALCHEMY_DB_ASYNC_URL`      | Core      |         |                                          |
-| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      |         |                                          |
-| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      |         |                                          |
-| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      |         |                                          |
-| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      |         |                                          |
-| `OBSERVE_WEB_ADMIN_USER`                    | Web       |         |                                          |
-| `OBSERVE_WEB_ADMIN_PASS`                    | Web       |         |                                          |
-| `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true    | Logging mode of this observe application |
+| Environment                                 | Component | Default                          | Description                                                                                   |
+|---------------------------------------------|-----------|----------------------------------|-----------------------------------------------------------------------------------------------|
+| `OBSERVE_CORE_TIMEZONE`                     | Core      | UTC                              |                                                                                               |
+| `OBSERVE_SQLALCHEMY_DB_ASYNC_URL`           | Core      | sqlite+aiosqlite:///./observe.db |                                                                                               |
+| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      |                                  |                                                                                               |
+| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      |                                  |                                                                                               |
+| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      |                                  |                                                                                               |
+| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      |                                  |                                                                                               |
+| `OBSERVE_WEB_ADMIN_USER`                    | Web       | observe                          | An username of superuser                                                                      |
+| `OBSERVE_WEB_ADMIN_PASS`                    | Web       | observe                          | An password of superuser                                                                      |
+| `OBSERVE_WEB_ADMIN_EMAIL`                   | Web       | observe@mail.com                 | An email of superuser                                                                         |
+| `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true                             | Logging mode                                                                                  |
+| `OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE`         | Log       | true                             | Database Logging mode that will logging every execution statement before and after connection |
 
 ## :rocket: Deployment
 
