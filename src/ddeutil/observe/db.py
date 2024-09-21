@@ -10,9 +10,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any
 
-from sqlalchemy import MetaData, event
-
-# from sqlalchemy import inspect
+from sqlalchemy import MetaData, event, inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
     AsyncAttrs,
@@ -25,10 +23,10 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
+    Session,
     mapped_column,
 )
 
-# from sqlalchemy.orm import Session
 from .conf import config
 from .utils import get_logger
 
@@ -78,18 +76,20 @@ def after_cursor_execute(
         logger.debug("Query Complete! Total Time: %f", total)
 
 
-# @event.listens_for(Session, "before_commit")
-# def before_commit(session):
-#     logger.debug(f"before commit: {session.info}")
-#     session.info["before_commit_hook"] = "yup"
-#
-#
-# @event.listens_for(Session, "after_commit")
-# def after_commit(session):
-#     logger.debug(
-#         f"before commit: {session.info['before_commit_hook']}, "
-#         f"after update: {session.info.get('after_update_hook', 'null')}"
-#     )
+@event.listens_for(Session, "before_commit")
+def before_commit(session):
+    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+        logger.debug(f"before commit: {session.info}")
+        session.info["before_commit_hook"] = "yup"
+
+
+@event.listens_for(Session, "after_commit")
+def after_commit(session):
+    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+        logger.debug(
+            f"before commit: {session.info['before_commit_hook']}, "
+            f"after update: {session.info.get('after_update_hook', 'null')}"
+        )
 
 
 class DBSessionManager:
@@ -208,7 +208,8 @@ Col = mapped_column
 Dtype = Mapped
 
 
-# @event.listens_for(Base, "after_update")
-# def after_update(mapper, connection, target):
-#     session = inspect(target).session
-#     session.info["after_update_hook"] = "yup"
+@event.listens_for(Base, "after_update")
+def after_update(mapper, connection, target):
+    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+        session = inspect(target).session
+        session.info["after_update_hook"] = "yup"
