@@ -40,20 +40,23 @@
         {% include 'fragments/sidebar.html' %}
 
             <!-- Content -->
-            <section class="main_content">
+            <div class="main_content">
                 {% block main_content %}
                 {% endblock %}
-            </section>
+            </div>
         </main>
     </body>
 
     <!-- Footer -->
     {% include 'fragments/footer.html' %}
-    <script src="/static/js/layout.js"></script>
 
     <script src="https://unpkg.com/htmx.org@2.0.2"
             integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
             crossorigin="anonymous"></script>
+
+    <!-- Core JS Files -->
+    <script type="text/javascript" src="/static/js/layout.js"></script>
+    <script type="text/javascript" src="/static/js/events.js"></script>
 
     {% block additional_js %}
     {% endblock %}

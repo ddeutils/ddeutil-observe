@@ -49,9 +49,25 @@ div {
     margin-left: var(--body-main-content-width);
     margin-right: 5px;
     box-sizing: border-box;
+    transition: all 0.5s ease;
+}
+
+.container.close {
+    margin-left: 100px;
 }
 
 .container_center {
-    margin: auto;
-    width: 55%;
+    margin: 30px auto 0px;
+    width: 57%;
+}
+
+@media screen and (max-width: 768px) {
+    .container {
+        margin-left: 0px;
+    }
+
+    .container.close {
+        margin-left: 0px;
+    }
+
 }

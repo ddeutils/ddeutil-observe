@@ -94,9 +94,7 @@
 .sidebar .nav_link {
     display: flex;
     align-items: center;
-    width: 100%;
-    padding: 4px 5px;
-    border-radius: 8px;
+    border-radius: 15px;
     text-decoration: none;
     color: var(--grey-color);
     white-space: nowrap;
