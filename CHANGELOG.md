@@ -2,6 +2,28 @@
 
 ## Latest Changes
 
+## 0.0.5
+
+### :sparkles: Features
+
+- :dart: feat: add title change on auth and workflow page. (_2024-09-20_)
+
+### :black_nib: Code Changes
+
+- :art: styled: fixed margin top of auth form. (_2024-09-23_)
+- :art: styled: add authentication form. (_2024-09-23_)
+- :art: styled: move all css for sidebar to its file. (_2024-09-23_)
+- :art: styled: change main page with new sidebar and navbar. (_2024-09-21_)
+
+### :package: Build & Workflow
+
+- :toolbox: build: update supported python version for 3.13. (_2024-09-16_)
+
+### :postbox: Dependencies
+
+- :pushpin: deps: update fastapi version to 0.115.0. (_2024-09-20_)
+- :pushpin: deps: update dependency that do not use yet. (_2024-09-17_)
+
 ## 0.0.4
 
 ### :sparkles: Features
