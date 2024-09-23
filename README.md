@@ -49,14 +49,14 @@ authentication and workflows data.
 
 | Environment                                 | Component | Default                          | Description                                                                                   |
 |---------------------------------------------|-----------|----------------------------------|-----------------------------------------------------------------------------------------------|
-| `OBSERVE_CORE_TIMEZONE`                     | Core      | UTC                              |                                                                                               |
-| `OBSERVE_SQLALCHEMY_DB_ASYNC_URL`           | Core      | sqlite+aiosqlite:///./observe.db |                                                                                               |
-| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      |                                  |                                                                                               |
-| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      |                                  |                                                                                               |
-| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      |                                  |                                                                                               |
-| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      |                                  |                                                                                               |
+| `OBSERVE_CORE_TIMEZONE`                     | Core      | UTC                              | A timezone that use on all components of this application                                     |
+| `OBSERVE_SQLALCHEMY_DB_ASYNC_URL`           | Core      | sqlite+aiosqlite:///./observe.db | A database url of the application backend side                                                |
+| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      | `secrets.token_urlsafe(32)`      | A secret key that use to hash the access token with jwt package                               |
+| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      | 30                               | Expire period of the access token in minute unit                                              |
+| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      | `secrets.token_urlsafe(32)`      | A secret key that use to hash the refresh token with jwt package                              |
+| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      | 60 * 24 * 8                      | Expire period of the refresh token in minute unit                                             |
 | `OBSERVE_WEB_ADMIN_USER`                    | Web       | observe                          | An username of superuser                                                                      |
-| `OBSERVE_WEB_ADMIN_PASS`                    | Web       | observe                          | An password of superuser                                                                      |
+| `OBSERVE_WEB_ADMIN_PASS`                    | Web       | observe                          | A password of superuser                                                                       |
 | `OBSERVE_WEB_ADMIN_EMAIL`                   | Web       | observe@mail.com                 | An email of superuser                                                                         |
 | `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true                             | Logging mode                                                                                  |
 | `OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE`         | Log       | true                             | Database Logging mode that will logging every execution statement before and after connection |
