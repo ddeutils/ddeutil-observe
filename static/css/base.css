@@ -3,7 +3,7 @@
     --blue-color: #4070f4;
     --grey-color: #707070;
     --grey-color-light: #aaa;
-    --body-sidebar-font-size: 15px;
+    --body-sidebar-font-size: 12px;
     --body-sidebar-width: 180px;
     --body-main-content-width: 200px;
 }
@@ -44,7 +44,6 @@ div {
 }
 
 .container {
-    width: 100%;
     margin-top: 70px;
     margin-left: var(--body-main-content-width);
     margin-right: 5px;

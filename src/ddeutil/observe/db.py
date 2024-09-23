@@ -44,17 +44,21 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     """
     cursor = dbapi_connection.cursor()
     settings: dict[str, Any] = {
-        # NOTE: Full setting for locking mode.
-        # "journal_mode": "'WAL'",
-        # "locking_mode": "'EXCLUSIVE'",
-        # "synchronous": "'NORMAL'",
-        # NOTE: Baseline setting that be production ready.
+        # NOTE:
+        #   Baseline setting that be production ready.
+        #   * WAL mode might be the one for you if you want to concurrently work
+        #     on the database, it does not block readers and writers.
+        #
+        #   Ref: https://forum.qt.io/topic/139657/multithreading-with-sqlite/
+        #
         "journal_mode": "'WAL'",
+        "locking_mode": "'NORMAL'",
+        "synchronous": "'OFF'",
         "foreign_keys": "'ON'",
         "page_size": 4096,
         "cache_size": 10000,
-        "locking_mode": "'NORMAL'",
-        "synchronous": "'OFF'",
+        # NOTE: Set busy timeout for avoid database locking with 10 sec.
+        "busy_timeout": 10000,
     }
     for k, v in settings.items():
         cursor.execute(f"PRAGMA {k} = {v};")

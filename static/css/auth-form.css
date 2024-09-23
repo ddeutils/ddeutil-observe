@@ -129,7 +129,7 @@
     border-radius: 5px;
     border: none;
     outline: none;
-    background: #626CD6;
+    background: var(--blue-color);
     color: #fff;
     font-size: 15px;
     font-weight: 500;
