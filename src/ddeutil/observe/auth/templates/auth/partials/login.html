@@ -1,35 +1,59 @@
 <form id="login-form"
       hx-post="{{ url_for('login') }}"
       hx-trigger="submit">
-        <label>Username:
-            <input id="username-input"
-                   autocomplete="off"
-                   type="text"
-                   name="username"
-                   placeholder="Username...">
-        </label>
-        <br>
-
-        <label>Password:
+    <div>
+    <h3>Log in with</h3>
+    <div class="login_option">
+        <!-- Google button -->
+        <div class="option">
+            <a href="#">
+                <img src="/static/img/logo/google.png" alt="Google" />
+                <span>Google</span>
+            </a>
+        </div>
+        <!-- Apple button -->
+        <div class="option">
+            <a href="#">
+                <img src="/static/img/logo/apple.png" alt="Apple" />
+                <span>Apple</span>
+            </a>
+        </div>
+    </div>
+    <p class="separator"><span>or</span></p>
+    <div class="input_box">
+        <label for="username-input">Username</label>
+        <input id="username-input"
+               autocomplete="off"
+               type="text"
+               name="username"
+               placeholder="Username...">
+    </div>
+    <div class="input_box">
+        <div class="password_title">
+            <label for="password-input">Password</label>
+            <a href="#">Forgot Password?</a>
+        </div>
         <input id="password-input"
                autocomplete="off"
                type="password"
                name="password"
                placeholder="Password...">
-        </label>
-        <br>
+    </div>
+    <br>
 
-        <input id="checkbox-me"
-               type="checkbox"
-               name="scopes_me"
-               checked>
-        <label for="checkbox-me">me</label>
-        <input id="checkbox-workflows"
-               type="checkbox"
-               name="scopes_workflows"
-               checked>
-        <label for="checkbox-workflows">workflows</label>
-        <br>
+    <input id="checkbox-me"
+           type="checkbox"
+           name="scopes_me"
+           checked>
+    <label for="checkbox-me">me</label>
 
-        <button type="submit">Submit</button>
+    <input id="checkbox-workflows"
+           type="checkbox"
+           name="scopes_workflows"
+           checked>
+    <label for="checkbox-workflows">workflows</label>
+    <br>
+
+    <button type="submit">Submit</button>
+    </div>
 </form>

@@ -2,32 +2,39 @@
       hx-post="{{ url_for('register') }}"
       hx-trigger="submit">
     <div>
-        <input id="username-input"
-               autocomplete="off"
-               type="text"
-               name="username"
-               placeholder="Username...">
-        <input id="password-input"
-               autocomplete="off"
-               type="password"
-               name="password"
-               placeholder="Password...">
-        <br>
-        <label>Email:
+        <h3>Register Directly</h3>
+        <div class="input_box">
+            <label for="username-input">Username</label>
+            <input id="username-input"
+                   autocomplete="off"
+                   type="text"
+                   name="username"
+                   placeholder="Username...">
+        </div>
+        <div class="input_box">
+            <label for="password-input">Password</label>
+            <input id="password-input"
+                   autocomplete="off"
+                   type="password"
+                   name="password"
+                   placeholder="Password...">
+        </div>
+        <div class="input_box">
+            <label for="email-input"l>Email</label>
             <input id="email-input"
                    autocomplete="off"
                    type="text"
                    name="email"
                    placeholder="Email...">
-        </label>
-        <br>
-        <label>Fullname:
+        </div>
+        <div class="input_box">
+            <label for="fullname-input">Fullname</label>
             <input id="fullname-input"
                    autocomplete="off"
                    type="text"
                    name="fullname"
                    placeholder="Fullname...">
-        </label>
+        </div>
         <br>
         <button type="submit">Submit</button>
     </div>

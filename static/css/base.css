@@ -5,6 +5,7 @@
     --grey-color-light: #aaa;
     --body-sidebar-font-size: 15px;
     --body-sidebar-width: 180px;
+    --body-main-content-width: 200px;
 }
 
 * {
@@ -39,15 +40,18 @@ div {
 }
 
 .main_content {
-    position: relative;
-    margin-top: 70px;
-    margin-left: var(--body-sidebar-width);
-
+    box-sizing: border-box;
 }
 
 .container {
-    position: relative;
     width: 100%;
-    margin: 0 auto;
+    margin-top: 70px;
+    margin-left: var(--body-main-content-width);
+    margin-right: 5px;
     box-sizing: border-box;
+}
+
+.container_center {
+    margin: auto;
+    width: 55%;
 }
