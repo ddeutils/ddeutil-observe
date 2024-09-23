@@ -12,6 +12,7 @@
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"/>
 
+
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
@@ -20,8 +21,9 @@
 
         <!-- Core CSS Files -->
         <link rel="stylesheet" href="/static/css/base.css"/>
-        <link rel="stylesheet" href="/static/css/navbar.css"/>
-        <link rel="stylesheet" href="/static/css/base.media.768.css"/>
+        <link rel="stylesheet" href="/static/css/core-footer.css"/>
+        <link rel="stylesheet" href="/static/css/core-sidebar.css"/>
+        <link rel="stylesheet" href="/static/css/core-navbar.css"/>
 
         {% block link_internal_css %}
         {% endblock %}
@@ -38,11 +40,9 @@
         {% include 'fragments/sidebar.html' %}
 
             <!-- Content -->
-            <section>
-                <div class="main_content">
-                    {% block main_content %}
-                    {% endblock %}
-                </div>
+            <section class="main_content">
+                {% block main_content %}
+                {% endblock %}
             </section>
         </main>
     </body>

@@ -28,8 +28,8 @@
 }
 
 .search_bar {
-    height: 47px;
-    max-width: 430px;
+    height: 45px;
+    max-width: 420px;
     width: 100%;
 }
 
@@ -37,7 +37,7 @@
     height: 100%;
     width: 100%;
     border-radius: 25px;
-    font-size: 18px;
+    font-size: 15px;
     outline: none;
     background-color: var(--white-color);
     color: var(--grey-color);
@@ -50,6 +50,7 @@
     align-items: center;
     column-gap: 25px;
 }
+
 .navbar_content i {
     cursor: pointer;
     font-size: 20px;

@@ -44,48 +44,46 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     """
     cursor = dbapi_connection.cursor()
     settings: dict[str, Any] = {
-        # "journal_mode": "WAL",
-        "journal_mode": "OFF",
-        "foreign_keys": "ON",
+        # NOTE: Full setting for locking mode.
+        # "journal_mode": "'WAL'",
+        # "locking_mode": "'EXCLUSIVE'",
+        # "synchronous": "'NORMAL'",
+        # NOTE: Baseline setting that be production ready.
+        "journal_mode": "'WAL'",
+        "foreign_keys": "'ON'",
         "page_size": 4096,
         "cache_size": 10000,
-        # "locking_mode": 'EXCLUSIVE',
-        # "synchronous": "NORMAL",
-        "synchronous": "OFF",
+        "locking_mode": "'NORMAL'",
+        "synchronous": "'OFF'",
     }
     for k, v in settings.items():
         cursor.execute(f"PRAGMA {k} = {v};")
     cursor.close()
 
 
-@event.listens_for(Engine, "before_cursor_execute")
-def before_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):
-    conn.info.setdefault("query_start_time", []).append(time.time())
-    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+if config.LOG_SQLALCHEMY_DEBUG_MODE:
+
+    @event.listens_for(Engine, "before_cursor_execute")
+    def before_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
+        conn.info.setdefault("query_start_time", []).append(time.time())
         logger.debug("Start Query: %s", statement)
 
-
-@event.listens_for(Engine, "after_cursor_execute")
-def after_cursor_execute(
-    conn, cursor, statement, parameters, context, executemany
-):
-    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+    @event.listens_for(Engine, "after_cursor_execute")
+    def after_cursor_execute(
+        conn, cursor, statement, parameters, context, executemany
+    ):
         total = time.time() - conn.info["query_start_time"].pop(-1)
         logger.debug("Query Complete! Total Time: %f", total)
 
-
-@event.listens_for(Session, "before_commit")
-def before_commit(session):
-    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+    @event.listens_for(Session, "before_commit")
+    def before_commit(session):
         logger.debug(f"before commit: {session.info}")
         session.info["before_commit_hook"] = "yup"
 
-
-@event.listens_for(Session, "after_commit")
-def after_commit(session):
-    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+    @event.listens_for(Session, "after_commit")
+    def after_commit(session):
         logger.debug(
             f"before commit: {session.info['before_commit_hook']}, "
             f"after update: {session.info.get('after_update_hook', 'null')}"
@@ -93,6 +91,10 @@ def after_commit(session):
 
 
 class DBSessionManager:
+    """Database session manager object for creating engine and session mapping
+    with host url string on the FastAPI lifespan step.
+    """
+
     def __init__(self):
         self._engine: AsyncEngine | None = None
         self._sessionmaker: async_sessionmaker | None = None
@@ -101,7 +103,7 @@ class DBSessionManager:
         self._engine = create_async_engine(
             host,
             echo=False,
-            pool_pre_ping=True,
+            pool_pre_ping=False,
             connect_args={"check_same_thread": False},
         )
         self._sessionmaker = async_sessionmaker(
@@ -183,6 +185,10 @@ DB_INDEXES_NAMING_CONVENTION: dict[str, str] = {
 #       #preventing-implicit-io-when-using-asyncsession
 #
 class Base(AsyncAttrs, DeclarativeBase):
+    """Subclass of DeclarativeBase that use to implement this application
+    custom metadata.
+    """
+
     __abstract__ = True
 
     metadata = MetaData(
@@ -208,8 +214,9 @@ Col = mapped_column
 Dtype = Mapped
 
 
-@event.listens_for(Base, "after_update")
-def after_update(mapper, connection, target):
-    if config.LOG_SQLALCHEMY_DEBUG_MODE:
+if config.LOG_SQLALCHEMY_DEBUG_MODE:
+
+    @event.listens_for(Base, "after_update")
+    def after_update(mapper, connection, target):
         session = inspect(target).session
         session.info["after_update_hook"] = "yup"
