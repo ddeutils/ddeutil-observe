@@ -1,0 +1,19 @@
+:root {
+    /* Base variables */
+    --white-color: #fff;
+    --blue-color: #4070f4;
+    --grey-color: #707070;
+    --grey-color-light: #aaa;
+
+    --body-bg-color: #e7f2fd;
+    --body-bg-color-dark: #707070;
+
+    /* Sidebar variables */
+    --body-sidebar-font-size: 12px;
+    --body-main-content-width-close: 70px;
+    --body-main-content-width: 160px;
+
+    /* Authentication Form */
+    --form-border: 1px solid #DADAF2;
+    --form-border-radius: 20px;
+}

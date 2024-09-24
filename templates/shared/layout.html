@@ -12,7 +12,6 @@
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"/>
 
-
         <link rel="stylesheet"
               href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
@@ -20,6 +19,7 @@
               href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
 
         <!-- Core CSS Files -->
+        <link rel="stylesheet" href="/static/css/variables.css"/>
         <link rel="stylesheet" href="/static/css/base.css"/>
         <link rel="stylesheet" href="/static/css/core-footer.css"/>
         <link rel="stylesheet" href="/static/css/core-sidebar.css"/>
@@ -33,22 +33,32 @@
     </head>
     <body>
         <main>
-        <!-- Header & Navbar -->
-        {% include 'fragments/navbar.html' %}
+            {% set active_sidebar = active_sidebar|default('true') %}
 
-        <!-- Sidebar -->
-        {% include 'fragments/sidebar.html' %}
+            <!-- Header & Navbar -->
+            {% include 'fragments/navbar.html' %}
 
-            <!-- Content -->
-            <div class="main_content">
-                {% block main_content %}
-                {% endblock %}
+            {% block main_content_wrapper %}
+
+            <!-- Outside Sidebar -->
+            {% include 'fragments/sidebar.html' %}
+
+            <div class="outside-main-wrapper">
+                <div class="main-wrapper">
+                    <div class="sidebar-container">
+                    </div>
+
+                    <!-- Content -->
+                    {% block main_content %}
+                    {% endblock %}
+                </div>
             </div>
-        </main>
-    </body>
 
-    <!-- Footer -->
-    {% include 'fragments/footer.html' %}
+            {% endblock %}
+        </main>
+        <!-- Footer -->
+        {% include 'fragments/footer.html' %}
+    </body>
 
     <script src="https://unpkg.com/htmx.org@2.0.2"
             integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
@@ -57,6 +67,10 @@
     <!-- Core JS Files -->
     <script type="text/javascript" src="/static/js/layout.js"></script>
     <script type="text/javascript" src="/static/js/events.js"></script>
+
+    {% if active_sidebar == 'true' %}
+    <script type="text/javascript" src="/static/js/sidebar.js"></script>
+    {% endif %}
 
     {% block additional_js %}
     {% endblock %}

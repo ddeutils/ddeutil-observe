@@ -1,45 +1,27 @@
 <nav class="navbar">
     <!--  Left Navbar  -->
-    <div class="logo_item">
+    <div class="navbar_logo">
+        {% if active_sidebar == 'true' %}
         <i class="bx bx-menu" id="sidebarOpen"></i>
-        <span>
-            <img src="/static/img/eyelash-curler-svgrepo-com.svg" alt="logo">Observe
-        </span>
+        {% endif %}
+        <a href="/">
+            <img src="/static/img/eyelash-curler-svgrepo-com.svg" alt="logo">
+        </a>
+        <span>Observe</span>
     </div>
 
+    <!--  Search Navbar  -->
     <div class="search_bar">
         <input type="text" placeholder="Search" />
     </div>
 
     <div class="navbar_content">
         <i class='bx bx-sun' id="darkLight"></i>
-        <i class='bx bx-bell' ></i>
-        <img src="/static/img/profile.svg" alt="profile-anon" class="profile" />
+        <a class="nav-item" href="/auth/login"><i class='bx bx-bell' ></i></a>
+        <a href="/auth/login"
+           hx-post="/auth/logout"
+           hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
+            <img src="/static/img/profile.svg" alt="profile-anon" class="profile" />
+        </a>
     </div>
 </nav>
-
-<!--<header id="top">-->
-<!--    <div class="navbar">-->
-<!--        <nav>-->
-<!--            <span>-->
-<!--                {% if not request.user.is_authenticated %}-->
-<!--                <a class="nav-item" href="/auth/login">-->
-<!--                    <span class="material-symbols-outlined">person</span>-->
-<!--                </a>-->
-<!--                <a class="nav-item" href="/auth/register">-->
-<!--                    <span class="material-symbols-outlined">person_add</span>-->
-<!--                </a>-->
-<!--                {% else %}-->
-<!--                <a class="nav-item" href="/auth/change-password">-->
-<!--                    <span class="material-symbols-outlined">settings_backup_restore</span>-->
-<!--                </a>-->
-<!--                <a href="/auth/login"-->
-<!--                   hx-post="/auth/logout"-->
-<!--                   hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">-->
-<!--                    <span class="material-symbols-outlined">logout</span>-->
-<!--                </a>-->
-<!--                {% endif %}-->
-<!--            </span>-->
-<!--        </nav>-->
-<!--    </div>-->
-<!--</header>-->
