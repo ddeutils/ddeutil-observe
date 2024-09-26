@@ -44,6 +44,18 @@ div {
     grid-template-areas: "sidebar main toc";
     grid-template-columns: minmax(0, 12rem) minmax(0, 2.5fr) minmax(0, 10rem);
     padding-right: 1rem;
+
+    .sidebar-content {
+        grid-area: sidebar;
+    }
+
+    .toc-content {
+        grid-area: toc;
+    }
+
+    .main-content {
+        grid-area: main;
+    }
 }
 
 @media screen and (max-width: 768px) {
