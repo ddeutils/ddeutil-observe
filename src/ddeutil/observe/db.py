@@ -38,7 +38,9 @@ class DatabaseManageException(Exception): ...
 
 @event.listens_for(Engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
-    """Read more:
+    """Set pragma property to the SQLite database for the best performance.
+
+    Read more:
     - https://docs.sqlalchemy.org/en/20/dialects/sqlite.html -
         #foreign-key-support
     """
