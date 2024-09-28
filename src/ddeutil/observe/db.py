@@ -153,7 +153,7 @@ class DBSessionManager:
                 "DatabaseSessionManager is not initialized"
             )
 
-        session = self._sessionmaker()
+        session: AsyncSession = self._sessionmaker()
         try:
             yield session
         except Exception:

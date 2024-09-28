@@ -2,15 +2,13 @@
 {% block title %}Workflows{% endblock %}
 {% block main_content %}
 <div class="container">
-    <div class="container-center">
-        <div>
-            <h2>Workflows</h2>
-        </div>
+    <header><h2>Workflows</h2></header>
+    <div class="table-search">
         <h3>
-            Search
-            <span class="htmx-indicator">
-            <img src="/static/img/bars.svg" alt="progress bars" /> Searching...
-            </span>
+        Search
+        <span class="htmx-indicator">
+        <img src="/static/img/bars.svg" alt="progress bars" /> Searching...
+        </span>
         </h3>
         <input class="form-control" type="text"
                name="search_text" placeholder="Search by Workflow Name ..."
@@ -20,9 +18,12 @@
                hx-target="#workflow-results"
                hx-push-url="true"
                hx-indicator=".htmx-indicator">
+        </div>
 
-        {% include 'workflow/partials/workflow_results.html' %}
+    {% include 'workflow/partials/workflow_results.html' %}
 
-    </div>
 </div>
+{% endblock %}
+{% block link_internal_css %}
+<link rel="stylesheet" href="/static/css/core-table.css"/>
 {% endblock %}

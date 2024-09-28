@@ -1,26 +1,36 @@
-<div class="table-responsive">
-    <table class="table" id="workflow-results">
+<div class="table-wrapper">
+    <table id="workflow-results">
         <thead>
-        <tr>
-            <th></th>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Params</th>
-            <th>On</th>
-            <th>Jobs</th>
-        </tr>
+            <tr>
+                <th></th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Params</th>
+                <th>On</th>
+                <th>Jobs</th>
+            </tr>
         </thead>
         <tbody>
-        {% for workflow in workflows %}
-        <tr>
-            <td>...</td>
-            <td>{{ workflow.id }}</td>
-            <td>{{ workflow.name }}</td>
-            <td>{{ workflow.params }}</td>
-            <td>{{ workflow.on }}</td>
-            <td>{{ workflow.jobs }}</td>
-        </tr>
-        {% endfor %}
+            {% for workflow in workflows %}
+            <tr>
+                <td>...</td>
+                <td>{{ workflow.id }}</td>
+                <td>{{ workflow.name }}</td>
+                <td>{{ workflow.params }}</td>
+                <td>{{ workflow.on }}</td>
+                <td>{{ workflow.jobs }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td>ID</td>
+                <td>Name</td>
+                <td>Params</td>
+                <td>On</td>
+                <td>Jobs</td>
+            </tr>
+        </tfoot>
     </table>
 </div>

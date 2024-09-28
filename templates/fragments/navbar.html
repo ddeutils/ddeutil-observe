@@ -11,13 +11,14 @@
     </div>
 
     <!--  Search Navbar  -->
-    <div class="search_bar">
-        <input type="text" placeholder="Search" />
+    <div class="search-box">
+        <input type="search" class="search-input" placeholder="Search Looking For Something!" />
     </div>
 
     <div class="navbar_content">
         <i class='bx bx-sun' id="darkLight"></i>
-        <a class="nav-item" href="/auth/login"><i class='bx bx-bell' ></i></a>
+        <i class='bx bx-bell' ></i>
+        <a class="nav-item" href="/auth/login"><i class='bx bx-log-in-circle' ></i></a>
         <a href="/auth/login"
            hx-post="/auth/logout"
            hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">

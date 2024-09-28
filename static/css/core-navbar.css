@@ -27,12 +27,12 @@
     color: var(--blue-color);
 }
 
-.search_bar {
+.search-box {
     height: 40px;
     width: 80%;
     max-width: 450px;
 
-    input {
+    .search-input {
         height: 100%;
         width: 100%;
         border-radius: 25px;
@@ -42,6 +42,10 @@
         color: var(--grey-color);
         border: 1px solid var(--grey-color-light);
         padding: 0 20px;
+
+        &:focus-within {
+            outline: 1px solid var(--blue-color);
+        }
     }
 }
 

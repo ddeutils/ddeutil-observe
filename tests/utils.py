@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from pathlib import Path
 
 from ddeutil.observe.auth.schemas import UserCreateForm
@@ -12,17 +13,24 @@ from ddeutil.observe.routes.workflow.schemas import (
     ReleaseLogCreate,
     WorkflowCreate,
 )
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import (
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 
 
 def initial_auth(db_path: Path | None = None):
     db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
-    engine = create_engine(
+    engine = create_async_engine(
         f"sqlite:///{db_path}",
+        echo=False,
+        pool_pre_ping=False,
         connect_args={"check_same_thread": False},
     )
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    SessionLocal = async_sessionmaker(
+        autocommit=False, autoflush=False, bind=engine
+    )
 
     Base.metadata.create_all(bind=engine)
 
@@ -40,18 +48,30 @@ def initial_auth(db_path: Path | None = None):
         ...
 
 
-def initial_db(db_path: Path | None = None):
-    """Initial data to observe database for testing"""
+async def initial_db(db_path: Path | None = None) -> None:
+    """Initial data for testing to the observe database. This function will
+    insert workflow and logging data that will show on monitoring page.
+    The data will cover all testcases.
+    """
     db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
-    engine = create_engine(
-        f"sqlite:///{db_path}",
+    engine = create_async_engine(
+        f"sqlite+aiosqlite:///{db_path}",
+        echo=False,
+        pool_pre_ping=False,
         connect_args={"check_same_thread": False},
     )
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    SessionLocal = async_sessionmaker(
+        autocommit=False,
+        autoflush=False,
+        future=True,
+        expire_on_commit=False,
+        bind=engine,
+    )
 
-    Base.metadata.create_all(bind=engine)
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
 
-    db = SessionLocal()
+    session: AsyncSession = SessionLocal()
 
     for wf in [
         WorkflowCreate(
@@ -85,7 +105,7 @@ def initial_db(db_path: Path | None = None):
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
     ]:
-        create_workflow(session=db, workflow=wf)
+        await create_workflow(session=session, workflow=wf)
 
     for data in [
         ReleaseLogCreate(
@@ -168,10 +188,10 @@ def initial_db(db_path: Path | None = None):
             ],
         ),
     ]:
-        create_release_log(db, 1, data)
+        await create_release_log(session, 1, data)
 
-    db.close()
+    await session.close()
 
 
 if __name__ == "__main__":
-    initial_db()
+    asyncio.run(initial_db())

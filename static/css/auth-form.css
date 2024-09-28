@@ -1,7 +1,7 @@
-.container_center {
+.auth-center {
     display: grid;
     place-content: center;
-    min-height: 100vh;
+    min-height: 90vh;
 }
 
 .auth-form {
