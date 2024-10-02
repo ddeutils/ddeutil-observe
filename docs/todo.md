@@ -69,3 +69,4 @@ Planing the todo list on this project.
 
 - [Fast FastAPI boilerplate](https://github.com/igorbenav/FastAPI-boilerplate)
 - [Fast HTMX with Sync SQLAlchemy](https://github.com/marty331/fasthtmx)
+- [17 Useful Middlewares for FastAPI that You Should Know About](https://levelup.gitconnected.com/17-useful-middlewares-for-fastapi-that-you-should-know-about-951c2b0869c7)
