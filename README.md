@@ -35,6 +35,11 @@ pip install ddeutil-observe
 > | ddeutil-observe:python3.12 | `3.12`         | :x:     |
 > | ddeutil-observe:python3.12 | `3.13`         | :x:     |
 
+> [!NOTE]
+> If you want to increase this application performance, you can install the
+> performance option, `pip install ddeutil-observe[perf]` (It does not edit
+> code, it's just routing other faster packages).
+
 ## :beers: Getting Started
 
 This project implement the best scalable FastAPI web application structure.
@@ -47,26 +52,35 @@ authentication and workflows data.
 
 ## :cookie: Configuration
 
-| Environment                                 | Component | Default                          | Description                                                                                   |
-|---------------------------------------------|-----------|----------------------------------|-----------------------------------------------------------------------------------------------|
-| `OBSERVE_CORE_TIMEZONE`                     | Core      | UTC                              | A timezone that use on all components of this application                                     |
-| `OBSERVE_SQLALCHEMY_DB_ASYNC_URL`           | Core      | sqlite+aiosqlite:///./observe.db | A database url of the application backend side                                                |
-| `OBSERVE_CORE_ACCESS_SECRET_KEY`            | Core      | `secrets.token_urlsafe(32)`      | A secret key that use to hash the access token with jwt package                               |
-| `OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES`  | Core      | 30                               | Expire period of the access token in minute unit                                              |
-| `OBSERVE_CORE_REFRESH_SECRET_KEY`           | Core      | `secrets.token_urlsafe(32)`      | A secret key that use to hash the refresh token with jwt package                              |
-| `OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES` | Core      | 60 * 24 * 8                      | Expire period of the refresh token in minute unit                                             |
-| `OBSERVE_WEB_ADMIN_USER`                    | Web       | observe                          | An username of superuser                                                                      |
-| `OBSERVE_WEB_ADMIN_PASS`                    | Web       | observe                          | A password of superuser                                                                       |
-| `OBSERVE_WEB_ADMIN_EMAIL`                   | Web       | observe@mail.com                 | An email of superuser                                                                         |
-| `OBSERVE_LOG_DEBUG_MODE`                    | Log       | true                             | Logging mode                                                                                  |
-| `OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE`         | Log       | true                             | Database Logging mode that will logging every execution statement before and after connection |
+| Environment                                    | Component  | Default                           | Description                                                                                    |
+|:-----------------------------------------------|:-----------|:----------------------------------|:-----------------------------------------------------------------------------------------------|
+| **OBSERVE_CORE_TIMEZONE**                      | Core       | UTC                               | A timezone that use on all components of this application                                      |
+| **OBSERVE_SQLALCHEMY_DB_ASYNC_URL**            | Core       | sqlite+aiosqlite:///./observe.db  | A database url of the application backend side                                                 |
+| **OBSERVE_CORE_ACCESS_SECRET_KEY**             | Core       | `secrets.token_urlsafe(32)`       | A secret key that use to hash the access token with jwt package                                |
+| **OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES**   | Core       | 30                                | Expire period of the access token in minute unit                                               |
+| **OBSERVE_CORE_REFRESH_SECRET_KEY**            | Core       | `secrets.token_urlsafe(32)`       | A secret key that use to hash the refresh token with jwt package                               |
+| **OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES**  | Core       | 60 * 24 * 8                       | Expire period of the refresh token in minute unit                                              |
+| **OBSERVE_WEB_ADMIN_USER**                     | Web        | observe                           | An username of superuser                                                                       |
+| **OBSERVE_WEB_ADMIN_PASS**                     | Web        | observe                           | A password of superuser                                                                        |
+| **OBSERVE_WEB_ADMIN_EMAIL**                    | Web        | observe@mail.com                  | An email of superuser                                                                          |
+| **OBSERVE_LOG_DEBUG_MODE**                     | Log        | true                              | Logging mode                                                                                   |
+| **OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE**          | Log        | true                              | Database Logging mode that will logging every execution statement before and after connection  |
 
 ## :rocket: Deployment
 
 ```shell
-(env) $ uvicorn src.ddeutil.observe.app:app --host 127.0.0.1 --port 88
+(env) $ uvicorn src.ddeutil.observe.app:app \
+  --host 127.0.0.1 \
+  --port 88 \
+  --no-access-log
 ```
 
 > [!NOTE]
-> If this package already deploy, it able to use
-> `uvicorn ddeutil.workflow.api:app --host 127.0.0.1 --port 88 --workers 4`
+> If this package already deploy, it is able to use
+> ```shell
+> (env) $ uvicorn ddeutil.workflow.api:app \
+>   --host 127.0.0.1 \
+>   --port 88 \
+>   --workers 4 \
+>   --no-access-log
+> ```
