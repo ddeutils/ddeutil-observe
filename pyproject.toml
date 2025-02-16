@@ -31,7 +31,7 @@ dependencies = [
     "fastapi==0.115.8",
     "uvicorn==0.34.0",
     "jinja2==3.1.5",
-    "sqlalchemy==2.0.36",
+    "sqlalchemy==2.0.38",
 
     # Authen & Security.
     "python-multipart==0.0.20",
