@@ -48,7 +48,7 @@ perf = [
     "uvloop",
 ]
 test = [
-    "httpx==0.27.2",
+    "httpx==0.28.1",
     "aiosqlite==0.20.0",
 ]
 
