@@ -25,7 +25,7 @@ class BaseConfig:
     API_PREFIX: str = "/api/v1"
 
     OBSERVE_SQLALCHEMY_DB_ASYNC_URL: str = env(
-        "OBSERVE_SQLALCHEMY_DB_ASYNC_URL",
+        "OBSERVE_CORE_SQLALCHEMY_DB_ASYNC_URL",
         (
             "sqlite+aiosqlite://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
         ).format(
