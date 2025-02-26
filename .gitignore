@@ -172,3 +172,7 @@ observe.db-journal
 
 # Assets
 *.bkp
+
+# Workflow files
+audits/
+logs/
