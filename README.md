@@ -17,6 +17,9 @@ This project focuses on the `ddeutil-workflow` tool first :dart:.
 > The first propose is monitor and observe from worker nodes that deploy the
 > workflow application on a target self-hosted.
 
+> [!NOTE]
+> I will use this project to be the base Frontend learning path for me.
+
 ## :round_pushpin: Installation
 
 ```shell

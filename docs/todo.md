@@ -1,4 +1,4 @@
-# To Do
+# ToDo
 
 Planing the todo list on this project.
 

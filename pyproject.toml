@@ -44,8 +44,7 @@ dynamic = ["version"]
 
 [project.optional-dependencies]
 perf = [
-    # NOTE: It is faster than H11
-    "httptools",
+    "httptools",  # NOTE: It is faster than H11
     "uvloop",
 ]
 test = [

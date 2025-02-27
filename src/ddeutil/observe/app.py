@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import time
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, Request
 from fastapi import status as st
@@ -26,6 +27,7 @@ from .routes import api_router, workflow
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
+PARENT_PATH: Path = Path(__file__).parent
 
 # NOTE: Initial sqlalchemy session maker object that create instance of current
 #   database pointer from `OBSERVE_SQLALCHEMY_DB_ASYNC_URL` env var.
@@ -45,7 +47,6 @@ async def lifespan(_: FastAPI):
     async with sessionmanager.session() as session:
         await create_admin(session)
 
-    # NOTE: Start release application.
     yield
 
     if sessionmanager.is_opened():
@@ -101,7 +102,11 @@ app.include_router(api_router, prefix=config.api_prefix)
 app.include_router(workflow)
 
 # NOTE: Start mount all static files from /static path to this application.
-app.mount("/static", StaticFiles(directory="static"), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=PARENT_PATH / "static"),
+    name="static",
+)
 
 
 @app.get("/")

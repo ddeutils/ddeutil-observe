@@ -15,21 +15,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import sessionmanager
 
+PARENT_PATH: Path = Path(__file__).parent
+
 
 def get_templates(request: Request) -> Jinja2Templates:
     """Dynamic multi-templating Jinja2 loader that support templates inside
     APIRouter.
     """
-    choices: list[FileSystemLoader] = [FileSystemLoader("./templates")]
+    choices: list[FileSystemLoader] = [
+        FileSystemLoader(PARENT_PATH / "templates")
+    ]
     if request.url.path != "/":
         route: str = request.url.path.strip("/").split("/")[0]
-        route_path: Path = Path(__file__).parent / f"routes/{route}/templates"
+        route_path: Path = PARENT_PATH / f"routes/{route}/templates"
 
         # NOTE: Check route path exists on the current request.
         if route_path.exists():
             choices.insert(0, FileSystemLoader(route_path))
         else:
-            auth_path: Path = Path(__file__).parent / "auth/templates"
+            auth_path: Path = PARENT_PATH / "auth/templates"
             if auth_path.exists():
                 choices.insert(0, FileSystemLoader(auth_path))
 
