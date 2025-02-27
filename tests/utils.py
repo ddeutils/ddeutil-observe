@@ -27,7 +27,7 @@ OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
 def initial_auth(db_path: Optional[Path] = None):
-    db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
+    db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
     engine = create_async_engine(
         f"sqlite:///{db_path}",
         echo=False,
@@ -79,7 +79,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
     """
-    db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
+    db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
     engine = create_async_engine(
         f"sqlite+aiosqlite:///{db_path}",
         echo=False,
