@@ -22,13 +22,13 @@ from .deps import get_async_session
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
-sessionmanager.init(config.OBSERVE_SQLALCHEMY_DB_ASYNC_URL)
+sessionmanager.init(config.sqlalchemy_db_async_url)
 
 
 async def create_admin(session) -> None:
-    username: str = config.WEB_ADMIN_USER
-    email: str = config.WEB_ADMIN_EMAIL
-    hashed_password = get_password_hash(config.WEB_ADMIN_PASS)
+    username: str = config.web_admin_user
+    email: str = config.web_admin_email
+    hashed_password = get_password_hash(config.web_admin_pass)
 
     # NOTE: Check this user already exists on the current backend database.
     user: User | None = (

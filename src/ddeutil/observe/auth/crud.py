@@ -86,7 +86,7 @@ class TokenCRUD(BaseCRUD):
             is_active=token.is_active,
             expires_at=(
                 datetime.now()
-                + timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+                + timedelta(minutes=config.access_token_expire_mins)
             ),
         )
         db_refresh = Token(
@@ -95,7 +95,7 @@ class TokenCRUD(BaseCRUD):
             is_active=token.is_active,
             expires_at=(
                 datetime.now()
-                + timedelta(minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES)
+                + timedelta(minutes=config.refresh_token_expire_mins)
             ),
         )
         self.async_session.add_all([db_token, db_refresh])

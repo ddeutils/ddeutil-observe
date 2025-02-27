@@ -67,7 +67,7 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.close()
 
 
-if config.LOG_SQLALCHEMY_DEBUG_MODE:
+if config.log_sqlalchemy_debug:
 
     @event.listens_for(Engine, "before_cursor_execute")
     def before_cursor_execute(
@@ -220,7 +220,7 @@ Col = mapped_column
 Dtype = Mapped
 
 
-if config.LOG_SQLALCHEMY_DEBUG_MODE:
+if config.log_sqlalchemy_debug:
 
     @event.listens_for(Base, "after_update")
     def after_update(mapper, connection, target):

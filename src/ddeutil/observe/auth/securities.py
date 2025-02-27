@@ -22,11 +22,11 @@ ALGORITHM: str = "HS256"
 
 class OAuth2PasswordBearerOrCookie(OAuth2PasswordBearer):
     """OAuth2 flow for authentication using a bearer token obtained with a
-    password. The token that will obtained able to be refresh token from the
+    password. The token that will obtain able to be refresh token from the
     client cookie with `refresh_token` key.
     An instance of it would be used as a dependency."""
 
-    # IMPORTANT: it will raise Request does not exists when use
+    # IMPORTANT: it will raise Request does not exist when use
     #   `from __future__ import annotations` on above script file.
     async def __call__(self, request: Request) -> Optional[str]:
 
@@ -98,12 +98,12 @@ def create_access_token(
         expire: datetime = datetime.now(timezone.utc) + expires_delta
     else:
         expire: datetime = datetime.now(timezone.utc) + timedelta(
-            minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
+            minutes=config.access_token_expire_mins
         )
 
     to_encode = subject.copy()
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, config.SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, config.secret_key, algorithm=ALGORITHM)
 
 
 def create_refresh_token(
@@ -115,12 +115,12 @@ def create_refresh_token(
         expire: datetime = datetime.now(timezone.utc) + expires_delta
     else:
         expire: datetime = datetime.now(timezone.utc) + timedelta(
-            minutes=config.REFRESH_TOKEN_EXPIRE_MINUTES
+            minutes=config.refresh_token_expire_mins
         )
 
     to_encode = subject.copy()
     to_encode.update({"exp": expire})
-    return jwt.encode(to_encode, config.REFRESH_SECRET_KEY, algorithm=ALGORITHM)
+    return jwt.encode(to_encode, config.refresh_secret_key, algorithm=ALGORITHM)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -134,8 +134,8 @@ def get_password_hash(password: str) -> str:
 
 
 def decode_access_token(token: str) -> dict[str, Any]:
-    return jwt.decode(token, config.SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(token, config.secret_key, algorithms=[ALGORITHM])
 
 
 def decode_refresh_token(token: str) -> dict[str, Any]:
-    return jwt.decode(token, config.REFRESH_SECRET_KEY, algorithms=[ALGORITHM])
+    return jwt.decode(token, config.refresh_secret_key, algorithms=[ALGORITHM])

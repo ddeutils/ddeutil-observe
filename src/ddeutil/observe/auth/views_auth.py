@@ -29,11 +29,14 @@ from .schemas import (
 )
 from .securities import create_access_token, create_refresh_token
 
-auth = APIRouter(prefix="/auth", tags=["auth", "frontend"])
+auth = APIRouter(
+    prefix="/auth",
+    tags=["auth", "frontend"],
+)
 
 
 @auth.get("/register")
-def register(
+async def register(
     request: Request,
     template: Jinja2Templates = Depends(get_templates),
 ) -> HTMLResponse:
@@ -47,7 +50,7 @@ def register(
 
 
 @auth.post("/register")
-async def register(
+async def register_create(
     response: Response,
     form_user: Annotated[UserCreateForm, Form()],
     service: UserCRUD = Depends(UserCRUD),
@@ -112,13 +115,13 @@ async def create_login_session(
         httponly=True,
         secure=True,
         samesite="Lax",
-        max_age=config.REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+        max_age=config.refresh_token_expire_mins * 60,
     )
     return token
 
 
 @auth.post("/login")
-async def login(
+async def login_create(
     response: Response,
     session: AsyncSession = Depends(get_async_session),
     form_scopes: UserScopeForm = Depends(UserScopeForm.as_form),
@@ -143,7 +146,7 @@ async def login(
     response.status_code = st.HTTP_302_FOUND
     return {
         "access_token": token.token,
-        "exp": config.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        "exp": config.access_token_expire_mins * 60,
         "token_type": "Bearer",
     }
 
@@ -161,7 +164,7 @@ async def change_password(
 
 
 @auth.post("/change-password")
-async def change_password(
+async def change_password_create(
     response: Response,
     form_data: Annotated[UserResetPassForm, Depends()],
     service: UserCRUD = Depends(UserCRUD),

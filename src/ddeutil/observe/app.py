@@ -29,7 +29,7 @@ logger = get_logger("ddeutil.observe")
 
 # NOTE: Initial sqlalchemy session maker object that create instance of current
 #   database pointer from `OBSERVE_SQLALCHEMY_DB_ASYNC_URL` env var.
-sessionmanager.init(config.OBSERVE_SQLALCHEMY_DB_ASYNC_URL)
+sessionmanager.init(config.sqlalchemy_db_async_url)
 
 
 @asynccontextmanager
@@ -93,11 +93,11 @@ async def sqlalchemy_exception_handler(_: Request, exc) -> PlainTextResponse:
 
 
 # NOTE: Authentication
-app.include_router(api_auth, prefix=config.API_PREFIX)
+app.include_router(api_auth, prefix=config.api_prefix)
 app.include_router(auth)
 
 # NOTE: Any routers
-app.include_router(api_router, prefix=config.API_PREFIX)
+app.include_router(api_router, prefix=config.api_prefix)
 app.include_router(workflow)
 
 # NOTE: Start mount all static files from /static path to this application.

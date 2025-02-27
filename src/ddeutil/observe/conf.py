@@ -7,59 +7,89 @@ from __future__ import annotations
 
 import os
 import secrets
+from zoneinfo import ZoneInfo
 
 from ddeutil.core import str2bool
 from dotenv import load_dotenv
 
-# NOTE: Loading environment variable before initialize the FastApi application.
+PREFIX: str = "OBSERVE"
+
+# NOTE: Loading environment variable before initialize the FastAPI application.
 load_dotenv()
 
-env = os.getenv
+
+def env(var: str, default: str | None = None) -> str | None:  # pragma: no cov
+    return os.getenv(f"{PREFIX}_{var.upper().replace(' ', '_')}", default)
 
 
-class BaseConfig:
+class Config:
     """Base configuration that use on this application on all module that want
     to dynamic value with environment variable changing action.
     """
 
-    API_PREFIX: str = "/api/v1"
+    @property
+    def tz(self) -> ZoneInfo:
+        return ZoneInfo(env("CORE_TIMEZONE", "UTC"))
 
-    OBSERVE_SQLALCHEMY_DB_ASYNC_URL: str = env(
-        "OBSERVE_CORE_SQLALCHEMY_DB_ASYNC_URL",
-        (
-            "sqlite+aiosqlite://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
-        ).format(
-            DB_USER=env("OBSERVE_DB_USER", ""),
-            DB_PASSWORD=(
-                f":{pwd}" if (pwd := env("OBSERVE_DB_PASSWORD")) else ""
+    @property
+    def api_prefix(self) -> str:
+        return env("CORE_API_PREFIX", "/api/v1")
+
+    @property
+    def sqlalchemy_db_async_url(self) -> str:
+        return env(
+            "CORE_SQLALCHEMY_DB_ASYNC_URL",
+            "{DB_DRIVER}://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}".format(
+                DB_DRIVER=env("CORE_SQLALCHEMY_DB_DRIVER", "sqlite+aiosqlite"),
+                DB_USER=env("CORE_SQLALCHEMY_DB_USER", ""),
+                DB_PASSWORD=(
+                    f":{pwd}"
+                    if (pwd := env("CORE_SQLALCHEMY_DB_PASSWORD"))
+                    else ""
+                ),
+                DB_HOST=env("CORE_SQLALCHEMY_DB_HOST", ""),
+                DB_NAME=env("CORE_SQLALCHEMY_DB_NAME", "observe.db"),
             ),
-            DB_HOST=env("OBSERVE_DB_HOST", ""),
-            DB_NAME=env("OBSERVE_DB_NAME", "observe.db"),
-        ),
-    )
-    LOG_DEBUG_MODE: bool = str2bool(env("OBSERVE_LOG_DEBUG_MODE", "true"))
-    LOG_SQLALCHEMY_DEBUG_MODE: bool = str2bool(
-        env("OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE", "false")
-    )
+        )
 
-    # NOTE:
-    #   * token:    30 minutes                      = 30 minutes
-    #   * refresh:  60 minutes * 24 hours * 8 days  = 8 days
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    @property
+    def log_debug(self) -> bool:
+        return str2bool(env("LOG_DEBUG_MODE", "true"))
 
-    # NOTE: Secret keys that use to hash any jwt token generated value.
-    SECRET_KEY: str = env(
-        "OBSERVE_CORE_ACCESS_SECRET_KEY", secrets.token_urlsafe(32)
-    )
-    REFRESH_SECRET_KEY: str = env(
-        "OBSERVE_REFRESH_SECRET_KEY", secrets.token_urlsafe(32)
-    )
+    @property
+    def log_sqlalchemy_debug(self) -> bool:
+        return str2bool(env("LOG_SQLALCHEMY_DEBUG_MODE", "false"))
 
-    WEB_ADMIN_USER: str = env("OBSERVE_WEB_ADMIN_USER", "observe")
-    WEB_ADMIN_PASS: str = env("OBSERVE_WEB_ADMIN_PASS", "observe")
-    WEB_ADMIN_EMAIL: str = env("OBSERVE_WEB_ADMIN_EMAIL", "observe@mail.com")
+    @property
+    def access_token_expire_mins(self) -> int:
+        # NOTE: token: 30 minutes = 30 minutes
+        return env("CORE_ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+
+    @property
+    def refresh_token_expire_mins(self) -> int:
+        # NOTE: refresh: 60 minutes * 24 hours * 8 days  = 8 days
+        return env("CORE_REFRESH_TOKEN_EXPIRE_MINUTES", 60 * 24 * 8)
+
+    @property
+    def secret_key(self) -> str:
+        # NOTE: Secret keys that use to hash any jwt token generated value.
+        return env("CORE_ACCESS_SECRET_KEY", secrets.token_urlsafe(32))
+
+    @property
+    def refresh_secret_key(self) -> str:
+        return env("CORE_REFRESH_SECRET_KEY", secrets.token_urlsafe(32))
+
+    @property
+    def web_admin_user(self) -> str:
+        return env("WEB_ADMIN_USER", "observe")
+
+    @property
+    def web_admin_pass(self) -> str:
+        return env("WEB_ADMIN_PASS", "observe")
+
+    @property
+    def web_admin_email(self) -> str:
+        return env("WEB_ADMIN_EMAIL", "observe@mail.com")
 
 
-# NOTE: Start initialize base config object.
-config = BaseConfig()
+config = Config()

@@ -35,10 +35,9 @@
         <main>
             {% set active_sidebar = active_sidebar|default('true') %}
 
-            <!-- Header & Navbar -->
-            {% include 'fragments/navbar.html' %}
-
             {% block main_content_wrapper %}
+                <!-- Header & Navbar -->
+                {% include 'fragments/navbar.html' %}
 
                 <!-- Outside Sidebar -->
                 {% include 'fragments/sidebar.html' %}

@@ -30,5 +30,5 @@ def get_logger(name: str) -> logging.Logger:  # no cov
     stream = logging.StreamHandler()
     stream.setFormatter(formatter)
     logger.addHandler(stream)
-    logger.setLevel(logging.DEBUG if config.LOG_DEBUG_MODE else logging.INFO)
+    logger.setLevel(logging.DEBUG if config.log_debug else logging.INFO)
     return logger
