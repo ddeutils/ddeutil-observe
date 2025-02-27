@@ -2,6 +2,60 @@
 
 ## Latest Changes
 
+## 0.0.6
+
+### :sparkles: Features
+
+- :dart: feat: remove ruff config on this project.
+- :dart: feat: add config database.
+
+### :bug: Bug fixes
+
+- :gear: fixed: secret key does not fix value.
+- :gear: fixed: change config object from class attrs to property.
+
+### :black_nib: Code Changes
+
+- :art: styled: change format of layout.
+- :package: refactored: bump sqlalchemy from 2.0.36 to 2.0.38 (#30)
+- :construction: refactored: ⬆ bump pypa/gh-action-pypi-publish from 1.12.3 to 1.12.4 (#29)
+- :package: refactored: bump httpx from 0.27.2 to 0.28.1 (#27)
+- :package: refactored: bump bcrypt from 4.2.0 to 4.2.1 (#26)
+- :package: refactored: bump fastapi from 0.115.6 to 0.115.8 (#25)
+- :package: refactored: bump jinja2 from 3.1.4 to 3.1.5
+- :package: refactored: bump uvicorn from 0.32.0 to 0.34.0 (#21)
+- :package: refactored: bump python-multipart from 0.0.12 to 0.0.20
+- :construction: refactored: ⬆ bump pypa/gh-action-pypi-publish from 1.10.2 to 1.12.3
+- :package: refactored: bump fastapi from 0.115.0 to 0.115.6
+- :package: refactored: bump pyjwt from 2.9.0 to 2.10.1
+- :package: refactored: bump sqlalchemy from 2.0.35 to 2.0.36
+- :package: refactored: update ddeutil requirement from <0.4.0,>=0.3.8 to >=0.3.8,<0.5.0
+- :package: refactored: bump uvicorn from 0.31.0 to 0.32.0
+- :construction: refactored: ⬆ bump pypa/gh-action-pypi-publish from 1.10.0 to 1.10.2
+- :package: refactored: bump uvicorn from 0.30.6 to 0.31.0
+- :package: refactored: bump python-multipart from 0.0.9 to 0.0.12
+- :package: refactored: bump sqlalchemy from 2.0.34 to 2.0.35
+- :art: styled: add media dynamic support for screen 1200px.
+- :art: styled: add sidebar and toc.
+- :art: styled: adjust css style for nesting format.
+- :art: styled: change css style to nesting.
+
+### :broom: Deprecate & Clean
+
+- :recycle: clean: add workflow logs and audits folders on gitignore.
+
+### :package: Build & Workflow
+
+- :toolbox: build: adjust clishelf config.
+- :toolbox: build: update clishelf version from 0.2.4 to 0.2.19.
+
+### :postbox: Dependencies
+
+- :pushpin: deps: update ddeutil-workflow deps for this project.
+- :pushpin: deps: update perf optional dependency for improve fastapi perf.
+- :pushpin: deps: update ddeutil[all]>=0.4.3,<0.5.0.
+- :pushpin: deps: update ddeutil>=0.3.8,<0.5.0.
+
 ## 0.0.5
 
 ### :sparkles: Features
