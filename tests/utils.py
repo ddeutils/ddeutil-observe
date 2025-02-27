@@ -4,14 +4,15 @@ import asyncio
 import logging
 from pathlib import Path
 from textwrap import dedent
+from typing import Optional
 
 from ddeutil.observe.auth.schemas import UserCreateForm
-from ddeutil.observe.routes.workflow.crud import (
+from ddeutil.observe.routes.workflows.crud import (
     create_release_log,
     create_workflow,
 )
-from ddeutil.observe.routes.workflow.models import Base
-from ddeutil.observe.routes.workflow.schemas import (
+from ddeutil.observe.routes.workflows.models import Base
+from ddeutil.observe.routes.workflows.schemas import (
     ReleaseLogCreate,
     WorkflowCreate,
 )
@@ -25,7 +26,7 @@ from sqlalchemy.ext.asyncio import (
 OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
-def initial_auth(db_path: Path | None = None):
+def initial_auth(db_path: Optional[Path] = None):
     db_path: Path = db_path or Path(__file__).parent.parent / "observe.db"
     engine = create_async_engine(
         f"sqlite:///{db_path}",
@@ -33,13 +34,13 @@ def initial_auth(db_path: Path | None = None):
         pool_pre_ping=False,
         connect_args={"check_same_thread": False},
     )
-    SessionLocal = async_sessionmaker(
+    _sessionLocal = async_sessionmaker(
         autocommit=False, autoflush=False, bind=engine
     )
 
     Base.metadata.create_all(bind=engine)
 
-    db = SessionLocal()
+    db = _sessionLocal()
     _ = db
 
     for _ in [
@@ -73,7 +74,7 @@ def dotenv_setting() -> None:
     load_dotenv(env_path)
 
 
-async def initial_db(db_path: Path | None = None) -> None:
+async def initial_db(db_path: Optional[Path] = None) -> None:
     """Initial data for testing to the observe database. This function will
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
@@ -85,7 +86,7 @@ async def initial_db(db_path: Path | None = None) -> None:
         pool_pre_ping=False,
         connect_args={"check_same_thread": False},
     )
-    SessionLocal = async_sessionmaker(
+    _sessionLocal = async_sessionmaker(
         autocommit=False,
         autoflush=False,
         future=True,
@@ -96,7 +97,7 @@ async def initial_db(db_path: Path | None = None) -> None:
     async with engine.begin() as connection:
         await connection.run_sync(Base.metadata.create_all)
 
-    session: AsyncSession = SessionLocal()
+    session: AsyncSession = _sessionLocal()
 
     for wf in [
         WorkflowCreate(

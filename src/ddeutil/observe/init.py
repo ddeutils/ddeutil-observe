@@ -11,6 +11,7 @@ super admin user.
 from __future__ import annotations
 
 import asyncio
+from typing import Optional
 
 from sqlalchemy import insert, select
 
@@ -31,7 +32,7 @@ async def create_admin(session) -> None:
     hashed_password = get_password_hash(config.web_admin_pass)
 
     # NOTE: Check this user already exists on the current backend database.
-    user: User | None = (
+    user: Optional[User] = (
         await session.execute(
             select(User).filter(User.username == username).limit(1)
         )

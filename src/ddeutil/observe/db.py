@@ -8,7 +8,7 @@ from __future__ import annotations
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import Any
+from typing import Any, Optional
 
 from sqlalchemy import MetaData, event, inspect
 from sqlalchemy.engine import Engine
@@ -102,8 +102,8 @@ class DBSessionManager:
     """
 
     def __init__(self):
-        self._engine: AsyncEngine | None = None
-        self._sessionmaker: async_sessionmaker | None = None
+        self._engine: Optional[AsyncEngine] = None
+        self._sessionmaker: Optional[async_sessionmaker] = None
 
     def init(self, host: str):
         self._engine = create_async_engine(

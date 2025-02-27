@@ -176,3 +176,5 @@ observe.db-journal
 # Workflow files
 audits/
 logs/
+!src/ddeutil/observe/routes/logs
+!src/ddeutil/observe/routes/audits

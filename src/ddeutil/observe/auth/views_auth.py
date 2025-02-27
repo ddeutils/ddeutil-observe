@@ -82,7 +82,7 @@ async def login(
 async def create_login_session(
     response: Response,
     service: TokenCRUD,
-    user: User | UserSchema,
+    user: Union[User, UserSchema],
     scopes: list[str],
 ) -> Token:
     # NOTE: OAuth2 with scopes such as `["me", ...]`.

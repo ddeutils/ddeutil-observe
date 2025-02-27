@@ -122,7 +122,8 @@ async def home(request: Request):
 
 @app.get("/index")
 async def index(
-    request: Request, templates: Jinja2Templates = Depends(get_templates)
+    request: Request,
+    templates: Jinja2Templates = Depends(get_templates),
 ):
     return templates.TemplateResponse(
         request=request,

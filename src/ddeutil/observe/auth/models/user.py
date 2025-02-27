@@ -9,12 +9,13 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
-from sqlalchemy import text
+from sqlalchemy import ForeignKey, text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship, selectinload
 from sqlalchemy.sql import false, select, true
-from sqlalchemy.types import UUID, Boolean, DateTime, String
+from sqlalchemy.types import UUID as UUIDType
+from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
 from ...db import Base, Col, Dtype
@@ -27,7 +28,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Dtype[UUID] = Col(
-        UUID(as_uuid=True),
+        UUIDType(as_uuid=True),
         primary_key=True,
         default=uuid4,
         unique=True,
@@ -86,7 +87,7 @@ class User(Base):
     async def create(
         cls,
         session: AsyncSession,
-        user_id: str | None = None,
+        user_id: Optional[str] = None,
         **kwargs,
     ) -> Self:
         """Create user from any mapping insert values.
@@ -107,7 +108,7 @@ class User(Base):
         username: str,
         *,
         include_tokens: bool = False,
-    ) -> Self | None:
+    ) -> Optional[Self]:
         stmt = select(cls).where(cls.username == username)
         if include_tokens:
             stmt = stmt.options(selectinload(cls.tokens))
@@ -118,7 +119,7 @@ class User(Base):
         cls,
         session: AsyncSession,
         email: str,
-    ) -> Self | None:
+    ) -> Optional[Self]:
         try:
             return (
                 (
@@ -137,9 +138,17 @@ class User(Base):
         cls,
         session: AsyncSession,
         *,
-        is_active: bool | None = None,
+        is_active: Optional[bool] = None,
     ) -> list[Self]:
         stmt = select(cls)
         if is_active is not None:
             stmt = stmt.where(cls.is_active == (false if is_active else true)())
         return (await session.execute(stmt)).scalars().all()
+
+
+class Group(Base):
+    __tablename__ = "groups"
+
+    id = Col(Integer, primary_key=True)
+    name = Col(String, unique=True, nullable=False)
+    member = Col(Integer, ForeignKey("users.id"))

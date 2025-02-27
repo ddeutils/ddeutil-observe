@@ -11,16 +11,9 @@ from sqlalchemy.types import Integer, String
 from ...db import Base, Col
 
 
-class Group(Base):
-    __tablename__ = "groups"
-
-    id = Col(Integer, primary_key=True)
-    name = Col(String, unique=True, nullable=False)
-    member = Col(Integer, ForeignKey("users.id"))
-
-
 class Role(Base):
-    """
+    """A role will be a group of policies.
+
     Initial roles that will create when start this application:
         - Admin
         - Develop
@@ -32,6 +25,15 @@ class Role(Base):
 
     id = Col(Integer, primary_key=True)
     name = Col(String, unique=True, nullable=False)
+
+
+class RolePolicy(Base):
+
+    __tablename__ = "rel_roles_policies"
+
+    id = Col(Integer, primary_key=True)
+    role = Col(Integer, ForeignKey("roles.id"))
+    policy = Col(Integer, ForeignKey("policies.id"))
 
 
 class Policy(Base):
@@ -46,3 +48,5 @@ class Policy(Base):
 
     id = Col(Integer, primary_key=True)
     name = Col(String, unique=True, nullable=False)
+    route = Col(String, nullable=False)
+    action = Col(String, nullable=False)

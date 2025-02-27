@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import secrets
+from typing import Optional
 from zoneinfo import ZoneInfo
 
 from ddeutil.core import str2bool
@@ -20,7 +21,9 @@ REFRESH_DEFAULT: str = secrets.token_urlsafe(32)
 load_dotenv()
 
 
-def env(var: str, default: str | None = None) -> str | None:  # pragma: no cov
+def env(
+    var: str, default: Optional[str] = None
+) -> Optional[str]:  # pragma: no cov
     return os.getenv(f"{PREFIX}_{var.upper().replace(' ', '_')}", default)
 
 

@@ -35,7 +35,7 @@ async def read_all(
 
 
 @workflow.post("/", response_model=Workflow)
-async def create_workflow(
+async def create_workflow_route(
     wf: WorkflowCreate,
     session: AsyncSession = Depends(get_async_session),
 ):
