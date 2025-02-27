@@ -8,9 +8,9 @@
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 The **Lightweight Observe Application** project was created for easy to
-make an observe application that getting log, or trigger status from any
-data framework formats and endpoint APIs, this project focuses on the
-`ddeutil-workflow` data orchestration tool first :dart:.
+make an observe application that getting logs, audits, or trigger status
+from any data framework storage and endpoint APIs.
+This project focuses on the `ddeutil-workflow` tool first :dart:.
 
 > [!WARNING]
 > This project is the best fit integration with `ddeutil-workflow` package.
@@ -23,8 +23,6 @@ data framework formats and endpoint APIs, this project focuses on the
 pip install -U ddeutil-observe
 ```
 
-> I added this feature to the main milestone.
->
 > :egg: **Docker Images** supported:
 >
 > | Docker Image               | Python Version | Support |
