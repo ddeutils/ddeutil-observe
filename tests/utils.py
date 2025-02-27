@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
 from __future__ import annotations
 
 import asyncio
@@ -79,7 +84,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
     """
-    db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
+    db_path: Path = db_path or OUTSIDE_PATH / "observe.test.db"
     engine = create_async_engine(
         f"sqlite+aiosqlite:///{db_path}",
         echo=False,

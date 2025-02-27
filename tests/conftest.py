@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
 import asyncio
 from collections.abc import Iterator
 from contextlib import ExitStack
@@ -11,7 +16,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from .utils import dotenv_setting, initial_db
 
-db_path: Path = Path(__file__).parent.parent / "observe.db"
+db_path: Path = Path(__file__).parent.parent / "observe.test.db"
 db_path.unlink(missing_ok=True)
 initial_db(db_path=db_path)
 
@@ -33,7 +38,9 @@ def client(app):
 @pytest.fixture(scope="session")
 def event_loop(request):
     loop = asyncio.get_event_loop_policy().new_event_loop()
+
     yield loop
+
     loop.close()
 
 

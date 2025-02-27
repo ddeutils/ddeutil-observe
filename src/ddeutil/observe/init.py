@@ -3,9 +3,8 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-"""
-This file will contain script that will run before the app start to create the
-super admin user.
+"""An initial module. This module will contain scripts that should run before
+the app starting step for create the super admin user and policies.
 """
 
 from __future__ import annotations
@@ -27,6 +26,7 @@ sessionmanager.init(config.sqlalchemy_db_async_url)
 
 
 async def create_admin(session) -> None:
+    """Create Admin user."""
     username: str = config.web_admin_user
     email: str = config.web_admin_email
     hashed_password = get_password_hash(config.web_admin_pass)
