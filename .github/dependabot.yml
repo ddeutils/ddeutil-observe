@@ -8,10 +8,10 @@ updates:
       time: "12:00"
       timezone: "Etc/UTC"
     commit-message:
-      prefix: ⬆
+      prefix: "📦 build: "
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
       interval: "monthly"
     commit-message:
-      prefix: 📦
+      prefix: "⬆ deps: "

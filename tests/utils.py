@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import asyncio
+import logging
 from pathlib import Path
+from textwrap import dedent
 
 from ddeutil.observe.auth.schemas import UserCreateForm
 from ddeutil.observe.routes.workflow.crud import (
@@ -13,11 +15,14 @@ from ddeutil.observe.routes.workflow.schemas import (
     ReleaseLogCreate,
     WorkflowCreate,
 )
+from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+
+OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
 def initial_auth(db_path: Path | None = None):
@@ -46,6 +51,26 @@ def initial_auth(db_path: Path | None = None):
         UserCreateForm(username="anon", email="anon@mail.com", password="anon"),
     ]:
         ...
+
+
+def dotenv_setting() -> None:
+    """Create .env file if this file in the current path does not exist."""
+    env_path: Path = OUTSIDE_PATH / ".env"
+    if not env_path.exists():
+        logging.warning("Dot env file does not exists")
+        env_str: str = dedent(
+            """
+            OBSERVE_CORE_TIMEZONE=Asia/Bangkok
+            OBSERVE_CORE_SQLALCHEMY_DB_ASYNC_URL=sqlite+aiosqlite:///./observe.db
+            OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES=30
+            OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES=11520
+            OBSERVE_LOG_DEBUG_MODE=true
+            OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE=true
+            """
+        ).strip()
+        env_path.write_text(env_str)
+
+    load_dotenv(env_path)
 
 
 async def initial_db(db_path: Path | None = None) -> None:

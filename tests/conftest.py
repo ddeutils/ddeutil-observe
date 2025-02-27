@@ -9,11 +9,13 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 
-from .utils import initial_db
+from .utils import dotenv_setting, initial_db
 
 db_path: Path = Path(__file__).parent.parent / "observe.db"
 db_path.unlink(missing_ok=True)
 initial_db(db_path=db_path)
+
+dotenv_setting()
 
 
 @pytest.fixture(autouse=True)

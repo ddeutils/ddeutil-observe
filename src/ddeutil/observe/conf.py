@@ -13,6 +13,8 @@ from ddeutil.core import str2bool
 from dotenv import load_dotenv
 
 PREFIX: str = "OBSERVE"
+ACCESS_DEFAULT: str = secrets.token_urlsafe(32)
+REFRESH_DEFAULT: str = secrets.token_urlsafe(32)
 
 # NOTE: Loading environment variable before initialize the FastAPI application.
 load_dotenv()
@@ -73,11 +75,11 @@ class Config:
     @property
     def secret_key(self) -> str:
         # NOTE: Secret keys that use to hash any jwt token generated value.
-        return env("CORE_ACCESS_SECRET_KEY", secrets.token_urlsafe(32))
+        return env("CORE_ACCESS_SECRET_KEY", ACCESS_DEFAULT)
 
     @property
     def refresh_secret_key(self) -> str:
-        return env("CORE_REFRESH_SECRET_KEY", secrets.token_urlsafe(32))
+        return env("CORE_REFRESH_SECRET_KEY", REFRESH_DEFAULT)
 
     @property
     def web_admin_user(self) -> str:
