@@ -23,7 +23,8 @@ from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
 from .deps import get_templates
-from .routes import api_router, workflow
+from .routes import workflow
+from .routes.main import api_router
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -35,17 +36,19 @@ sessionmanager.init(config.sqlalchemy_db_async_url)
 
 
 @asynccontextmanager
-async def lifespan(_: FastAPI):
+async def lifespan(inside: FastAPI):
     """Lifespan context function that make sure the session maker instance
     already close after respond the incoming request to the client.
     """
     async with sessionmanager.connect() as conn:
         await sessionmanager.create_all(conn)
 
-    from .init import create_admin
+    # IMPORTANT: Initial setop data context on the backend database.
+    from .initial import create_admin, create_role_policy
 
     async with sessionmanager.session() as session:
         await create_admin(session)
+        await create_role_policy(session, routes=inside.routes)
 
     yield
 

@@ -12,9 +12,10 @@ from __future__ import annotations
 import asyncio
 from typing import Optional
 
+from fastapi.routing import APIRoute
 from sqlalchemy import insert, select
 
-from .auth.models.user import User
+from .auth.models import Role, User
 from .auth.securities import get_password_hash
 from .conf import config
 from .db import sessionmanager
@@ -55,6 +56,29 @@ async def create_admin(session) -> None:
         logger.info(f"Admin user {username} created successfully.")
     else:
         logger.info(f"Admin user {username} already exists.")
+
+
+async def create_role_policy(session, routes: list[APIRoute]) -> None:
+    """Create Role and Policy."""
+    roles: Optional[Role] = (await session.execute(select(Role))).scalars()
+    logger.info(str(roles))
+
+    policy_routes: list[str] = []
+    for route in routes:
+        if not isinstance(route, APIRoute):
+            continue
+        route_path: str = route.path.replace(config.api_prefix, "").strip("/")
+
+        if not route_path:
+            continue
+
+        first_path: str = route_path.split("/", maxsplit=1)[0]
+        if first_path == "index":
+            continue
+
+        policy_routes.append(first_path)
+
+    print(set(policy_routes))
 
 
 async def main():

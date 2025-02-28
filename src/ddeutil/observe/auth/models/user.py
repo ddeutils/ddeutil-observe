@@ -146,9 +146,27 @@ class User(Base):
         return (await session.execute(stmt)).scalars().all()
 
 
+class GroupUser(Base):
+    __tablename__ = "associate_groups_users"
+
+    group_id: Dtype[int] = Col(
+        Integer, ForeignKey("groups.id"), primary_key=True
+    )
+    user_id: Dtype[int] = Col(Integer, ForeignKey("users.id"), primary_key=True)
+
+    user: Dtype[User] = relationship(
+        "Group",
+        back_populates="user_associations",
+    )
+
+
 class Group(Base):
     __tablename__ = "groups"
 
     id = Col(Integer, primary_key=True)
     name = Col(String, unique=True, nullable=False)
-    member = Col(Integer, ForeignKey("users.id"))
+
+    user_associations: Dtype[list[GroupUser]] = relationship(
+        "GroupUser",
+        back_populates="user",
+    )

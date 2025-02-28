@@ -16,7 +16,7 @@ from ..deps import get_async_session
 from ..utils import get_logger
 from .crud import TokenCRUD, authenticate, verify_refresh_token
 from .deps import get_current_active_user, get_current_super_user
-from .models import User
+from .models import Role, User
 from .schemas import (
     TokenCreate,
     TokenRefreshSchema,
@@ -132,3 +132,12 @@ async def read_user_all(
     session: AsyncSession = Depends(get_async_session),
 ) -> list[UserSchema]:
     return await User.get_all(session)
+
+
+@auth.get(
+    path="/role",
+)
+async def read_role_all(
+    session: AsyncSession = Depends(get_async_session),
+):
+    return Role()

@@ -11,6 +11,7 @@ from pathlib import Path
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 from jinja2 import ChoiceLoader, FileSystemLoader
+from sqlalchemy import exc
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .db import sessionmanager
@@ -46,4 +47,9 @@ def get_templates(request: Request) -> Jinja2Templates:
 async def get_async_session() -> AsyncIterator[AsyncSession]:
     """Return the database local session instance."""
     async with sessionmanager.session() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except exc.SQLAlchemyError:
+            await session.rollback()
+            raise
