@@ -23,6 +23,11 @@ initial_db(db_path=db_path)
 dotenv_setting()
 
 
+@pytest.fixture(scope="session")
+def db_pointer() -> Path:
+    return Path(__file__).parent.parent / "observe.test.db"
+
+
 @pytest.fixture(autouse=True)
 def app():
     with ExitStack():

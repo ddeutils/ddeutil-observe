@@ -10,10 +10,9 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from typing import Any, Optional
 
-from sqlalchemy import MetaData, event, inspect
+from sqlalchemy import event, inspect
 from sqlalchemy.engine import Engine
 from sqlalchemy.ext.asyncio import (
-    AsyncAttrs,
     AsyncConnection,
     AsyncEngine,
     AsyncSession,
@@ -21,10 +20,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy.orm import (
-    DeclarativeBase,
-    Mapped,
     Session,
-    mapped_column,
 )
 
 from .conf import config
@@ -164,10 +160,14 @@ class DBSessionManager:
 
     @staticmethod
     async def create_all(connection: AsyncConnection):
+        from .models import Base
+
         await connection.run_sync(Base.metadata.create_all)
 
     @staticmethod
     async def drop_all(connection: AsyncConnection):
+        from .models import Base
+
         await connection.run_sync(Base.metadata.drop_all)
 
 
@@ -183,44 +183,8 @@ DB_INDEXES_NAMING_CONVENTION: dict[str, str] = {
 }
 
 
-# NOTE:
-#       Attributes that are lazy-loading relationships, deferred columns or
-#   expressions, or are being accessed in expiration scenarios can take
-#   advantage of the AsyncAttrs mixin.
-#   Read more: https://docs.sqlalchemy.org/en/20/orm/extensions/asyncio.html -
-#       #preventing-implicit-io-when-using-asyncsession
-#
-class Base(AsyncAttrs, DeclarativeBase):
-    """Subclass of DeclarativeBase that use to implement this application
-    custom metadata.
-    """
-
-    __abstract__ = True
-
-    metadata = MetaData(
-        naming_convention=DB_INDEXES_NAMING_CONVENTION,
-        # NOTE: In SQLite schema, the value should be `main` only because it
-        #   does not implement with schema system.
-        schema="main",
-    )
-
-    def __repr__(self) -> str:
-        columns = ", ".join(
-            [
-                f"{k}={repr(v)}"
-                for k, v in self.__dict__.items()
-                if not k.startswith("_")
-            ]
-        )
-        return f"<{self.__class__.__name__}({columns})>"
-
-
-# NOTE: Alias function of the SQLAlchemy for shorter name.
-Col = mapped_column
-Dtype = Mapped
-
-
 if config.log_sqlalchemy_debug:
+    from .models import Base
 
     @event.listens_for(Base, "after_update")
     def after_update(mapper, connection, target):

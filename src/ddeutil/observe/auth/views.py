@@ -16,9 +16,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..conf import config
 from ..deps import get_async_session, get_templates
+from ..models.token import Token
+from ..models.user import User
 from .crud import TokenCRUD, UserCRUD, authenticate
 from .deps import required_current_active_user
-from .models import Token, User
 from .schemas import (
     PlainTokenSchema,
     TokenCreate,

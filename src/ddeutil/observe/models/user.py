@@ -18,7 +18,7 @@ from sqlalchemy.types import UUID as UUIDType
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from ...db import Base, Col, Dtype
+from . import Base, Col, Dtype
 
 if TYPE_CHECKING:
     from .token import Token

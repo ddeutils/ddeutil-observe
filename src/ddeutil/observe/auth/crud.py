@@ -18,7 +18,8 @@ from sqlalchemy.sql import false
 
 from ..conf import config
 from ..crud import BaseCRUD
-from .models import Token, User
+from ..models.token import Token
+from ..models.user import User
 from .schemas import (
     TokenCreate,
     TokenDataSchema,

@@ -15,11 +15,12 @@ from typing import Optional
 from fastapi.routing import APIRoute
 from sqlalchemy import insert, select
 
-from .auth.models import Role, User
 from .auth.securities import get_password_hash
 from .conf import config
 from .db import sessionmanager
 from .deps import get_async_session
+from .models.policy import Role
+from .models.user import User
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")

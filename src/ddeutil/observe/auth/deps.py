@@ -13,8 +13,9 @@ from fastapi.security import SecurityScopes
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..deps import get_async_session
+from ..models.token import Token
+from ..models.user import User
 from .crud import verify_access_token, verify_refresh_token
-from .models import Token, User
 from .securities import OAuth2Schema, OAuth2SchemaView
 
 
@@ -25,7 +26,7 @@ async def get_current_access_token(
     """Get the current access token."""
 
     # NOTE: Check the access token is active or not. It able to be inactive
-    #   before its expire cause the logout action.
+    #   before its expired cause the logout action.
     if await Token.get_disable(session, token):
         raise HTTPException(
             status_code=st.HTTP_401_UNAUTHORIZED,

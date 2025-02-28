@@ -15,7 +15,7 @@ from sqlalchemy.sql import false, select, true
 from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from ...db import Base, Col, Dtype
+from . import Base, Col, Dtype
 
 if TYPE_CHECKING:
     from .user import User

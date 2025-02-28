@@ -169,6 +169,7 @@ observe.db
 observe.db-shm
 observe.db-wal
 observe.db-journal
+observe.test*
 
 # Assets
 *.bkp

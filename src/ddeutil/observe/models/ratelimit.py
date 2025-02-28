@@ -10,7 +10,7 @@ from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String
 
-from ...db import Base, Col, Dtype
+from . import Base, Col, Dtype
 
 
 class Tier(Base):

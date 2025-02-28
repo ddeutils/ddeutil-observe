@@ -21,7 +21,7 @@ from sqlalchemy.types import (
 )
 from typing_extensions import Self
 
-from ...db import Base, Col
+from ...models import Base, Col
 
 
 class Workflows(Base):

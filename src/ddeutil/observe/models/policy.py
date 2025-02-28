@@ -9,7 +9,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
-from ...db import Base, Col, Dtype
+from . import Base, Col, Dtype
 
 
 class RolePolicy(Base):
