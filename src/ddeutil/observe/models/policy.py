@@ -15,13 +15,20 @@ from . import Base, Col, Dtype
 class RolePolicy(Base):
     __tablename__ = "associate_roles_policies"
 
-    role_id: Dtype[int] = Col(Integer, ForeignKey("roles.id"), primary_key=True)
+    role_id: Dtype[int] = Col(
+        Integer,
+        ForeignKey("roles.id"),
+        primary_key=True,
+    )
     policy_id: Dtype[int] = Col(
-        Integer, ForeignKey("policies.id"), primary_key=True
+        Integer,
+        ForeignKey("policies.id"),
+        primary_key=True,
     )
 
     role: Dtype[Role] = relationship(
-        "Role", back_populates="policy_associations"
+        "Role",
+        back_populates="policy_associations",
     )
     policy: Dtype[Policy] = relationship(
         "Policy",
@@ -45,12 +52,12 @@ class Role(Base):
     id: Dtype[int] = Col(Integer, primary_key=True)
     name: Dtype[str] = Col(String, unique=True, nullable=False)
 
-    # policies: Dtype[List["Policy"]] = relationship(
-    #     secondary="associate_roles_policies",
-    #     # back_populates="roles",
-    #     uselist=True,
-    #     viewonly=True,
-    # )
+    policies: Dtype[list[Policy]] = relationship(
+        secondary="associate_roles_policies",
+        back_populates="roles",
+        uselist=True,
+        viewonly=True,
+    )
 
     policy_associations: Dtype[list[RolePolicy]] = relationship(
         "RolePolicy",
@@ -76,11 +83,12 @@ class Policy(Base):
     resource: Dtype[str] = Col(String, nullable=False)
     action: Dtype[str] = Col(String, nullable=False)
 
-    # roles: Dtype[List["Role"]] = relationship(
-    #     secondary="associate_roles_policies",
-    #     back_populates="policies",
-    #     viewonly=True,
-    # )
+    roles: Dtype[list[Role]] = relationship(
+        secondary="associate_roles_policies",
+        back_populates="policies",
+        uselist=True,
+        viewonly=True,
+    )
 
     role_associations: Dtype[list[RolePolicy]] = relationship(
         "RolePolicy",

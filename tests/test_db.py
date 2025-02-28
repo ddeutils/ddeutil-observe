@@ -1,26 +1,22 @@
-from pathlib import Path
-
 import pytest
-from ddeutil.observe.db import Base
-from sqlalchemy import create_engine
+from ddeutil.observe.db import sessionmanager
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-@pytest.fixture(scope="module")
-def engine(db_pointer: Path):
-    engine = create_engine(
-        f"sqlite:///{db_pointer}",
-        connect_args={"check_same_thread": False},
-    )
-
-    Base.metadata.create_all(engine)
-
-    return engine
+@pytest.fixture(scope="function", autouse=True)
+async def transactional_session():
+    async with sessionmanager.session() as session:
+        try:
+            await session.begin()
+            yield session
+        finally:
+            await session.rollback()  # Rolls back the outer transaction
 
 
-@pytest.fixture(scope="module")
-def db_session(engine):
+@pytest.fixture(scope="function")
+async def db_session(transactional_session):
+    yield transactional_session
 
-    yield
 
-
-def test_model_role(db_session): ...
+def test_model_role(db_session: AsyncSession):
+    print(db_session)

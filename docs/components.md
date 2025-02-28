@@ -3,14 +3,15 @@
 **File structure of this application**:
 
 ```text
-routes
+- models
+- routes
     - page
-        - templates
-        - models
-        - schemas
-        - crud.py
-        - routes.py
-        - views.py
+        - templates/        <-- Jinja templates
+        - crud.py           <-- Operation between Schema & Model
+        - models.py         <-- Model interface
+        - routes.py         <-- API
+        - schemas.py        <-- Schema interface
+        - views.py          <-- UI with Jinja template
 ```
 
 ## Main

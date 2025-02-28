@@ -60,6 +60,7 @@ app = FastAPI(
     titile="Observe Web Application",
     version=__version__,
     lifespan=lifespan,
+    docs_url="/api/docs",
 )
 app.add_middleware(
     CORSMiddleware,
