@@ -7,33 +7,17 @@ import asyncio
 from contextlib import ExitStack
 
 import pytest
-from ddeutil.observe.app import app as actual_app
-
-# from ddeutil.observe.db import sessionmanager
 from fastapi.testclient import TestClient
 
-# from sqlalchemy.ext.asyncio import AsyncSession
 from .utils import dotenv_setting
 
-# # db_path: Path = Path(__file__).parent.parent / "observe.test.db"
-# # db_path.unlink(missing_ok=True)
-# # initial_db(db_path=db_path)
-#
 dotenv_setting()
-#
-#
-# @pytest.fixture(scope="session")
-# def db_pointer() -> Path:
-#     return Path(__file__).parent.parent / "observe.test.db"
-#
-#
-# @pytest.fixture(scope="session")
-# def db_url(db_pointer: Path) -> str:
-#     return f"sqlite+aiosqlite:///{db_pointer}"
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture()
 def app():
+    from ddeutil.observe.app import app as actual_app
+
     with ExitStack():
         yield actual_app
 
