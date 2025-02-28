@@ -3,8 +3,6 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
@@ -74,7 +72,7 @@ class User(Base):
         nullable=True,
     )
 
-    tokens: Dtype[list[Token]] = relationship(
+    tokens: Dtype[list["Token"]] = relationship(
         "Token",
         back_populates="user",
         order_by="Token.created_at",

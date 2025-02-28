@@ -12,12 +12,12 @@ from textwrap import dedent
 from typing import Optional
 
 from ddeutil.observe.auth.schemas import UserCreateForm
-from ddeutil.observe.routes.workflows.crud import (
+from ddeutil.observe.routes.workflow.crud import (
     create_release_log,
     create_workflow,
 )
-from ddeutil.observe.routes.workflows.models import Base
-from ddeutil.observe.routes.workflows.schemas import (
+from ddeutil.observe.routes.workflow.models import Base
+from ddeutil.observe.routes.workflow.schemas import (
     ReleaseLogCreate,
     WorkflowCreate,
 )

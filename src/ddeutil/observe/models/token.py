@@ -3,8 +3,6 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-from __future__ import annotations
-
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
@@ -50,7 +48,7 @@ class Token(Base):
         server_default=text("(datetime('now','localtime'))"),
     )
 
-    user: Dtype[User] = relationship(
+    user: Dtype["User"] = relationship(
         "User",
         back_populates="tokens",
     )
@@ -87,7 +85,7 @@ class Token(Base):
         cls,
         session: AsyncSession,
         token: str,
-    ) -> Self | None:
+    ) -> Optional[Self]:
         return (
             await session.execute(
                 select(cls).where(
@@ -102,7 +100,7 @@ class Token(Base):
         cls,
         session: AsyncSession,
         token: str,
-    ) -> Self | None:
+    ) -> Optional[Self]:
         return (
             await session.execute(select(cls).where(cls.token == token))
         ).scalar_one_or_none()

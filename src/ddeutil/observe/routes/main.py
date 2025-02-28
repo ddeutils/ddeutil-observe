@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from .workflows.routes import workflow as workflow_api
+from .workflow.routes import workflow as workflow_api
 
 api_router = APIRouter()
 api_router.include_router(workflow_api)

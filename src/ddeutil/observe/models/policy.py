@@ -3,13 +3,27 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-from __future__ import annotations
-
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Integer, String
 
 from . import Base, Col, Dtype
+
+# NOTE: This will work with add this line to the Role model.
+#
+#   policies: Dtype[list["Policy"]] = relationship(
+#       secondary=associate_roles_policies,
+#       back_populates="roles",
+#       uselist=True,
+#       viewonly=True,
+#   )
+#
+# associate_roles_policies = Table(
+#     "associate_roles_policies",
+#     Base.metadata,
+#     Column("left_id", ForeignKey("left_table.id"), primary_key=True),
+#     Column("right_id", ForeignKey("right_table.id"), primary_key=True),
+# )
 
 
 class RolePolicy(Base):
@@ -26,11 +40,11 @@ class RolePolicy(Base):
         primary_key=True,
     )
 
-    role: Dtype[Role] = relationship(
+    role: Dtype["Role"] = relationship(
         "Role",
         back_populates="policy_associations",
     )
-    policy: Dtype[Policy] = relationship(
+    policy: Dtype["Policy"] = relationship(
         "Policy",
         back_populates="role_associations",
     )
@@ -52,14 +66,15 @@ class Role(Base):
     id: Dtype[int] = Col(Integer, primary_key=True)
     name: Dtype[str] = Col(String, unique=True, nullable=False)
 
-    policies: Dtype[list[Policy]] = relationship(
-        secondary="associate_roles_policies",
-        back_populates="roles",
-        uselist=True,
-        viewonly=True,
-    )
+    # policies: Dtype[list["Policy"]] = relationship(
+    #     "Policy",
+    #     secondary="associate_roles_policies",
+    #     back_populates="roles",
+    #     uselist=True,
+    #     viewonly=True,
+    # )
 
-    policy_associations: Dtype[list[RolePolicy]] = relationship(
+    policy_associations: Dtype[list["RolePolicy"]] = relationship(
         "RolePolicy",
         back_populates="role",
     )
@@ -83,14 +98,15 @@ class Policy(Base):
     resource: Dtype[str] = Col(String, nullable=False)
     action: Dtype[str] = Col(String, nullable=False)
 
-    roles: Dtype[list[Role]] = relationship(
-        secondary="associate_roles_policies",
-        back_populates="policies",
-        uselist=True,
-        viewonly=True,
-    )
+    # roles: Dtype[list["Role"]] = relationship(
+    #     "Role",
+    #     secondary="associate_roles_policies",
+    #     back_populates="policies",
+    #     uselist=True,
+    #     viewonly=True,
+    # )
 
-    role_associations: Dtype[list[RolePolicy]] = relationship(
+    role_associations: Dtype[list["RolePolicy"]] = relationship(
         "RolePolicy",
         back_populates="policy",
     )

@@ -1,4 +1,4 @@
-from ddeutil.observe.routes.workflows.schemas import (
+from ddeutil.observe.routes.workflow.schemas import (
     ReleaseLogCreate,
     WorkflowCreate,
 )

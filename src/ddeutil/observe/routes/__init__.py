@@ -1,1 +1,1 @@
-from .workflows.views import workflow
+from .workflow.views import workflow

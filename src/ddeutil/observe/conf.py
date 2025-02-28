@@ -68,12 +68,13 @@ class Config:
     @property
     def access_token_expire_mins(self) -> int:
         # NOTE: token: 30 minutes = 30 minutes
-        return env("CORE_ACCESS_TOKEN_EXPIRE_MINUTES", 30)
+        return int(env("CORE_ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
     @property
     def refresh_token_expire_mins(self) -> int:
         # NOTE: refresh: 60 minutes * 24 hours * 8 days  = 8 days
-        return env("CORE_REFRESH_TOKEN_EXPIRE_MINUTES", 60 * 24 * 8)
+        default: int = 60 * 24 * 8
+        return int(env("CORE_REFRESH_TOKEN_EXPIRE_MINUTES", str(default)))
 
     @property
     def secret_key(self) -> str:

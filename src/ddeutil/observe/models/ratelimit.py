@@ -3,8 +3,6 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-from __future__ import annotations
-
 from datetime import datetime
 from typing import Optional
 
