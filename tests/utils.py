@@ -71,7 +71,7 @@ def dotenv_setting() -> None:
             OBSERVE_CORE_ACCESS_TOKEN_EXPIRE_MINUTES=30
             OBSERVE_CORE_REFRESH_TOKEN_EXPIRE_MINUTES=11520
             OBSERVE_LOG_DEBUG_MODE=true
-            OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE=true
+            OBSERVE_LOG_SQLALCHEMY_DEBUG_MODE=false
             """
         ).strip()
         env_path.write_text(env_str)

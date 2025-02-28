@@ -82,6 +82,7 @@ exclude_lines = ["raise NotImplementedError"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
+asyncio_default_fixture_loop_scope = "function"
 console_output_style = "count"
 addopts = [
     "--strict-config",
@@ -146,4 +147,5 @@ ignore = [
 "__init__.py" = [
     "F401",
     "F403",
+    "E402",  # Module level import not at top of file
 ]
