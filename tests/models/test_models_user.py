@@ -4,5 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 
 async def test_select_user(session: AsyncSession):
-    existing_user = (await session.execute(select(User))).scalars().all()
-    assert len(existing_user) == 0
+    users = (await session.execute(select(User))).scalars().all()
+    assert len(users) == 0
+
+
+async def test_create_user(session: AsyncSession): ...
