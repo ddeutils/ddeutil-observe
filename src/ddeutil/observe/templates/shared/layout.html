@@ -1,79 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <!-- Dynamic Title -->
-        <title>{% block title %}Observe App{% endblock %}</title>
+    <!-- Dynamic Title -->
+    <title>{% block title %}Observe{% endblock %}</title>
 
-        <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"/>
+    <!-- Extension CSS Links -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+    {% block link_internal_css %}
+    {% endblock %}
 
-        <link rel="stylesheet"
-              href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+    <!-- Core CSS Files -->
+    <link rel="stylesheet" href="/static/css/base.css"/>
+    {% block core_css %}
+    <link rel="stylesheet" href="/static/css/core-sidebar.css"/>
+    <link rel="stylesheet" href="/static/css/core-navbar.css"/>
+    {% endblock %}
+    {% block additional_css %}
+    {% endblock %}
+    <style>
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 24px var(--shadow-color);
+      background-color: var(--bg-color);
 
-        <link rel="stylesheet"
-              href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+      & h1 {
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
 
-        <!-- Core CSS Files -->
-        <link rel="stylesheet" href="/static/css/base.css"/>
-        <link rel="stylesheet" href="/static/css/core-footer.css"/>
-        <link rel="stylesheet" href="/static/css/core-sidebar.css"/>
-        <link rel="stylesheet" href="/static/css/core-navbar.css"/>
+      & form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
 
-        {% block link_internal_css %}
-        {% endblock %}
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
 
-        {% block additional_css %}
-        {% endblock %}
-    </head>
-    <body>
-        <main>
-            {% set active_sidebar = active_sidebar|default('true') %}
+      & label {
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
 
-            {% block main_content_wrapper %}
-                <!-- Header & Navbar -->
-                {% include 'fragments/navbar.html' %}
+      & input {
+        height: 2.5rem;
+        padding: 0 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        background-color: var(--input-bg);
+        color: var(--text-color);
+        font-size: 0.9375rem;
+        outline: none;
 
-                <!-- Outside Sidebar -->
-                {% include 'fragments/sidebar.html' %}
+        &:focus {
+          border-color: var(--input-focus-border);
+          box-shadow: 0 0 0 1px var(--input-focus-border);
+        }
+      }
+    }
 
-                <div class="outside-main-wrapper">
-                    <div class="main-wrapper">
+    .button {
+      height: 2.5rem;
+      border: none;
+      border-radius: 4px;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      font-size: 0.9375rem;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 0.5rem;
 
-                        <aside class="sidebar-content"></aside>
+      &:hover {
+        background-color: var(--button-hover-bg);
+      }
 
-                        <aside class="toc-content"></aside>
+      &.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+      }
+    }
 
-                        <!-- Content -->
-                        <main class="main-content">
-                        {% block main_content %}
-                        {% endblock %}
-                        </main>
-                    </div>
+    .form-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
+
+      & .form-switch {
+        color: var(--link-color);
+        text-decoration: none;
+        cursor: pointer;
+
+        &:hover {
+          color: var(--link-hover-color);
+          text-decoration: underline;
+        }
+      }
+    }
+
+    .theme-toggle {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 1.5rem;
+      width: 2.25rem;
+      height: 2.25rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--button-bg);
+      color: var(--button-text);
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px var(--shadow-color);
+
+      & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+        fill: currentColor;
+      }
+    }
+
+    /* Animation for form switching */
+    .htmx-swapping {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1.5rem;
+        box-shadow: none;
+      }
+
+      body {
+        padding: 0.5rem;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+    <main>
+        {% set active_sidebar = active_sidebar|default('true') %}
+        {% block main_content_wrapper %}
+            <!-- Header & Navbar -->
+            {% include 'fragments/navbar.html' %}
+
+            <!-- Outside Sidebar -->
+            {% include 'fragments/sidebar.html' %}
+
+            <div class="outside-main-wrapper">
+                <div class="main-wrapper">
+
+                    <aside class="sidebar-content"></aside>
+
+                    <aside class="toc-content"></aside>
+
+                    <!-- Content -->
+                    <main class="main-content">
+                    {% block main_content %}
+                    {% endblock %}
+                    </main>
                 </div>
+            </div>
 
-            {% endblock %}
-        </main>
-        <!-- Footer -->
-        {% include 'fragments/footer.html' %}
-    </body>
-
-    <script src="https://unpkg.com/htmx.org@2.0.2"
-            integrity="sha384-Y7hw+L/jvKeWIRRkqWYfPcvVxHzVzn5REgzbawhxAuQGwX1XWe70vji+VSeHOThJ"
-            crossorigin="anonymous"></script>
+            <!-- Footer -->
+            {% include 'fragments/footer.html' %}
+        {% endblock %}
+    </main>
+    <!-- Extension JS Links -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"
+            integrity="sha512-2kIcAizYXhIn8TzUvqzEDZNuDZ+aW7yE/+f1HJHXFjQcGNfv1kqzJSTBRBSlOgp6B/KZsz1K0a3ZTqP9dnxioQ=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 
     <!-- Core JS Files -->
     <script type="text/javascript" src="/static/js/layout.js"></script>
     <script type="text/javascript" src="/static/js/events.js"></script>
+    {% block additional_js %}
+    {% endblock %}
 
     {% if active_sidebar == 'true' %}
     <script type="text/javascript" src="/static/js/sidebar.js"></script>
     {% endif %}
-
-    {% block additional_js %}
-    {% endblock %}
+</body>
 </html>

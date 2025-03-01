@@ -9,12 +9,11 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import OperationalError
 
 from .__about__ import __version__
@@ -22,7 +21,6 @@ from .auth import api_auth, auth
 from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
-from .deps import get_templates
 from .routes import workflow
 from .routes.main import api_router
 from .utils import get_logger
@@ -119,18 +117,6 @@ async def home(request: Request):
     return RedirectResponse(
         # TODO: remove current request url_for to workflow page.
         # request.url_for("read_workflows"),
-        request.url_for("index"),
+        request.url_for("login"),
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,
-    )
-
-
-@app.get("/index")
-async def index(
-    request: Request,
-    templates: Jinja2Templates = Depends(get_templates),
-):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={},
     )
