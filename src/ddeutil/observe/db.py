@@ -19,9 +19,7 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import (
-    Session,
-)
+from sqlalchemy.orm import Session
 
 from .conf import config
 from .utils import get_logger

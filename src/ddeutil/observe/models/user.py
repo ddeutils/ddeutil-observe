@@ -11,7 +11,7 @@ from sqlalchemy import ForeignKey, text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import relationship, selectinload
-from sqlalchemy.sql import false, select, true
+from sqlalchemy.sql import false, func, select, true
 from sqlalchemy.types import UUID as UUIDType
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
@@ -31,7 +31,14 @@ class User(Base):
         default=uuid4,
         unique=True,
         index=True,
+        server_default=func.gen_random_uuid(),
     )
+    # id: Mapped[UUID] = mapped_column(
+    #     primary_key=True,
+    #     default=uuid4,
+    #     server_default=func.gen_random_uuid(),
+    # )
+
     username: Dtype[str] = Col(
         String(64),
         unique=True,
@@ -152,7 +159,7 @@ class GroupUser(Base):
     )
     user_id: Dtype[int] = Col(Integer, ForeignKey("users.id"), primary_key=True)
 
-    user: Dtype[User] = relationship(
+    user: Dtype["User"] = relationship(
         "Group",
         back_populates="user_associations",
     )
@@ -164,7 +171,7 @@ class Group(Base):
     id = Col(Integer, primary_key=True)
     name = Col(String, unique=True, nullable=False)
 
-    user_associations: Dtype[list[GroupUser]] = relationship(
+    user_associations: Dtype[list["GroupUser"]] = relationship(
         "GroupUser",
         back_populates="user",
     )

@@ -36,7 +36,6 @@ class RateLimit(Base):
     path: Dtype[str] = Col(String, nullable=False)
     limit: Dtype[int] = Col(Integer, nullable=False)
     period: Dtype[int] = Col(Integer, nullable=False)
-
     created_at: Dtype[datetime] = Col(
         DateTime(timezone=True),
         default=datetime.now,

@@ -46,7 +46,7 @@ class Base(AsyncAttrs, DeclarativeBase):
 Col = mapped_column
 Dtype = Mapped
 
-from .policy import Policy, Role, RolePolicy
+from .policy import Policy, Role
 from .ratelimit import RateLimit, Tier
 from .token import Token
 from .user import Group, GroupUser, User
