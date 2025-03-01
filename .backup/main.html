@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.6/htmx.min.js"></script>
+    <style>
+        /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --text-primary: rgba(17, 24, 39, 1);
+            --text-secondary: rgba(75, 85, 99, 1);
+            --bg-primary: rgba(255, 255, 255, 1);
+            --bg-secondary: rgba(249, 250, 251, 1);
+            --border-color: rgba(229, 231, 235, 1);
+            --accent-color: rgba(79, 70, 229, 1);
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+            --header-height: 60px;
+            --footer-height: 40px;
+        }
+
+        [data-theme="dark"] {
+            --text-primary: rgba(229, 231, 235, 1);
+            --text-secondary: rgba(156, 163, 175, 1);
+            --bg-primary: rgba(17, 24, 39, 1);
+            --bg-secondary: rgba(31, 41, 55, 1);
+            --border-color: rgba(55, 65, 81, 1);
+            --shadow-color: rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-primary);
+            background-color: var(--bg-secondary);
+            display: flex;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            background-color: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            transition: width 0.3s ease;
+            z-index: 10;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+
+            &.collapsed {
+                width: var(--sidebar-collapsed-width);
+            }
+
+            & .sidebar-header {
+                padding: 20px;
+                display: flex;
+                align-items: center;
+                border-bottom: 1px solid var(--border-color);
+                height: var(--header-height);
+
+                & h1 {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    margin-left: 10px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                }
+            }
+
+            & .sidebar-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+
+                &:hover {
+                    background-color: var(--border-color);
+                }
+            }
+
+            & .sidebar-menu {
+                padding: 20px 0;
+                flex-grow: 1;
+                overflow-y: auto;
+
+                & .menu-item {
+                    padding: 10px 20px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+                    border-radius: 4px;
+                    margin: 2px 10px;
+
+                    &:hover {
+                        background-color: var(--bg-secondary);
+                    }
+
+                    &.active {
+                        background-color: rgba(79, 70, 229, 0.1);
+                        color: var(--accent-color);
+                    }
+
+                    & i {
+                        width: 24px;
+                        text-align: center;
+                    }
+
+                    & span {
+                        margin-left: 10px;
+                        white-space: nowrap;
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+
+            &.expanded {
+                margin-left: var(--sidebar-collapsed-width);
+            }
+        }
+
+        /* Header Styles */
+        .header {
+            height: var(--header-height);
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding: 0 20px;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            box-shadow: 0 2px 4px var(--shadow-color);
+
+            & .header-actions {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                & .action-item {
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+
+                    &:hover {
+                        background-color: var(--bg-secondary);
+                    }
+                }
+            }
+        }
+
+        /* Content Styles */
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+
+            & .content-section {
+                background-color: var(--bg-primary);
+                border-radius: 8px;
+                box-shadow: 0 1px 3px var(--shadow-color);
+                padding: 20px;
+                margin-bottom: 20px;
+
+                & h2 {
+                    font-size: 1.25rem;
+                    font-weight: 600;
+                    margin-bottom: 15px;
+                    color: var(--text-primary);
+                }
+
+                & p {
+                    color: var(--text-secondary);
+                    line-height: 1.6;
+                    margin-bottom: 15px;
+                }
+            }
+        }
+
+        /* Footer Styles */
+        .footer {
+            height: var(--footer-height);
+            background-color: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+
+        /* Media Queries for Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: var(--sidebar-collapsed-width);
+
+                &.expanded {
+                    width: var(--sidebar-width);
+                    box-shadow: 0 0 10px var(--shadow-color);
+                }
+            }
+
+            .main-content {
+                margin-left: var(--sidebar-collapsed-width);
+
+                &.sidebar-expanded {
+                    margin-left: var(--sidebar-width);
+                }
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-toggle" hx-get="/toggle-sidebar" hx-swap="none" hx-trigger="click">
+                <i class="fas fa-bars"></i>
+            </div>
+            <h1>Observe</h1>
+        </div>
+        <nav class="sidebar-menu">
+            <div class="menu-item active">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-project-diagram"></i>
+                <span>Workflow</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-calendar-alt"></i>
+                <span>Scheduler</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-file-alt"></i>
+                <span>Documents</span>
+            </div>
+            <div class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content" id="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-actions">
+                <div class="action-item" id="theme-toggle" hx-get="/toggle-theme" hx-swap="none" hx-trigger="click">
+                    <i class="fas fa-moon"></i>
+                </div>
+                <div class="action-item">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <div class="action-item">
+                    <i class="fas fa-cog"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content -->
+        <div class="content">
+            <div class="content-section">
+                <h2>Welcome to Observe</h2>
+                <p>Your minimal and clean dashboard for tracking and managing your data.</p>
+                <p>Use the sidebar navigation to explore different sections of the application.</p>
+            </div>
+
+            <!-- Test content for scrolling -->
+            <div class="content-section">
+                <h2>Dashboard Overview</h2>
+                <p>This is your central hub for monitoring all important metrics and KPIs.</p>
+                <p>From here, you can quickly access all the tools you need to analyze your data.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>Recent Activity</h2>
+                <p>Track your recent actions and changes across the platform.</p>
+                <p>All updates and modifications are logged here for easy reference.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>Quick Stats</h2>
+                <p>Get a snapshot of your key performance indicators at a glance.</p>
+                <p>These metrics are updated in real-time to provide you with the most current information.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>Workflows</h2>
+                <p>Manage and track all your ongoing workflows from this centralized location.</p>
+                <p>Create new workflows or modify existing ones to optimize your processes.</p>
+            </div>
+
+            <div class="content-section">
+                <h2>Scheduler</h2>
+                <p>View and manage all your scheduled tasks and events in one place.</p>
+                <p>Plan ahead and never miss an important deadline or meeting again.</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2025 Observe - Created by korawica</p>
+        </footer>
+    </main>
+
+    <script>
+        // HTMX handlers
+        document.body.addEventListener('htmx:afterOnLoad', function(event) {
+            if (event.detail.pathInfo.requestPath === '/toggle-sidebar') {
+                document.getElementById('sidebar').classList.toggle('collapsed');
+                document.getElementById('main-content').classList.toggle('expanded');
+            }
+
+            if (event.detail.pathInfo.requestPath === '/toggle-theme') {
+                document.body.dataset.theme = document.body.dataset.theme === 'dark' ? 'light' : 'dark';
+                const themeIcon = document.querySelector('#theme-toggle i');
+                themeIcon.className = document.body.dataset.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+            }
+        });
+
+        // Since we don't have a server, simulate the HTMX responses
+        htmx.on('htmx:beforeSend', function(event) {
+            event.detail.xhr.abort();
+
+            // Manually trigger the afterOnLoad event
+            const pathInfo = { requestPath: event.detail.path };
+            htmx.trigger(document.body, 'htmx:afterOnLoad', { pathInfo: pathInfo });
+        });
+
+        // Initialize sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            // Start with collapsed sidebar on mobile
+            if (window.innerWidth <= 768) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('main-content').classList.add('expanded');
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 <h1>Welcome Back</h1>
-<form hx-post="/api/login" hx-trigger="submit" hx-indicator=".button">
+<form hx-post="{{ url_for('login_create') }}"
+      hx-trigger="submit"
+      hx-indicator=".button">
     <div class="input-group">
         <label for="username">Username</label>
         <input type="text" id="username" name="username" required autocomplete="username">
@@ -8,14 +10,12 @@
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required autocomplete="current-password">
     </div>
-    <button type="submit" class="button">
-        Log in
-    </button>
+    <button type="submit" class="button">Log in</button>
 </form>
 <div class="form-footer">
     <span>Don't have an account? </span>
     <a class="form-switch"
-        hx-get="/api/auth/register-form"
+        hx-get="{{ url_for('register') }}"
         hx-target="#auth-container"
-        hx-swap="innerHTML transition:true">Register</a>
+        hx-swap="outerHTML transition:true">Register</a>
 </div>

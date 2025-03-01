@@ -10,8 +10,7 @@
     <!-- Extension CSS Links -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
-    {% block link_internal_css %}
-    {% endblock %}
+    {% block link_internal_css %}{% endblock %}
 
     <!-- Core CSS Files -->
     <link rel="stylesheet" href="/static/css/base.css"/>
@@ -19,141 +18,12 @@
     <link rel="stylesheet" href="/static/css/core-sidebar.css"/>
     <link rel="stylesheet" href="/static/css/core-navbar.css"/>
     {% endblock %}
-    {% block additional_css %}
-    {% endblock %}
-    <style>
-    .container {
-      width: 100%;
-      max-width: 400px;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 4px 24px var(--shadow-color);
-      background-color: var(--bg-color);
-
-      & h1 {
-        font-size: 1.75rem;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        text-align: center;
-      }
-
-      & form {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-
-      & label {
-        font-size: 0.875rem;
-        font-weight: 500;
-      }
-
-      & input {
-        height: 2.5rem;
-        padding: 0 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        background-color: var(--input-bg);
-        color: var(--text-color);
-        font-size: 0.9375rem;
-        outline: none;
-
-        &:focus {
-          border-color: var(--input-focus-border);
-          box-shadow: 0 0 0 1px var(--input-focus-border);
-        }
-      }
-    }
-
-    .button {
-      height: 2.5rem;
-      border: none;
-      border-radius: 4px;
-      background-color: var(--button-bg);
-      color: var(--button-text);
-      font-size: 0.9375rem;
-      font-weight: 500;
-      cursor: pointer;
-      margin-top: 0.5rem;
-
-      &:hover {
-        background-color: var(--button-hover-bg);
-      }
-
-      &.loading {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-    }
-
-    .form-footer {
-      margin-top: 1.5rem;
-      text-align: center;
-      font-size: 0.875rem;
-
-      & .form-switch {
-        color: var(--link-color);
-        text-decoration: none;
-        cursor: pointer;
-
-        &:hover {
-          color: var(--link-hover-color);
-          text-decoration: underline;
-        }
-      }
-    }
-
-    .theme-toggle {
-      position: fixed;
-      bottom: 1.5rem;
-      left: 1.5rem;
-      width: 2.25rem;
-      height: 2.25rem;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: var(--button-bg);
-      color: var(--button-text);
-      cursor: pointer;
-      border: none;
-      box-shadow: 0 2px 8px var(--shadow-color);
-
-      & svg {
-        width: 1.25rem;
-        height: 1.25rem;
-        fill: currentColor;
-      }
-    }
-
-    /* Animation for form switching */
-    .htmx-swapping {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-
-    @media (max-width: 480px) {
-      .container {
-        padding: 1.5rem;
-        box-shadow: none;
-      }
-
-      body {
-        padding: 0.5rem;
-      }
-    }
-  </style>
+    {% block additional_css %}{% endblock %}
 </head>
 <body data-theme="light">
-    <main>
-        {% set active_sidebar = active_sidebar|default('true') %}
-        {% block main_content_wrapper %}
+    {% set active_sidebar = active_sidebar|default('true') %}
+    {% block main_content_wrapper %}
+        <main>
             <!-- Header & Navbar -->
             {% include 'fragments/navbar.html' %}
 
@@ -177,8 +47,8 @@
 
             <!-- Footer -->
             {% include 'fragments/footer.html' %}
-        {% endblock %}
-    </main>
+        </main>
+    {% endblock %}
     <!-- Extension JS Links -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"
             integrity="sha512-2kIcAizYXhIn8TzUvqzEDZNuDZ+aW7yE/+f1HJHXFjQcGNfv1kqzJSTBRBSlOgp6B/KZsz1K0a3ZTqP9dnxioQ=="
@@ -187,8 +57,7 @@
     <!-- Core JS Files -->
     <script type="text/javascript" src="/static/js/layout.js"></script>
     <script type="text/javascript" src="/static/js/events.js"></script>
-    {% block additional_js %}
-    {% endblock %}
+    {% block additional_js %}{% endblock %}
 
     {% if active_sidebar == 'true' %}
     <script type="text/javascript" src="/static/js/sidebar.js"></script>
