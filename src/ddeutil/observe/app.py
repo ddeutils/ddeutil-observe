@@ -21,8 +21,7 @@ from .auth import api_auth, auth
 from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
-from .routes import workflow
-from .routes.main import api_router
+from .routes import api_router, workflow
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -117,6 +116,6 @@ async def home(request: Request):
     return RedirectResponse(
         # TODO: remove current request url_for to workflow page.
         # request.url_for("read_workflows"),
-        request.url_for("login"),
+        request.url_for("read_workflows"),
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,
     )

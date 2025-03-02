@@ -1,5 +1,5 @@
 {% extends "shared/layout.html" %}
-{% set active_sidebar = 'false' %}
+{% set active_sidebar_js = 'false' %}
 {% block title %}Auth{% endblock %}
 {% block main_content_wrapper %}
 <div class="container" id="auth-container">
@@ -17,7 +17,7 @@
     </svg>
 </button>
 {% endblock %}
-{% block core_css %}{% endblock %}
+{% block main_css %}{% endblock %}
 {% block additional_css %}
 <link rel="stylesheet" href="/static/css/auth-form.css"/>
 {% endblock %}

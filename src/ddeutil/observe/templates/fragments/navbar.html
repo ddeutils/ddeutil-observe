@@ -1,28 +1,17 @@
-<nav class="navbar">
-    <!--  Left Navbar  -->
-    <div class="navbar_logo">
-        {% if active_sidebar == 'true' %}
-        <i class="bx bx-menu" id="sidebarOpen"></i>
-        {% endif %}
-        <a href="/">
-            <img src="/static/img/eyelash-curler-svgrepo-com.svg" alt="logo">
-        </a>
-        <span>Observe</span>
+<header class="header">
+    <div class="header-actions">
+        <div class="action-item"
+             id="theme-toggle"
+             hx-get="/toggle-theme"
+             hx-swap="none"
+             hx-trigger="click">
+            <i class="bx bx-sun"></i>
+        </div>
+        <div class="action-item">
+            <i class="bx bx-bell"></i>
+        </div>
+        <div class="action-item">
+            <i class="bx bx-cog"></i>
+        </div>
     </div>
-
-    <!--  Search Navbar  -->
-    <div class="search-box">
-        <input type="search" class="search-input" placeholder="Search Looking For Something!" />
-    </div>
-
-    <div class="navbar_content">
-        <i class='bx bx-sun' id="darkLight"></i>
-        <i class='bx bx-bell' ></i>
-        <a class="nav-item" href="/auth/login"><i class='bx bx-log-in-circle' ></i></a>
-        <a href="/auth/login"
-           hx-post="/auth/logout"
-           hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
-            <img src="/static/img/profile.svg" alt="profile-anon" class="profile" />
-        </a>
-    </div>
-</nav>
+</header>

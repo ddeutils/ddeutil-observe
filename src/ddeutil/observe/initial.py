@@ -30,8 +30,6 @@ sessionmanager.init(config.sqlalchemy_db_async_url)
 async def create_admin(session) -> None:
     """Create Admin user."""
     username: str = config.web_admin_user
-    email: str = config.web_admin_email
-    hashed_password = get_password_hash(config.web_admin_pass)
 
     # NOTE: Check this user already exists on the current backend database.
     user: Optional[User] = (
@@ -41,13 +39,15 @@ async def create_admin(session) -> None:
     ).scalar_one_or_none()
 
     if user is None:
+        password_hash = get_password_hash(config.web_admin_pass)
+
         async with sessionmanager.connect() as conn:
             await conn.execute(
                 insert(User).values(
                     {
                         "username": username,
-                        "email": email,
-                        "hashed_password": hashed_password,
+                        "email": config.web_admin_email,
+                        "hashed_password": password_hash,
                         "is_superuser": True,
                     }
                 )

@@ -1,52 +1,29 @@
-<nav class="sidebar">
-    <div class="sidebar_menu">
-
-        <ul class="menu_items">
-            <li class="menu_title menu_dashboard"></li>
-            <li class="item">
-                <a href="/workflow/" class="nav_link">
-                    <span class="nav_link_icon"><i class='bx bx-run'></i></span>
-                    <span class="nav_link_title">Workflow</span>
-                </a>
-            </li>
-            <li class="item">
-                <a href="/workflow/logs" class="nav_link">
-                    <span class="nav_link_icon"><i class="bx bx-loader-circle"></i></span>
-                    <span class="nav_link_title">Logging</span>
-                </a>
-            </li>
-            <li class="item">
-                <a href="#" class="nav_link">
-                    <span class="nav_link_icon"><i class="bx bx-doughnut-chart bx-rotate-90"></i></span>
-                    <span class="nav_link_title">Monitoring</span>
-                </a>
-            </li>
-        </ul>
-
-        <ul class="menu_items">
-            <li class="menu_title menu_setting"></li>
-            <li class="item">
-                <a href="#" class="nav_link">
-                    <span class="nav_link_icon"><i class="bx bx-cog"></i></span>
-                    <span class="nav_link_title">Setting</span>
-                </a>
-            </li>
-            <li class="item">
-                <a href="#" class="nav_link">
-                    <span class="nav_link_icon"><i class="bx bx-layer"></i></span>
-                    <span class="nav_link_title">Features</span>
-                </a>
-            </li>
-        </ul>
-
-        <!-- Sidebar Open / Close -->
-        <div class="bottom_content">
-            <div class="bottom expand_sidebar">
-                <i class='bx bx-log-in'></i>
-            </div>
-            <div class="bottom collapse_sidebar">
-                <i class='bx bx-log-out'></i>
-            </div>
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-toggle"
+             hx-get="/toggle-sidebar"
+             hx-swap="none"
+             hx-trigger="click">
+            <i class='bx bx-menu'></i>
         </div>
+        <h1>Observe</h1>
     </div>
-</nav>
+    <nav class="sidebar-menu">
+        <div class="menu-item active">
+            <i class='bx bx-run'></i>
+            <span>Workflow</span>
+        </div>
+        <div class="menu-item">
+            <i class="bx bx-calendar-alt"></i>
+            <span>Scheduler</span>
+        </div>
+        <div class="menu-item">
+            <i class='bx bx-file-find'></i>
+            <span>Logs</span>
+        </div>
+        <div class="menu-item">
+            <i class='bx bx-glasses-alt'></i>
+            <span>Audits</span>
+        </div>
+    </nav>
+</aside>
