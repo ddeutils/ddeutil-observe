@@ -82,7 +82,8 @@ exclude_lines = ["raise NotImplementedError"]
 
 [tool.pytest.ini_options]
 pythonpath = ["src"]
-asyncio_default_fixture_loop_scope = "function"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
 console_output_style = "count"
 addopts = [
     "--strict-config",
