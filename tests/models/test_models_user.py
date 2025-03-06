@@ -2,7 +2,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.ddeutil.observe.models.user import User
+from src.ddeutil.observe.auth.models import User
 
 
 @pytest.mark.asyncio

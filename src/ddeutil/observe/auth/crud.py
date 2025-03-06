@@ -16,10 +16,10 @@ from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql import false
 
+from src.ddeutil.observe.auth.models import Token, User
+
 from ..conf import config
 from ..crud import BaseCRUD
-from ..models.token import Token
-from ..models.user import User
 from .schemas import (
     TokenCreate,
     TokenDataSchema,

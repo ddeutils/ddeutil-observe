@@ -11,16 +11,6 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Optional
 
-from ddeutil.observe.auth.schemas import UserCreateForm
-from ddeutil.observe.routes.workflow.crud import (
-    create_release_log,
-    create_workflow,
-)
-from ddeutil.observe.routes.workflow.models import Base
-from ddeutil.observe.routes.workflow.schemas import (
-    ReleaseLogCreate,
-    WorkflowCreate,
-)
 from dotenv import load_dotenv
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -28,10 +18,18 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+from src.ddeutil.observe.routes.workflow.crud import (
+    create_release_log,
+    create_workflow,
+)
+
 OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
 def initial_auth(db_path: Optional[Path] = None):
+    from src.ddeutil.observe.auth.schemas import UserCreateForm
+    from src.ddeutil.observe.routes.workflow.models import Base
+
     db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
     engine = create_async_engine(
         f"sqlite:///{db_path}",
@@ -84,6 +82,12 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
     """
+    from src.ddeutil.observe.routes.workflow.models import Base
+    from src.ddeutil.observe.routes.workflow.schemas import (
+        ReleaseLogCreate,
+        WorkflowCreate,
+    )
+
     db_path: Path = db_path or OUTSIDE_PATH / "observe.test.db"
     engine = create_async_engine(
         f"sqlite+aiosqlite:///{db_path}",

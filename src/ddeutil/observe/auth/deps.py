@@ -12,9 +12,9 @@ from fastapi import status as st
 from fastapi.security import SecurityScopes
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ddeutil.observe.auth.models import Token, User
+
 from ..deps import get_async_session
-from ..models.token import Token
-from ..models.user import User
 from .crud import verify_access_token, verify_refresh_token
 from .securities import OAuth2Schema, OAuth2SchemaView
 

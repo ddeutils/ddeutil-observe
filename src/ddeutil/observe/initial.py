@@ -18,9 +18,6 @@ from sqlalchemy import insert, select
 from .auth.securities import get_password_hash
 from .conf import config
 from .db import sessionmanager
-from .deps import get_async_session
-from .models.policy import Role
-from .models.user import User
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -29,6 +26,10 @@ sessionmanager.init(config.sqlalchemy_db_async_url)
 
 async def create_admin(session) -> None:
     """Create Admin user."""
+    from src.ddeutil.observe.auth.models import User
+
+    from .db import sessionmanager
+
     username: str = config.web_admin_user
 
     # NOTE: Check this user already exists on the current backend database.
@@ -61,6 +62,8 @@ async def create_admin(session) -> None:
 
 async def create_role_policy(session, routes: list[APIRoute]) -> None:
     """Create Role and Policy."""
+    from src.ddeutil.observe.auth.models import Role
+
     roles: Optional[Role] = (await session.execute(select(Role))).scalars()
     logger.info(str(roles))
 
@@ -83,11 +86,12 @@ async def create_role_policy(session, routes: list[APIRoute]) -> None:
 
 
 async def main():
+    from .deps import get_async_session
+
     async with get_async_session() as session:
         await create_admin(session)
 
 
 if __name__ == "__main__":
-    # NOTE: Start running create function.
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())

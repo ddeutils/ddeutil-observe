@@ -3,7 +3,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.ddeutil.observe.models.policy import Policy, Role
+from src.ddeutil.observe.auth.models import Policy, Role
 
 
 @pytest.mark.asyncio

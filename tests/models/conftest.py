@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.ddeutil.observe.models import Base
+from src.ddeutil.observe.auth.models import Base
 
 DB_POINTER = Path(__file__).parent.parent.parent / "observe.test.db"
 engine = create_async_engine(

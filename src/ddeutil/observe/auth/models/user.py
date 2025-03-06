@@ -10,13 +10,13 @@ from uuid import UUID, uuid4
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship, selectinload
+from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 from sqlalchemy.sql import false, func, select, true
 from sqlalchemy.types import UUID as UUIDType
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from . import Base, Col, Dtype
+from . import Base
 
 if TYPE_CHECKING:
     from .token import Token
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 class User(Base):
     __tablename__ = "users"
 
-    id: Dtype[UUID] = Col(
+    id: Mapped[UUID] = mapped_column(
         UUIDType(as_uuid=True),
         primary_key=True,
         default=uuid4,
@@ -39,47 +39,47 @@ class User(Base):
     #     server_default=func.gen_random_uuid(),
     # )
 
-    username: Dtype[str] = Col(
+    username: Mapped[str] = mapped_column(
         String(64),
         unique=True,
         nullable=False,
         index=True,
     )
-    fullname: Dtype[Optional[str]] = Col(
+    fullname: Mapped[Optional[str]] = mapped_column(
         String(256),
         nullable=True,
         index=True,
     )
-    email: Dtype[str] = Col(
+    email: Mapped[str] = mapped_column(
         String(128),
         nullable=False,
         index=True,
     )
-    hashed_password: Dtype[str] = Col(String, nullable=False)
-    is_verified: Dtype[bool] = Col(Boolean, default=False)
-    is_active: Dtype[bool] = Col(Boolean, default=True)
-    is_superuser: Dtype[bool] = Col(Boolean, default=False)
-    profile_image_url: Dtype[str] = Col(
+    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    is_superuser: Mapped[bool] = mapped_column(Boolean, default=False)
+    profile_image_url: Mapped[str] = mapped_column(
         String, default="https://profileimageurl.com"
     )
 
-    created_at: Dtype[datetime] = Col(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=datetime.now,
         nullable=False,
     )
-    updated_at: Dtype[datetime] = Col(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         onupdate=datetime.now,
         # NOTE: This default use current timezone that this application stay.
         server_default=text("(datetime('now','localtime'))"),
     )
-    deleted_at: Dtype[Optional[datetime]] = Col(
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
 
-    tokens: Dtype[list["Token"]] = relationship(
+    tokens: Mapped[list["Token"]] = relationship(
         "Token",
         back_populates="user",
         order_by="Token.created_at",
@@ -154,12 +154,14 @@ class User(Base):
 class GroupUser(Base):
     __tablename__ = "associate_groups_users"
 
-    group_id: Dtype[int] = Col(
+    group_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("groups.id"), primary_key=True
     )
-    user_id: Dtype[int] = Col(Integer, ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), primary_key=True
+    )
 
-    user: Dtype["User"] = relationship(
+    user: Mapped["User"] = relationship(
         "Group",
         back_populates="user_associations",
     )
@@ -168,10 +170,10 @@ class GroupUser(Base):
 class Group(Base):
     __tablename__ = "groups"
 
-    id = Col(Integer, primary_key=True)
-    name = Col(String, unique=True, nullable=False)
+    id = mapped_column(Integer, primary_key=True)
+    name = mapped_column(String, unique=True, nullable=False)
 
-    user_associations: Dtype[list["GroupUser"]] = relationship(
+    user_associations: Mapped[list["GroupUser"]] = relationship(
         "GroupUser",
         back_populates="user",
     )
