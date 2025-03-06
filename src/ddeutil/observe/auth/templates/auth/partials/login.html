@@ -16,6 +16,7 @@
     <span>Don't have an account? </span>
     <a class="form-switch"
         hx-get="{{ url_for('register') }}"
+        hx-replace-url="/auth/register"
         hx-target="#auth-container"
         hx-swap="outerHTML transition:true">Register</a>
 </div>

@@ -36,6 +36,7 @@
     <span>Already had an account? </span>
     <a class="form-switch"
         hx-get="{{ url_for('login') }}"
+        hx-replace-url="/auth/login"
         hx-target="#auth-container"
         hx-swap="outerHTML transition:true">Login</a>
 </div>
