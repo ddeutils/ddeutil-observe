@@ -12,7 +12,7 @@
         {% for workflow in workflows %}
         <tr>
             <td>...</td>
-            <td>{{ workflow.name }}</td>
+            <td class="workflow-name">{{ workflow.name }}</td>
             <td>
                 {% for n in workflow.on %}
                 <span class="crontab-cell">{{ n.cronjob }}</span>
@@ -31,7 +31,7 @@
                         onclick="showDetails('wf-run-python-raise-for-job')">
                     <i class='bx bx-info-circle'></i>
                 </button>
-                <button class="btn btn-primary">
+                <button class="btn btn-primary run-btn">
                     <i class='bx bx-rocket' ></i>
                 </button>
             </td>

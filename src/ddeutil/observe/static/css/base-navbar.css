@@ -30,6 +30,43 @@
             &:hover {
                 background-color: var(--bg-secondary);
             }
+
+            & .dropdown-menu {
+                position: absolute;
+                top: 75%;
+                right: 30px;
+                background-color: var(--bg-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 4px;
+                box-shadow: 0 4px 6px var(--shadow-color);
+                min-width: 160px;
+                display: none;
+                z-index: 10;
+
+                & .dropdown-item {
+                    padding: 10px 15px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                    transition: background-color 0.2s;
+
+                    &:hover {
+                        background-color: var(--bg-secondary);
+                    }
+
+                    & i {
+                        margin-right: 15px;
+                        width: 16px;
+                        text-align: center;
+                    }
+                }
+            }
+        }
+
+        & .action-dropdown:hover {
+            & .dropdown-menu {
+                display: block;
+            }
         }
     }
 }
