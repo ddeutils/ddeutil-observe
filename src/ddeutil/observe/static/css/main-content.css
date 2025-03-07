@@ -2,9 +2,10 @@
 .content {
     flex-grow: 1;
     padding: 20px;
-    max-width: 900px;
-    margin: 0 auto;
     width: 100%;
+    max-width: 900px;
+    min-height: 100vh;
+    margin: 0 auto;
 
     & .content-section {
         background-color: var(--bg-primary);
@@ -13,17 +14,71 @@
         padding: 20px;
         margin-bottom: 20px;
 
-        & h2 {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
-
         & p {
             color: var(--text-secondary);
             line-height: 1.6;
             margin-bottom: 15px;
+        }
+
+        & .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+
+            & h2 {
+                font-size: 1.5rem;
+                font-weight: 600;
+                color: var(--text-primary);
+            }
+
+            & .search-container {
+                position: relative;
+                width: 300px;
+
+                & input {
+                    width: 100%;
+                    padding: 8px 12px 8px 35px;
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    font-size: 0.95rem;
+                    background-color: var(--bg-primary);
+                    color: var(--text-primary);
+                    transition: border-color 0.2s;
+
+                    &:focus {
+                        outline: none;
+                        border-color: var(--accent-color);
+                    }
+                }
+
+                & i {
+                    position: absolute;
+                    left: 12px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--text-secondary);
+                }
+
+                & span {
+                    position: absolute;
+                    right: 12px;
+                    top: 20%;
+                }
+            }
+        }
+
+    }
+}
+
+@media (max-width: 768px) {
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+
+        & .search-container {
+            width: 100%;
         }
     }
 }

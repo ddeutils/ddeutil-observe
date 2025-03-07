@@ -64,6 +64,11 @@ body {
     min-height: 100vh;
 }
 
+a {
+  text-decoration: none;
+  color: black;
+}
+
 /* Main Content Styles */
 .main-content {
     flex-grow: 1;

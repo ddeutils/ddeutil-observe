@@ -1,13 +1,11 @@
 {% extends "shared/layout.html" %}
 {% block main_content %}
-<article class="container">
-    <div class="container-center">
+<article class="content">
+    <div class="content-section">
         <div>
             <h2>Logs</h2>
         </div>
-
-        {% include 'workflow/partials/log_results.html' %}
-
+        {% include 'log/partials/log_results.html' %}
     </div>
 </article>
 {% endblock %}

@@ -21,7 +21,7 @@ from .auth import api_auth, auth
 from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
-from .routes import api_router, workflow
+from .routes import api_router, log, workflow
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -102,6 +102,7 @@ app.include_router(auth)
 # NOTE: Any routers
 app.include_router(api_router, prefix=config.api_prefix)
 app.include_router(workflow)
+app.include_router(log)
 
 # NOTE: Start mount all static files from /static path to this application.
 app.mount(

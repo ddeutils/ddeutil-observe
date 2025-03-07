@@ -9,15 +9,16 @@
         <h1>Observe</h1>
     </div>
     <nav class="sidebar-menu">
-        <div class="menu-item active">
+        <div class="menu-item {{ 'active' if request.path[1:] == 'workflow/' else ''}}">
             <i class='bx bx-run'></i>
-            <span>Workflow</span>
+            <span>Workflows</span>
         </div>
         <div class="menu-item">
             <i class="bx bx-calendar-alt"></i>
-            <span>Scheduler</span>
+            <span>Schedulers</span>
         </div>
-        <div class="menu-item">
+
+        <div class="menu-item {{ 'active' if request.path[1:] == 'log/' else ''}}">
             <i class='bx bx-file-find'></i>
             <span>Logs</span>
         </div>

@@ -24,15 +24,26 @@ log = APIRouter(
 )
 
 
-@log.get("/logs")
+@log.get("/")
 async def read_logs(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all logs."""
+    return templates.TemplateResponse(request=request, name="log/log.html")
+
+
+@log.get("/search")
+async def search_logs(
+    request: Request,
+    hx_request: Annotated[Optional[str], Header(...)] = None,
+    templates: Jinja2Templates = Depends(get_templates),
+):
     if hx_request:
         return templates.TemplateResponse(
-            "log/partials/log_results.html", {"request": request}
+            request=request,
+            name="log/partials/log_results.html",
+            context={},
         )
     return templates.TemplateResponse(request=request, name="log/log.html")
