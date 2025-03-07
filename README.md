@@ -47,11 +47,9 @@ This project implement the best scalable FastAPI web application structure.
 For the first phase, I will use the SQLite be a backend database that keep
 authentication and workflows data.
 
-### Main Page
+### Login Page
 
-```text
-
-```
+![Login Page](./docs/img/login-page.png?raw=true "Title")
 
 ### Workflow Release Page
 
