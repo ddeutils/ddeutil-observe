@@ -75,17 +75,3 @@ async def search_workflows(
             "search_text": search_text,
         },
     )
-
-
-@workflow.get("/logs")
-async def read_logs(
-    request: Request,
-    hx_request: Annotated[Optional[str], Header(...)] = None,
-    templates: Jinja2Templates = Depends(get_templates),
-):
-    """Return all workflows."""
-    if hx_request:
-        return templates.TemplateResponse(
-            "workflow/partials/show_add_author_form.html", {"request": request}
-        )
-    return templates.TemplateResponse(request=request, name="workflow/log.html")
