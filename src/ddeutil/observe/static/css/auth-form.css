@@ -48,78 +48,78 @@
 }
 
 .button {
-  height: 2.5rem;
-  border: none;
-  border-radius: 4px;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  margin-top: 0.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
 
-  &:hover {
-    background-color: var(--button-hover-bg);
-  }
+    &:hover {
+        background-color: var(--button-hover-bg);
+    }
 
-  &.loading {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
+    &.loading {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
 }
 
 .form-footer {
-  margin-top: 1.5rem;
-  text-align: center;
-  font-size: 0.875rem;
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.875rem;
 
-  & .form-switch {
-    color: var(--link-color);
-    text-decoration: none;
-    cursor: pointer;
+      & .form-switch {
+          color: var(--link-color);
+          text-decoration: none;
+          cursor: pointer;
 
-    &:hover {
-      color: var(--link-hover-color);
-      text-decoration: underline;
-    }
-  }
+          &:hover {
+            color: var(--link-hover-color);
+            text-decoration: underline;
+          }
+      }
 }
 
 .theme-toggle {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 1.5rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--button-bg);
-  color: var(--button-text);
-  cursor: pointer;
-  border: none;
-  box-shadow: 0 2px 8px var(--shadow-color);
+    position: fixed;
+    bottom: 1.5rem;
+    left: 1.5rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px var(--shadow-color);
 
-  & svg {
-    width: 1.25rem;
-    height: 1.25rem;
-  }
+    & svg {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
 }
 
 /* Animation for form switching */
 .htmx-swapping {
-  opacity: 0;
-  transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(10px);
 }
 
 @media (max-width: 480px) {
-  .container {
-    padding: 1.5rem;
-    box-shadow: none;
-  }
+    .container {
+      padding: 1.5rem;
+      box-shadow: none;
+    }
 
-  body {
-    padding: 0.5rem;
-  }
+    body {
+      padding: 0.5rem;
+    }
 }
