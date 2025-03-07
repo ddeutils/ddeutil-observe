@@ -7,6 +7,17 @@
     min-height: 100vh;
     margin: 0 auto;
 
+    & .content-header {
+        padding: 0px 20px 20px;
+
+        & h1 {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+    }
+
     & .content-section {
         background-color: var(--bg-primary);
         border-radius: 8px;
@@ -20,7 +31,8 @@
             margin-bottom: 15px;
         }
 
-        & .content-header {
+        /* Header */
+        & .content-section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -68,6 +80,92 @@
             }
         }
 
+        /* Table */
+
+        & .content-section-table {
+            overflow-x: auto;
+            background-color: var(--bg-primary);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px var(--shadow-color);
+
+            & .data-table {
+                width: 100%;
+                border-collapse: collapse;
+
+                & th, & td {
+                    padding: 10px 15px;
+                    text-align: left;
+                    border-bottom: 1px solid var(--border-color);
+                }
+
+                & th {
+                    background-color: var(--bg-secondary);
+                    font-weight: 600;
+                    color: var(--text-secondary);
+                    position: sticky;
+                    top: 0;
+                    z-index: 1;
+                }
+
+                & tbody tr {
+                    transition: background-color 0.2s;
+
+                    &:hover {
+                        background-color: rgba(249, 250, 251, 0.5);
+                    }
+                }
+
+                & .crontab-cell {
+                    font-family: monospace;
+                    padding: 4px 8px;
+                    background-color: rgba(229, 231, 235, 0.5);
+                    border-radius: 4px;
+                    display: inline-block;
+                    margin: 2px;
+                    font-size: 0.9rem;
+                }
+
+                & .json-cell {
+                    font-family: monospace;
+                    white-space: pre;
+                    max-width: 300px;
+                    overflow-x: auto;
+                    background-color: rgba(229, 231, 235, 0.2);
+                    padding: 8px;
+                    border-radius: 4px;
+                    font-size: 0.9rem;
+                }
+
+                & .action-cell {
+                    text-align: right;
+                    white-space: nowrap;
+
+                    & .btn {
+                        padding: 6px 10px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        border: none;
+                        background-color: var(--bg-secondary);
+                        color: var(--text-primary);
+                        transition: all 0.2s;
+                        margin-left: 5px;
+
+                        &:hover {
+                            background-color: var(--border-color);
+                        }
+
+                        &.btn-primary {
+                            background-color: var(--accent-color);
+                            color: white;
+
+                            &:hover {
+                                background-color: rgba(79, 70, 229, 0.8);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

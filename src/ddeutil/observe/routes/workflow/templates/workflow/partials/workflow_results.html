@@ -1,27 +1,42 @@
-<div class="data-table-container">
-    <table id="workflow-results">
-        <thead>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Params</th>
-                <th>On</th>
-                <th>Jobs</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for workflow in workflows %}
-            <tr>
-                <td>...</td>
-                <td>{{ workflow.id }}</td>
-                <td>{{ workflow.name }}</td>
-                <td>{{ workflow.params }}</td>
-                <td>{{ workflow.on }}</td>
-                <td>{{ workflow.jobs }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot></tfoot>
-    </table>
-</div>
+<table class="data-table" id="workflow-results">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Cronjob</th>
+            <th>Parameters</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for workflow in workflows %}
+        <tr>
+            <td>...</td>
+            <td>{{ workflow.name }}</td>
+            <td>
+                {% for n in workflow.on %}
+                <span class="crontab-cell">{{ n.cronjob }}</span>
+                {% endfor %}
+            </td>
+            <td>
+                <pre class="json-cell">
+                    {{- workflow.dump_params() -}}
+                </pre>
+            </td>
+            <td class="action-cell">
+                <button class="btn"
+                        hx-get="/workflow-details/wf-run-python-raise-for-job"
+                        hx-target="#workflow-details"
+                        hx-swap="innerHTML"
+                        onclick="showDetails('wf-run-python-raise-for-job')">
+                    <i class='bx bx-info-circle'></i>
+                </button>
+                <button class="btn btn-primary">
+                    <i class='bx bx-rocket' ></i>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot></tfoot>
+</table>
