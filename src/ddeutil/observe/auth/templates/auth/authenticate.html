@@ -2,7 +2,7 @@
 {% set active_sidebar_js = 'false' %}
 {% block title %}Auth{% endblock %}
 {% block body_content_wrapper %}
-<article class="container" id="auth-container">
+<article id="auth-container">
     {% if content == 'login' %}
         {% include 'auth/partials/login.html' with context %}
     {% elif content == 'change-password' %}

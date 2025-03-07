@@ -43,7 +43,6 @@ pip install -U ddeutil-observe
 
 ## :beers: Getting Started
 
-This project implement the best scalable FastAPI web application structure.
 For the first phase, I will use the SQLite be a backend database that keep
 authentication and workflows data.
 
@@ -51,7 +50,7 @@ authentication and workflows data.
 
 ![Login Page](./docs/img/login-page.png?raw=true "Title")
 
-### Workflow Release Page
+### Main Page
 
 ```text
 

@@ -24,7 +24,7 @@ from typing_extensions import Self
 from ...auth.models import Base
 
 
-class Workflows(Base):
+class Workflow(Base):
     __tablename__ = "workflows"
 
     id = mapped_column(Integer, primary_key=True, index=True)
@@ -37,8 +37,8 @@ class Workflows(Base):
     valid_start = mapped_column(DateTime)
     valid_end = mapped_column(DateTime)
 
-    releases: Mapped[list[WorkflowReleases]] = relationship(
-        "WorkflowReleases",
+    releases: Mapped[list[WorkflowRelease]] = relationship(
+        "WorkflowRelease",
         back_populates="workflow",
     )
 
@@ -62,7 +62,7 @@ class Workflows(Base):
             yield row
 
 
-class WorkflowReleases(Base):
+class WorkflowRelease(Base):
     __tablename__ = "workflow_releases"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -71,16 +71,16 @@ class WorkflowReleases(Base):
         Integer, ForeignKey("workflows.id")
     )
 
-    workflow: Mapped[Workflows] = relationship(
-        "Workflows", back_populates="releases"
+    workflow: Mapped[Workflow] = relationship(
+        "Workflow", back_populates="releases"
     )
-    logs: Mapped[list[WorkflowLogs]] = relationship(
-        "WorkflowLogs",
+    logs: Mapped[list[WorkflowLog]] = relationship(
+        "WorkflowLog",
         back_populates="release",
     )
 
 
-class WorkflowLogs(Base):
+class WorkflowLog(Base):
     __tablename__ = "workflow_logs"
 
     run_id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
@@ -89,7 +89,7 @@ class WorkflowLogs(Base):
         Integer, ForeignKey("workflow_releases.id")
     )
 
-    release: Mapped[WorkflowReleases] = relationship(
-        "WorkflowReleases",
+    release: Mapped[WorkflowRelease] = relationship(
+        "WorkflowRelease",
         back_populates="logs",
     )

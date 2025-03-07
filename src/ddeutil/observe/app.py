@@ -41,11 +41,12 @@ async def lifespan(inside: FastAPI):
         await sessionmanager.create_all(conn)
 
     # IMPORTANT: Initial setop data context on the backend database.
-    from .initial import create_admin, create_role_policy
+    from .initial import create_admin, create_role_policy, create_workflows
 
     async with sessionmanager.session() as session:
         await create_admin(session)
         await create_role_policy(session, routes=inside.routes)
+        await create_workflows(session)
 
     yield
 
