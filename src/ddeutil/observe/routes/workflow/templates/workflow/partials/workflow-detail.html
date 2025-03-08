@@ -1,0 +1,119 @@
+<header>
+    <div class="detail-header">
+        <h2>wf-run-python-raise-for-job</h2>
+        <button class="close-btn"
+                onclick="hideDetail()">
+            <i class='bx bx-x'></i>
+        </button>
+    </div>
+    <nav class="detail-tab">
+        <ul class="tab active" data-tab="config">Configuration</ul>
+        <ul class="tab" data-tab="graph">Graph</ul>
+        <ul class="tab" data-tab="history">Logs</ul>
+    </nav>
+</header>
+
+<article class="tab-content active" id="config-tab">
+    <div class="config-section">
+        <div class="yaml-section">
+            <h3>Configuration</h3>
+            <pre>wf-run-python-raise-for-job:
+type: Workflow
+jobs:
+first-job:
+  stages:
+    - name: Raise Error Inside
+      id: raise-error
+      run: |
+        raise ValueError('Testing raise error inside PyStage!!!')
+final-job:
+  strategy:
+    fail-fast: True
+    matrix:
+      name: ['foo', 'bar']
+  stages:
+    - name: Echo hello world
+      echo: "Hello World"
+      sleep: 3
+    - name: Raise Error Inside
+      id: raise-error
+      run: |
+        raise ValueError('Testing raise error inside PyStage!!!')
+    - name: Echo hello world 2
+      echo: "Hello World 2"</pre>
+        </div>
+    </div>
+</article>
+
+<article class="tab-content" id="graph-tab">
+    <div class="graph-section">
+        <h3>Graph</h3>
+        <div class="mermaid" id="mermaid-diagram">
+graph TB
+Start[Start] --> First[First Job]
+First --> Final[Final Job]
+
+subgraph "First Job"
+    F1[Raise Error Inside]
+end
+
+subgraph "Final Job"
+    M{{ '{{' }}Matrix: foo, bar{{ '}}' }}
+    M --> F2_foo[Echo hello world - foo]
+    M --> F2_bar[Echo hello world - bar]
+    F2_foo --> F3_foo[Raise Error Inside - foo]
+    F2_bar --> F3_bar[Raise Error Inside - bar]
+    F3_foo -.-> F4_foo[Echo hello world 2 - foo]
+    F3_bar -.-> F4_bar[Echo hello world 2 - bar]
+end
+
+class F3_foo,F3_bar error;
+classDef error fill:#ffcccc,stroke:#ff0000;
+        </div>
+    </div>
+</article>
+
+<article class="tab-content" id="history-tab">
+    <div class="history-section">
+        <h3>Trace</h3>
+        <div class="history-entry">
+            <div class="history-header">
+                <span class="run-date">2025-03-03 10:15:22</span>
+                <span class="run-status error">Failed</span>
+            </div>
+            <div class="log-section">
+                <h4>STDOUT</h4>
+                <pre>[2025-03-03 10:15:22] INFO: Starting workflow execution
+[2025-03-03 10:15:23] INFO: Running first-job
+[2025-03-03 10:15:24] INFO: Executing raise-error stage</pre>
+
+                <h4>STDERR</h4>
+                <pre>[2025-03-03 10:15:25] ERROR: ValueError: Testing raise error inside PyStage!!!
+File "/app/workflow/runner.py", line 245, in execute_stage
+result = stage.run()
+File "/app/workflow/stages.py", line 128, in run
+return exec(self.code, globals(), locals())</pre>
+            </div>
+        </div>
+
+        <div class="history-entry">
+            <div class="history-header">
+                <span class="run-date">2025-03-02 01:00:03</span>
+                <span class="run-status error">Failed</span>
+            </div>
+            <div class="log-section">
+                <h4>STDOUT</h4>
+                <pre>[2025-03-02 01:00:03] INFO: Starting workflow execution
+[2025-03-02 01:00:04] INFO: Running first-job
+[2025-03-02 01:00:05] INFO: Executing raise-error stage</pre>
+
+                <h4>STDERR</h4>
+                <pre>[2025-03-02 01:00:06] ERROR: ValueError: Testing raise error inside PyStage!!!
+File "/app/workflow/runner.py", line 245, in execute_stage
+result = stage.run()
+File "/app/workflow/stages.py", line 128, in run
+return exec(self.code, globals(), locals())</pre>
+            </div>
+        </div>
+    </div>
+</article>

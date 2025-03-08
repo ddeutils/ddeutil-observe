@@ -3,11 +3,14 @@
 {% block title %}Workflows{% endblock %}
 {% block main_content %}
 <section class="content">
+    <!-- Content Header -->
     <header class="content-header">
         <h1>Workflows</h1>
     </header>
-    <article class="content-section">
-        <header class="content-section-header">
+    <!-- Content Section -->
+    <article class="content-article" id="workflow-content-article">
+
+        <header class="content-article-header">
             <h2>Workflow List</h2>
             <div class="search-container">
                 <i class="bx bx-search"></i>
@@ -24,11 +27,18 @@
                 <span class="htmx-indicator"><img src="/static/img/bars.svg" alt="progress bars" /></span>
             </div>
         </header>
-        <div class="content-section-table">
-        {% include 'workflow/partials/workflow_results.html' %}
+
+        <div class="content-article-body">
+            <div class="content-article-table">
+                {% include 'workflow/partials/workflow-row.html' %}
+            </div>
+            <div class="content-article-detail" id="workflow-content-article-detail">
+                {% include 'workflow/partials/workflow-detail.html' %}
+            </div>
         </div>
     </article>
 </section>
+<aside></aside>
 {% endblock %}
 {% block link_internal_css %}
 <link rel="stylesheet" href="/static/css/main-content.css"/>

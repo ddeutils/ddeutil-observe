@@ -108,7 +108,7 @@ async def create_workflows(session: AsyncSession):
     for workflow in [
         WorkflowCreate(
             name="wf-scheduling",
-            params={"asat-dt": {"type": "datetime"}},
+            params={"asat-dt": {"type": "datetime"}, "notify": {"type": "str"}},
             on=[{"cronjob": "*/3 * * * *", "timezone": "Asia/Bangkok"}],
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
@@ -121,7 +121,10 @@ async def create_workflows(session: AsyncSession):
         WorkflowCreate(
             name="wf-batch-job-01",
             params={"asat-dt": {"type": "datetime"}},
-            on=[{"cronjob": "* * * * *", "timezone": "Asia/Bangkok"}],
+            on=[
+                {"cronjob": "*/5 * * * *", "timezone": "Asia/Bangkok"},
+                {"cronjob": "*/10 * * * *", "timezone": "Asia/Bangkok"},
+            ],
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
         WorkflowCreate(
@@ -131,8 +134,14 @@ async def create_workflows(session: AsyncSession):
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
         WorkflowCreate(
-            name="wf-run-python-common",
+            name="wf-run-python-01",
             params={"asat-dt": {"type": "datetime"}},
+            on=[{"cronjob": "*/3 12 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
+        ),
+        WorkflowCreate(
+            name="wf-run-python-02",
+            params={"asat-dt": {"type": "datetime"}, "source": {"type": "str"}},
             on=[{"cronjob": "*/3 12 * * *", "timezone": "Asia/Bangkok"}],
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),

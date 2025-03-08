@@ -22,10 +22,10 @@ from .schemas import (
 
 logger = get_logger("ddeutil.observe")
 
+# NOTE: This route require authentication step first.
 workflow = APIRouter(
     prefix="/workflow",
     tags=["workflow", "frontend"],
-    # NOTE: This page require authentication step first.
     dependencies=[Depends(required_current_active_user)],
 )
 
@@ -64,7 +64,7 @@ async def search_workflows(
     if hx_request:
         return templates.TemplateResponse(
             request=request,
-            name="workflow/partials/workflow_results.html",
+            name="workflow/partials/workflow-row.html",
             context={"workflows": workflows},
         )
     return templates.TemplateResponse(
