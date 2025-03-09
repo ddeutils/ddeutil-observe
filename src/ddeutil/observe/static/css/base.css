@@ -1,6 +1,6 @@
 :root {
     /* Light theme variables */
-    /* --bg-color: rgba(255, 255, 255, 1); */
+    --bg-color: rgba(255, 255, 255, 1);
     --text-color: rgba(37, 37, 37, 1);
     --border-color: rgba(220, 220, 220, 1);
     --input-bg: rgba(250, 250, 250, 1);
@@ -11,14 +11,15 @@
     --link-color: rgba(55, 53, 47, 0.65);
     --link-hover-color: rgba(55, 53, 47, 1);
     --shadow-color: rgba(15, 15, 15, 0.05);
-
     --text-primary: rgba(17, 24, 39, 1);
     --text-secondary: rgba(75, 85, 99, 1);
     --bg-primary: rgba(255, 255, 255, 1);
     --bg-secondary: rgba(249, 250, 251, 1);
+
+    /* Const variables */
+    --bg-accent-color: rgba(79, 70, 229, 0.1);
     --border-color: rgba(229, 231, 235, 1);
     --accent-color: rgba(79, 70, 229, 1);
-    /* --shadow-color: rgba(0, 0, 0, 0.1); */
     --sidebar-width: 240px;
     --sidebar-collapsed-width: 64px;
     --header-height: 60px;
@@ -38,12 +39,10 @@
     --link-color: rgba(200, 200, 200, 0.7);
     --link-hover-color: rgba(235, 235, 235, 1);
     --shadow-color: rgba(0, 0, 0, 0.25);
-
     --text-primary: rgba(229, 231, 235, 1);
     --text-secondary: rgba(156, 163, 175, 1);
     --bg-primary: rgba(25, 25, 25, 1);
     --bg-secondary: rgba(40, 40, 44, 1);
-    /* --shadow-color: rgba(0, 0, 0, 0.3); */
 }
 
 * {
@@ -55,7 +54,6 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    /*background-color: var(--bg-color);*/
     background-color: var(--bg-secondary);
     color: var(--text-color);
     display: flex;
@@ -80,25 +78,4 @@ a {
     padding: 0 20px;
     color: var(--text-secondary);
     font-size: 0.8rem;
-}
-
-
-/* Media Queries for Responsive Design */
-@media (max-width: 768px) {
-    .sidebar {
-        width: var(--sidebar-collapsed-width);
-
-        &.expanded {
-            width: var(--sidebar-width);
-            box-shadow: 0 0 10px var(--shadow-color);
-        }
-    }
-
-    .main-content {
-        margin-left: var(--sidebar-collapsed-width);
-
-        &.sidebar-expanded {
-            margin-left: var(--sidebar-width);
-        }
-    }
 }
