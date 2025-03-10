@@ -31,7 +31,11 @@ async def read_traces(
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all traces."""
-    return templates.TemplateResponse(request=request, name="trace/trace.html")
+    return templates.TemplateResponse(
+        request=request,
+        name="trace/trace.html",
+        context={"trace": None},
+    )
 
 
 @trace.get("/search/")

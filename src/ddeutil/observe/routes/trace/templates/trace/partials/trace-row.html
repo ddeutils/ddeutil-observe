@@ -9,7 +9,7 @@
     </thead>
     <tbody>
         <tr>
-            <td class="workflow-name">{{ workflow.name }}</td>
+            <td class="trace-name">{{ trace.name }}</td>
             <td>
             </td>
             <td>
@@ -18,12 +18,7 @@
             </td>
             <td class="action-cell">
                 <button class="btn"
-                        onclick="showDetail(this)"
-                        hx-get="/workflow/detail/{{ workflow.name }}"
-                        hx-trigger="click"
-                        hx-swap="innerHTML transition:true"
-                        hx-target="#workflow-content-article-detail"
-                        hx-push-url="false">
+                        onclick="showDetail(this)">
                     <i class='bx bx-info-circle'></i>
                 </button>
                 <button class="btn btn-primary" onclick="runWorkflow(this)">
