@@ -44,7 +44,7 @@ async def get_workflow_by_name(
             )
             .limit(1)
         )
-    ).first()
+    ).scalar_one_or_none()
 
 
 async def create_workflow(

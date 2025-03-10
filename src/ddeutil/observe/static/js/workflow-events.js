@@ -18,16 +18,18 @@ function hideDetail() {
 }
 
 // Detail Tab switching
-document.querySelectorAll('.detail-tab .tab').forEach(tab => {
-    tab.addEventListener('click', function() {
-        // Update active tab
-        document.querySelectorAll('.detail-tab .tab').forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
+document.body.addEventListener('htmx:afterSwap', function (event) {
+    document.querySelectorAll('.detail-tab .tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            // Update active tab
+            document.querySelectorAll('.detail-tab .tab').forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
 
-        // Show corresponding content
-        const tabId = this.dataset.tab;
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById(tabId + '-tab').classList.add('active');
+            // Show corresponding content
+            const tabId = this.dataset.tab;
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabId + '-tab').classList.add('active');
 
+        });
     });
 });

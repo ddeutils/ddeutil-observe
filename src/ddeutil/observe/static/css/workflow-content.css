@@ -104,12 +104,13 @@
                     & tr td,
                     & tr th {
                         display: none;
+                        text-align: center;
                     }
 
                     & tr td:nth-child(1),
                     & tr th:nth-child(1) {
                         display: block;
-                        height: 40px;
+                        height: 45px;
                     }
                 }
 

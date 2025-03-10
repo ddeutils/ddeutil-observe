@@ -19,7 +19,7 @@
                        name="search_text"
                        placeholder="Search workflow name"
                        value="{{ search_text }}"
-                       hx-get="/workflow/search"
+                       hx-get="/workflow/search/"
                        hx-trigger="keyup changed delay:750ms"
                        hx-target="#workflow-results"
                        hx-push-url="true"
@@ -33,15 +33,17 @@
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
             <div class="content-article-detail" id="workflow-content-article-detail">
-                {% include 'workflow/partials/workflow-detail.html' %}
+                <span class="htmx-indicator">
+                    <img src="/static/img/bars.svg" alt="progress bars" />
+                </span>
             </div>
         </div>
     </article>
 </section>
 {% endblock %}
 {% block link_internal_css %}
-    <link rel="stylesheet" href="/static/css/main-content.css"/>
+    <link rel="stylesheet" href="/static/css/workflow-content.css"/>
 {% endblock %}
 {% block additional_js %}
-    <script type="text/javascript" src="/static/js/main-events.js"></script>
+    <script type="text/javascript" src="/static/js/workflow-events.js"></script>
 {% endblock %}
