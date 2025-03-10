@@ -28,8 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Start with collapsed sidebar on mobile
     if (window.innerWidth <= 768) {
-        document.getElementById('sidebar').classList.add('collapsed');
-        document.getElementById('main-content').classList.add('expanded');
+        toggleSidebar()
     }
 
 });
