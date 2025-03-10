@@ -24,12 +24,38 @@
 
     & .content-header {
         padding: 0px 20px 20px;
+        display: flex;
+        justify-content: space-between;
 
         & h1 {
             font-size: 1.7rem;
             font-weight: 600;
             color: var(--text-primary);
         }
+
+        & .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            & .action-btn {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background-color: var(--bg-primary);
+                cursor: pointer;
+                transition: all 0.2s;
+                border: 1px solid var(--border-color);
+                color: var(--text-primary);
+
+                &:hover {
+                    background-color: var(--border-color);
+                }
+            }
+        }
+
     }
 
     & .content-article {
@@ -353,6 +379,20 @@
                                     max-height: 500px;
                                 }
 
+                                & .history-metadata {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 10px;
+                                    margin-bottom: 10px;
+
+                                    & .metadata-item {
+                                        background-color: var(--bg-secondary);
+                                        padding: 4px 8px;
+                                        border-radius: 4px;
+                                        font-size: 0.9rem;
+                                    }
+                                }
+
                                 & h4 {
                                     font-size: 0.875rem;
                                     font-weight: 500;
@@ -365,7 +405,7 @@
                                     background-color: var(--text-log);
                                     border-radius: 4px;
                                     padding: 8px;
-                                    max-height: 150px;
+                                    max-height: 200px;
                                     overflow-y: auto;
                                     white-space: pre-wrap;
                                 }

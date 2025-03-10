@@ -53,17 +53,24 @@
                 </div>
             </header>
             <div class="history-details">
-                <h4>STDOUT</h4>
-                <pre class="log-output stdout">[2025-03-03 10:15:22] INFO: Starting workflow execution
+                <div class="history-metadata">
+                    <div class="metadata-item">Duration: 2m 18s</div>
+                    <div class="metadata-item">Trigger: Manual</div>
+                    <div class="metadata-item">User: admin</div>
+                </div>
+                <div>
+                    <h4>STDOUT</h4>
+                    <pre class="log-output stdout">[2025-03-03 10:15:22] INFO: Starting workflow execution
 [2025-03-03 10:15:23] INFO: Running first-job
 [2025-03-03 10:15:24] INFO: Executing raise-error stage</pre>
-                <h4>STDERR</h4>
-                <pre class="log-output stderr">[2025-03-03 10:15:25] ERROR: ValueError: Testing raise error inside PyStage!!!
+                    <h4>STDERR</h4>
+                    <pre class="log-output stderr">[2025-03-03 10:15:25] ERROR: ValueError: Testing raise error inside PyStage!!!
 File "/app/workflow/runner.py", line 245, in execute_stage
 result = stage.run()
 File "/app/workflow/stages.py", line 128, in run
 return exec(self.code, globals(), locals())</pre>
-            </div>
+                    </div>
+                </div>
         </article>
 
         <article class="history">
@@ -75,16 +82,23 @@ return exec(self.code, globals(), locals())</pre>
                 </div>
             </header>
             <div class="history-details">
-                <h4>STDOUT</h4>
-                <pre class="log-output stdout">[2025-03-02 01:00:03] INFO: Starting workflow execution
+                <div class="history-metadata">
+                    <div class="metadata-item">Duration: 1m 52s</div>
+                    <div class="metadata-item">Trigger: Schedule</div>
+                    <div class="metadata-item">Cron: 0 1 * * *</div>
+                </div>
+                <div>
+                    <h4>STDOUT</h4>
+                    <pre class="log-output stdout">[2025-03-02 01:00:03] INFO: Starting workflow execution
 [2025-03-02 01:00:04] INFO: Running first-job
 [2025-03-02 01:00:05] INFO: Executing raise-error stage</pre>
-                <h4>STDERR</h4>
-                <pre class="log-output stderr">[2025-03-02 01:00:06] ERROR: ValueError: Testing raise error inside PyStage!!!
+                    <h4>STDERR</h4>
+                    <pre class="log-output stderr">[2025-03-02 01:00:06] ERROR: ValueError: Testing raise error inside PyStage!!!
 File "/app/workflow/runner.py", line 245, in execute_stage
 result = stage.run()
 File "/app/workflow/stages.py", line 128, in run
 return exec(self.code, globals(), locals())</pre>
+                </div>
             </div>
         </article>
     </div>
