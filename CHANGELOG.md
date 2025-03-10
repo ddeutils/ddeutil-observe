@@ -2,6 +2,44 @@
 
 ## Latest Changes
 
+## 0.0.7
+
+### :stars: Highlight Features
+
+- :star: hl: move static and template path to src.
+
+### :sparkles: Features
+
+- :dart: feat: add dynamic active on sidebar.
+- :dart: feat: move base model to models module.
+- :dart: feat: add associate models support role and group.
+
+### :bug: Bug fixes
+
+- :gear: fixed: change log to trace.
+- :gear: fixed: change filename of model testcase that was deleted.
+- :gear: fixed: revise route module name.
+
+### :black_nib: Code Changes
+
+- :art: styled: add history metadata on workflow page.
+- :construction: Feature: redesign uxui and authentication flow on this app (#35)
+- :construction: refactored: ⬆ deps: bump jinja2 from 3.1.5 to 3.1.6 (#36)
+- :construction: refactored: ⬆ deps: bump fastapi from 0.115.8 to 0.115.10 (#34)
+- :construction: refactored: ⬆ deps: bump bcrypt from 4.2.1 to 4.3.0 (#33)
+- :test_tube: tests: update associate table for role and policy.
+- :test_tube: tests: models policy testcase.
+- :test_tube: tests: config pytest logging level to info.
+- :test_tube: tests: seperate testcase for models.
+- :test_tube: tests: update fixure for database.
+- :test_tube: tests: update db testcase.
+- :fast_forward: merge: branch 'main' of https://github.com/ddeutils/ddeutil-observe.
+- :construction: refactored: ⬆ deps: bump aiosqlite from 0.20.0 to 0.21.0 (#31)
+
+### :broom: Deprecate & Clean
+
+- :recycle: clean: change | to optional and union type hint.
+
 ## 0.0.6
 
 ### :sparkles: Features
