@@ -33,3 +33,9 @@ document.body.addEventListener('htmx:afterSwap', function (event) {
         });
     });
 });
+
+
+function toggleHistoryDetails(header) {
+    const details = header.nextElementSibling;
+    details.classList.toggle('open');
+}

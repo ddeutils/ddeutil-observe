@@ -14,7 +14,7 @@
 <article class="tab-content active" id="config-tab">
     <div class="config-section">
         <div class="yaml-section">
-            <pre>wf-run-python-raise-for-job:
+            <pre>{{ workflow.name }}:
   type: Workflow
   jobs:
     first-job:
@@ -43,44 +43,49 @@
 </article>
 <article class="tab-content" id="history-tab">
     <div class="history-section">
-        <div class="history-entry">
-            <div class="history-header">
-                <span class="run-date">2025-03-03 10:15:22</span>
-                <span class="run-status error">Failed</span>
-            </div>
-            <div class="log-section">
+
+        <article class="history">
+            <header class="history-header" onclick="toggleHistoryDetails(this)">
+                <span>Run #1002</span>
+                <div class="d-flex">
+                    <span class="timestamp">2025-03-03 10:15:22</span>
+                    <span class="status error">Failed</span>
+                </div>
+            </header>
+            <div class="history-details">
                 <h4>STDOUT</h4>
-                <pre>[2025-03-03 10:15:22] INFO: Starting workflow execution
+                <pre class="log-output stdout">[2025-03-03 10:15:22] INFO: Starting workflow execution
 [2025-03-03 10:15:23] INFO: Running first-job
 [2025-03-03 10:15:24] INFO: Executing raise-error stage</pre>
-
                 <h4>STDERR</h4>
-                <pre>[2025-03-03 10:15:25] ERROR: ValueError: Testing raise error inside PyStage!!!
+                <pre class="log-output stderr">[2025-03-03 10:15:25] ERROR: ValueError: Testing raise error inside PyStage!!!
 File "/app/workflow/runner.py", line 245, in execute_stage
 result = stage.run()
 File "/app/workflow/stages.py", line 128, in run
 return exec(self.code, globals(), locals())</pre>
             </div>
-        </div>
+        </article>
 
-        <div class="history-entry">
-            <div class="history-header">
-                <span class="run-date">2025-03-02 01:00:03</span>
-                <span class="run-status error">Failed</span>
-            </div>
-            <div class="log-section">
+        <article class="history">
+            <header class="history-header" onclick="toggleHistoryDetails(this)">
+                <span>Run #1231</span>
+                <div class="d-flex">
+                    <span class="timestamp">2025-03-02 01:00:03</span>
+                    <span class="status success">Success</span>
+                </div>
+            </header>
+            <div class="history-details">
                 <h4>STDOUT</h4>
-                <pre>[2025-03-02 01:00:03] INFO: Starting workflow execution
+                <pre class="log-output stdout">[2025-03-02 01:00:03] INFO: Starting workflow execution
 [2025-03-02 01:00:04] INFO: Running first-job
 [2025-03-02 01:00:05] INFO: Executing raise-error stage</pre>
-
                 <h4>STDERR</h4>
-                <pre>[2025-03-02 01:00:06] ERROR: ValueError: Testing raise error inside PyStage!!!
+                <pre class="log-output stderr">[2025-03-02 01:00:06] ERROR: ValueError: Testing raise error inside PyStage!!!
 File "/app/workflow/runner.py", line 245, in execute_stage
 result = stage.run()
 File "/app/workflow/stages.py", line 128, in run
 return exec(self.code, globals(), locals())</pre>
             </div>
-        </div>
+        </article>
     </div>
 </article>

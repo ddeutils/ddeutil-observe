@@ -13,6 +13,7 @@
     --shadow-color: rgba(15, 15, 15, 0.05);
     --text-primary: rgba(17, 24, 39, 1);
     --text-secondary: rgba(75, 85, 99, 1);
+    --text-log: rgba(0, 0, 0, 0.05);
     --bg-primary: rgba(255, 255, 255, 1);
     --bg-secondary: rgba(249, 250, 251, 1);
 
@@ -24,6 +25,8 @@
     --sidebar-collapsed-width: 60px;
     --header-height: 60px;
     --footer-height: 40px;
+    --success-color: rgba(34, 197, 94, 1);
+    --error-color: rgba(239, 68, 68, 1);
 }
 
 [data-theme="dark"] {
@@ -41,6 +44,7 @@
     --shadow-color: rgba(0, 0, 0, 0.25);
     --text-primary: rgba(229, 231, 235, 1);
     --text-secondary: rgba(156, 163, 175, 1);
+    --text-log: rgb(227 218 218 / 20%);
     --bg-primary: rgba(25, 25, 25, 1);
     --bg-secondary: rgba(40, 40, 44, 1);
 }

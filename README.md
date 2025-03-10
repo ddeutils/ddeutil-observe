@@ -48,13 +48,15 @@ authentication and workflows data.
 
 ### Login Page
 
-![Login Page](./docs/img/login-page.png?raw=true "Title")
+![Login Page](./docs/img/login-page.png?raw=true)
 
 ### Main Page
 
-```text
+![Workflow Page](./docs/img/workflow-page.png?raw=true)
 
-```
+![Workflow Detail Page](./docs/img/workflow-detail-page.png?raw=true)
+
+![Workflow Trace Page](./docs/img/workflow-trace-page.png?raw=true)
 
 ## :cookie: Configuration
 
