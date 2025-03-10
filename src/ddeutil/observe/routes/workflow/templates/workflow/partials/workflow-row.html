@@ -1,0 +1,42 @@
+<table class="data-table" id="workflow-results">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Cronjob</th>
+            <th>Parameters</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for workflow in workflows %}
+        <tr>
+            <td class="workflow-name">{{ workflow.name }}</td>
+            <td>
+                {% for n in workflow.on %}
+                <span class="crontab-cell">{{ n.cronjob }}</span>
+                {% endfor %}
+            </td>
+            <td>
+                <pre class="parameter-cell">
+                    {{- workflow.dump_params() -}}
+                </pre>
+            </td>
+            <td class="action-cell">
+                <button class="btn"
+                        onclick="showDetail(this)"
+                        hx-get="/workflow/detail/{{ workflow.name }}"
+                        hx-trigger="click"
+                        hx-swap="innerHTML transition:true"
+                        hx-target="#workflow-content-article-detail"
+                        hx-push-url="false">
+                    <i class='bx bx-info-circle'></i>
+                </button>
+                <button class="btn btn-primary" onclick="runWorkflow(this)">
+                    <i class='bx bx-rocket' ></i>
+                </button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot></tfoot>
+</table>

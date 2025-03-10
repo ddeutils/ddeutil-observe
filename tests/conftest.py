@@ -3,7 +3,6 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
-import asyncio
 from contextlib import ExitStack
 
 import pytest
@@ -16,7 +15,7 @@ dotenv_setting()
 
 @pytest.fixture()
 def app():
-    from ddeutil.observe.app import app as actual_app
+    from src.ddeutil.observe.app import app as actual_app
 
     with ExitStack():
         yield actual_app
@@ -26,17 +25,6 @@ def app():
 def client(app):
     with TestClient(app) as c:
         yield c
-
-
-@pytest.fixture(scope="session")
-def event_loop(request) -> asyncio.AbstractEventLoop:
-
-    # NOTE: Making the event loop accessible in the session
-    loop = asyncio.get_event_loop_policy().new_event_loop()
-
-    yield loop
-
-    loop.close()
 
 
 # @pytest.fixture(scope='session', autouse=True)

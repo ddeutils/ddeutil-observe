@@ -158,13 +158,13 @@ class DBSessionManager:
 
     @staticmethod
     async def create_all(connection: AsyncConnection):
-        from .models import Base
+        from src.ddeutil.observe.auth.models import Base
 
         await connection.run_sync(Base.metadata.create_all)
 
     @staticmethod
     async def drop_all(connection: AsyncConnection):
-        from .models import Base
+        from src.ddeutil.observe.auth.models import Base
 
         await connection.run_sync(Base.metadata.drop_all)
 
@@ -182,7 +182,7 @@ DB_INDEXES_NAMING_CONVENTION: dict[str, str] = {
 
 
 if config.log_sqlalchemy_debug:
-    from .models import Base
+    from src.ddeutil.observe.auth.models import Base
 
     @event.listens_for(Base, "after_update")
     def after_update(mapper, connection, target):

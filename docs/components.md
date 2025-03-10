@@ -1,6 +1,11 @@
 # Components
 
-**File structure of this application**:
+## Routing
+
+An observation page that should include 3 components such as matrix cards,
+performances graph, and data table.
+
+**File Structure**:
 
 ```text
 - models
@@ -13,15 +18,6 @@
         - schemas.py        <-- Schema interface
         - views.py          <-- UI with Jinja template
 ```
-
-## Home
-
-The home page will contain all alert matrix.
-
-## Routes
-
-An observation page that should include 3 components such as matrix cards,
-performances graph, and data table.
 
 ### Workflows
 

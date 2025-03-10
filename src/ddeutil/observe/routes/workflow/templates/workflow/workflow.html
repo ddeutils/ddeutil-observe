@@ -1,29 +1,49 @@
 {% extends "shared/layout.html" %}
+{% set active_sidebar_js = 'true' %}
 {% block title %}Workflows{% endblock %}
 {% block main_content %}
-<div class="container">
-    <header><h2>Workflows</h2></header>
-    <div class="table-search">
-        <h3>
-        Search
-        <span class="htmx-indicator">
-        <img src="/static/img/bars.svg" alt="progress bars" /> Searching...
-        </span>
-        </h3>
-        <input class="form-control" type="text"
-               name="search_text" placeholder="Search by Workflow Name ..."
-               value="{{ search_text }}"
-               hx-get="/workflow/search"
-               hx-trigger="keyup changed delay:750ms"
-               hx-target="#workflow-results"
-               hx-push-url="true"
-               hx-indicator=".htmx-indicator">
+<section class="content">
+    <!-- Content Header -->
+    <header class="content-header">
+        <h1>Workflows</h1>
+    </header>
+    <!-- Content Section -->
+    <article class="content-article" id="workflow-content-article">
+
+        <header class="content-article-header">
+            <h2>Workflow List</h2>
+            <div class="search-container">
+                <i class="bx bx-search"></i>
+                <input class="form-control"
+                       type="text"
+                       name="search_text"
+                       placeholder="Search workflow name"
+                       value="{{ search_text }}"
+                       hx-get="/workflow/search/"
+                       hx-trigger="keyup changed delay:750ms"
+                       hx-target="#workflow-results"
+                       hx-push-url="true"
+                       hx-indicator=".htmx-indicator">
+                <span class="htmx-indicator"><img src="/static/img/bars.svg" alt="progress bars" /></span>
+            </div>
+        </header>
+
+        <div class="content-article-body">
+            <div class="content-article-table">
+                {% include 'workflow/partials/workflow-row.html' %}
+            </div>
+            <div class="content-article-detail" id="workflow-content-article-detail">
+                <span class="htmx-indicator">
+                    <img src="/static/img/bars.svg" alt="progress bars" />
+                </span>
+            </div>
         </div>
-
-    {% include 'workflow/partials/workflow_results.html' %}
-
-</div>
+    </article>
+</section>
 {% endblock %}
 {% block link_internal_css %}
-<link rel="stylesheet" href="/static/css/core-table.css"/>
+    <link rel="stylesheet" href="/static/css/workflow-content.css"/>
+{% endblock %}
+{% block additional_js %}
+    <script type="text/javascript" src="/static/js/workflow-events.js"></script>
 {% endblock %}

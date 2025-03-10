@@ -23,10 +23,10 @@ logger = get_logger("ddeutil.observe")
 async def get_workflow(
     session: AsyncSession,
     workflow_id: int,
-) -> md.Workflows:
+) -> md.Workflow:
     return (
         await session.execute(
-            select(md.Workflows).filter(md.Workflows.id == workflow_id).limit(1)
+            select(md.Workflow).filter(md.Workflow.id == workflow_id).limit(1)
         )
     ).first()
 
@@ -34,24 +34,24 @@ async def get_workflow(
 async def get_workflow_by_name(
     session: AsyncSession,
     name: str,
-) -> md.Workflows:
+) -> md.Workflow:
     return (
         await session.execute(
-            select(md.Workflows)
+            select(md.Workflow)
             .filter(
-                md.Workflows.name == name,
-                md.Workflows.delete_flag == false(),
+                md.Workflow.name == name,
+                md.Workflow.delete_flag == false(),
             )
             .limit(1)
         )
-    ).first()
+    ).scalar_one_or_none()
 
 
 async def create_workflow(
     session: AsyncSession,
     workflow: WorkflowCreate,
-) -> md.Workflows:
-    db_workflow = md.Workflows(
+) -> md.Workflow:
+    db_workflow = md.Workflow(
         name=workflow.name,
         desc=workflow.desc,
         params=workflow.params,
@@ -71,12 +71,12 @@ async def list_workflows(
     session: AsyncSession,
     skip: int = 0,
     limit: int = 1000,
-) -> list[md.Workflows]:
+) -> list[md.Workflow]:
     return (
         (
             await session.execute(
-                select(md.Workflows)
-                .filter(md.Workflows.delete_flag == false())
+                select(md.Workflow)
+                .filter(md.Workflow.delete_flag == false())
                 .offset(skip)
                 .limit(limit)
             )
@@ -89,7 +89,7 @@ async def list_workflows(
 async def search_workflow(
     session: AsyncSession,
     search_text: str,
-) -> list[md.Workflows]:
+) -> list[md.Workflow]:
     if len(search_text) > 0:
         if not (search_text := search_text.strip().lower()):
             return []
@@ -107,11 +107,11 @@ async def search_workflow(
 async def get_release(
     session: AsyncSession,
     release: datetime,
-) -> md.WorkflowReleases:
+) -> md.WorkflowRelease:
     return (
         await session.execute(
-            select(md.WorkflowReleases)
-            .filter(md.WorkflowReleases.release == release)
+            select(md.WorkflowRelease)
+            .filter(md.WorkflowRelease.release == release)
             .limit(1)
         )
     ).first()
@@ -122,7 +122,7 @@ async def create_release_log(
     workflow_id: int,
     release_log: ReleaseLogCreate,
 ):
-    db_release = md.WorkflowReleases(
+    db_release = md.WorkflowRelease(
         release=release_log.release,
         workflow_id=workflow_id,
     )
@@ -132,7 +132,7 @@ async def create_release_log(
     await session.refresh(db_release)
 
     for log in release_log.logs:
-        db_log = md.WorkflowLogs(
+        db_log = md.WorkflowLog(
             run_id=log.run_id,
             context=log.context,
             release_id=db_release.id,
@@ -144,11 +144,11 @@ async def create_release_log(
     return db_release
 
 
-async def get_log(session: AsyncSession, run_id: str) -> md.WorkflowLogs:
+async def get_log(session: AsyncSession, run_id: str) -> md.WorkflowLog:
     return (
         await session.execute(
-            select(md.WorkflowLogs)
-            .filter(md.WorkflowLogs.run_id == run_id)
+            select(md.WorkflowLog)
+            .filter(md.WorkflowLog.run_id == run_id)
             .limit(1)
         )
     ).first()
@@ -161,7 +161,7 @@ class WorkflowsCRUD(BaseCRUD):
         skip: int = 0,
         limit: int = 100,
     ) -> AsyncIterator[Workflow]:
-        async for wf in md.Workflows.get_all(
+        async for wf in md.Workflow.get_all(
             self.async_session,
             skip=skip,
             limit=limit,

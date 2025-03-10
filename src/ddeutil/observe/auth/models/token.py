@@ -8,12 +8,12 @@ from typing import TYPE_CHECKING, Optional
 
 from sqlalchemy import ForeignKey, text
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import false, select, true
 from sqlalchemy.types import UUID, Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
-from . import Base, Col, Dtype
+from . import Base
 
 if TYPE_CHECKING:
     from .user import User
@@ -22,33 +22,35 @@ if TYPE_CHECKING:
 class Token(Base):
     __tablename__ = "tokens"
 
-    id: Dtype[int] = Col(Integer, primary_key=True, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
 
     # NOTE: This JWT token should not pass the maximum length but it also has
     #   size less or equal than 8kb.
-    token: Dtype[str] = Col(
+    token: Mapped[str] = mapped_column(
         String(450), nullable=False, unique=True, index=True
     )
 
-    is_active: Dtype[bool] = Col(Boolean, default=True)
-    user_id: Dtype[UUID] = Col(UUID(as_uuid=True), ForeignKey("users.id"))
-    expires_at: Dtype[Optional[datetime]] = Col(
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    user_id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id")
+    )
+    expires_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True),
         nullable=True,
     )
-    created_at: Dtype[datetime] = Col(
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         default=datetime.now,
         nullable=False,
     )
-    updated_at: Dtype[datetime] = Col(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         onupdate=datetime.now,
         nullable=True,
         server_default=text("(datetime('now','localtime'))"),
     )
 
-    user: Dtype["User"] = relationship(
+    user: Mapped["User"] = relationship(
         "User",
         back_populates="tokens",
     )

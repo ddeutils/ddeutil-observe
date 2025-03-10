@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any, Optional
 
@@ -37,17 +38,12 @@ class Workflow(WorkflowBase):
 class WorkflowView(Workflow):
     model_config = ConfigDict(from_attributes=True)
 
-    def gen_row(self) -> str:
-        """Return a html row value that already map this model attributes.
-
-        :rtype: str
-        """
-        return (
-            f"<td>{self.id}</td>"
-            f"<td>{self.name}</td>"
-            f"<td>{self.params}</td>"
-            f"<td>{self.on}</td>"
-            f"<td>{self.jobs}</td>"
+    def dump_params(self) -> str:
+        return json.dumps(
+            self.params,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
         )
 
 

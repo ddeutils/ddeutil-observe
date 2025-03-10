@@ -1,13 +1,27 @@
-const body = document.querySelector("body");
-const darkLight = document.querySelector("#darkLight");
+// Theme Toggle Functionality
+document.getElementById('theme-toggle').addEventListener('click', function() {
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+});
 
-// NOTE: Dark Mode
-darkLight.addEventListener("click", () => {
-    body.classList.toggle("dark");
-    if (body.classList.contains("dark")) {
-        document.setI
-        darkLight.classList.replace("bx-sun", "bx-moon");
-    } else {
-        darkLight.classList.replace("bx-moon", "bx-sun");
+function themeToggle(){
+    const themeIcon = document.querySelector('#theme-toggle i');
+    themeIcon.className = document.body.dataset.theme === 'light' ? 'bx bx-sun' : 'bx bx-moon';
+}
+
+// Check for saved theme preference
+document.addEventListener('DOMContentLoaded', function() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+        document.body.setAttribute('data-theme', savedTheme);
     }
+
+    // Start with collapsed sidebar on mobile
+    if (window.innerWidth <= 768) {
+        toggleSidebar()
+    }
+
 });

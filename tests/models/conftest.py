@@ -2,13 +2,14 @@ from collections.abc import AsyncGenerator
 from pathlib import Path
 
 import pytest
-from ddeutil.observe.models import Base
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
+
+from src.ddeutil.observe.auth.models import Base
 
 DB_POINTER = Path(__file__).parent.parent.parent / "observe.test.db"
 engine = create_async_engine(
@@ -20,17 +21,12 @@ engine = create_async_engine(
 
 
 @pytest.fixture(scope="session")
-def anyio_backend():
-    return "asyncio"
-
-
-@pytest.fixture(scope="session")
-async def connection(anyio_backend) -> AsyncGenerator[AsyncConnection, None]:
+async def connection() -> AsyncGenerator[AsyncConnection, None]:
     async with engine.connect() as conn:
         yield conn
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 async def session() -> AsyncGenerator[AsyncSession, None]:
     sessionmaker = async_sessionmaker(
         autoflush=False,

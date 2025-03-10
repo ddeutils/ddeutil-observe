@@ -1,28 +1,27 @@
-<nav class="navbar">
-    <!--  Left Navbar  -->
-    <div class="navbar_logo">
-        {% if active_sidebar == 'true' %}
-        <i class="bx bx-menu" id="sidebarOpen"></i>
-        {% endif %}
-        <a href="/">
-            <img src="/static/img/eyelash-curler-svgrepo-com.svg" alt="logo">
-        </a>
-        <span>Observe</span>
+<header class="header">
+    <div class="header-actions">
+        <button class="action-item" onclick="themeToggle()" id="theme-toggle">
+            <i class="bx bx-sun"></i>
+        </button>
+        <ul class="action-item">
+            <i class="bx bx-bell"></i>
+        </ul>
+        <ul class="action-item action-dropdown">
+            <i class="bx bx-user"></i>
+            <div class="dropdown-menu">
+                <div class="dropdown-item">
+                    <i class="bx bx-user"></i>
+                    <span>Profile</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class="bx bx-cog"></i>
+                    <span>Setting</span>
+                </div>
+                <div class="dropdown-item">
+                    <i class='bx bx-log-out-circle' ></i>
+                    <span>Logout</span>
+                </div>
+            </div>
+        </ul>
     </div>
-
-    <!--  Search Navbar  -->
-    <div class="search-box">
-        <input type="search" class="search-input" placeholder="Search Looking For Something!" />
-    </div>
-
-    <div class="navbar_content">
-        <i class='bx bx-sun' id="darkLight"></i>
-        <i class='bx bx-bell' ></i>
-        <a class="nav-item" href="/auth/login"><i class='bx bx-log-in-circle' ></i></a>
-        <a href="/auth/login"
-           hx-post="/auth/logout"
-           hx-on::after-request="this.removeAttribute('hx-post');htmx.process(this);this.click()">
-            <img src="/static/img/profile.svg" alt="profile-anon" class="profile" />
-        </a>
-    </div>
-</nav>
+</header>

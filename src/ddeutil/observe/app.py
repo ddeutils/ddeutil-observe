@@ -9,12 +9,11 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from sqlalchemy.exc import OperationalError
 
 from .__about__ import __version__
@@ -22,9 +21,7 @@ from .auth import api_auth, auth
 from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
-from .deps import get_templates
-from .routes import workflow
-from .routes.main import api_router
+from .routes import api_router, log, workflow
 from .utils import get_logger
 
 logger = get_logger("ddeutil.observe")
@@ -44,11 +41,12 @@ async def lifespan(inside: FastAPI):
         await sessionmanager.create_all(conn)
 
     # IMPORTANT: Initial setop data context on the backend database.
-    from .initial import create_admin, create_role_policy
+    from .initial import create_admin, create_role_policy, create_workflows
 
     async with sessionmanager.session() as session:
         await create_admin(session)
         await create_role_policy(session, routes=inside.routes)
+        await create_workflows(session)
 
     yield
 
@@ -104,6 +102,7 @@ app.include_router(auth)
 # NOTE: Any routers
 app.include_router(api_router, prefix=config.api_prefix)
 app.include_router(workflow)
+app.include_router(log)
 
 # NOTE: Start mount all static files from /static path to this application.
 app.mount(
@@ -119,18 +118,6 @@ async def home(request: Request):
     return RedirectResponse(
         # TODO: remove current request url_for to workflow page.
         # request.url_for("read_workflows"),
-        request.url_for("index"),
+        request.url_for("read_workflows"),
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,
-    )
-
-
-@app.get("/index")
-async def index(
-    request: Request,
-    templates: Jinja2Templates = Depends(get_templates),
-):
-    return templates.TemplateResponse(
-        request=request,
-        name="index.html",
-        context={},
     )

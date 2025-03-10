@@ -22,10 +22,10 @@ from .schemas import (
 
 logger = get_logger("ddeutil.observe")
 
+# NOTE: This route require authentication step first.
 workflow = APIRouter(
     prefix="/workflow",
     tags=["workflow", "frontend"],
-    # NOTE: This page require authentication step first.
     dependencies=[Depends(required_current_active_user)],
 )
 
@@ -50,7 +50,34 @@ async def read_workflows(
     )
 
 
-@workflow.get("/search")
+@workflow.get("/detail/{name}")
+async def read_workflow_detail(
+    name: str,
+    request: Request,
+    hx_request: Annotated[Optional[str], Header(...)] = None,
+    session: AsyncSession = Depends(get_async_session),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    _workflow_model = await crud.get_workflow_by_name(session, name)
+    if _workflow_model is None:
+        raise ValueError(f"Workflow name {name} does not exists")
+    _workflow: Optional[WorkflowView] = WorkflowView.model_validate(
+        _workflow_model,
+    )
+    if hx_request:
+        return templates.TemplateResponse(
+            request=request,
+            name="workflow/partials/workflow-detail.html",
+            context={
+                "workflow": _workflow,
+            },
+        )
+    raise NotImplementedError(
+        "Get the detail does not support for get directly"
+    )
+
+
+@workflow.get("/search/")
 async def search_workflows(
     request: Request,
     search_text: str,
@@ -64,7 +91,7 @@ async def search_workflows(
     if hx_request:
         return templates.TemplateResponse(
             request=request,
-            name="workflow/partials/workflow_results.html",
+            name="workflow/partials/workflow-row.html",
             context={"workflows": workflows},
         )
     return templates.TemplateResponse(
@@ -75,17 +102,3 @@ async def search_workflows(
             "search_text": search_text,
         },
     )
-
-
-@workflow.get("/logs")
-async def read_logs(
-    request: Request,
-    hx_request: Annotated[Optional[str], Header(...)] = None,
-    templates: Jinja2Templates = Depends(get_templates),
-):
-    """Return all workflows."""
-    if hx_request:
-        return templates.TemplateResponse(
-            "workflow/partials/show_add_author_form.html", {"request": request}
-        )
-    return templates.TemplateResponse(request=request, name="workflow/log.html")

@@ -1,67 +1,33 @@
-// Getting const variable from document.
-const sidebar = document.querySelector(".sidebar");
-const outsideMain = document.querySelector(".outside-main-wrapper");
-const submenuItems = document.querySelectorAll(".submenu_item");
-const sidebarOpen = document.querySelector("#sidebarOpen");
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const toggleButton = document.getElementById('sidebar-toggle-btn');
 
-// Toggle Sidebar with bottom content
-const sidebarExpand = document.querySelector(".expand_sidebar");
-const sidebarClose = document.querySelector(".collapse_sidebar");
+    sidebar.classList.toggle('collapsed');
+    toggleButton.classList.toggle('rotate');
 
-sidebarOpen.addEventListener("click", () => sidebar.classList.toggle("close"));
+    closeAllSubMenus();
 
-sidebarClose.addEventListener("click", () => {
-    sidebar.classList.add("close", "hoverable");
-    outsideMain.classList.add("close", "hoverable");
-});
+    document.getElementById('main-content').classList.toggle('expanded');
+}
 
-sidebarExpand.addEventListener("click", () => {
-    sidebar.classList.remove("close", "hoverable");
-    outsideMain.classList.remove("close", "hoverable");
-});
+function toggleSubMenu(button){
 
-sidebar.addEventListener("mouseenter", () => {
-    if (sidebar.classList.contains("hoverable")) {
-        sidebar.classList.remove("close");
-        outsideMain.classList.remove("close");
+    if(!button.nextElementSibling.classList.contains('show')){
+        closeAllSubMenus()
     }
-});
-sidebar.addEventListener("mouseleave", () => {
-    if (sidebar.classList.contains("hoverable")) {
-        sidebar.classList.add("close");
-        outsideMain.classList.add("close");
+
+    button.nextElementSibling.classList.toggle('show')
+    button.classList.toggle('rotate')
+
+    if(sidebar.classList.contains('close')){
+        sidebar.classList.toggle('close')
+        toggleButton.classList.toggle('rotate')
     }
-});
+}
 
-if (window.innerWidth < 768) {
-    console.log("InnerWidth less than 768");
-    sidebar.classList.add("close");
-} else {
-    console.log("InnerWidth more than 768");
-    sidebar.classList.remove("close");
-};
-
-window.addEventListener("resize", function () {
-    if (window.innerWidth < 768) {
-        console.log("InnerWidth less than 768");
-        sidebar.classList.add("close");
-        outsideMain.classList.add("close");
-    } else {
-        console.log("InnerWidth more than 768");
-        sidebar.classList.remove("close");
-        outsideMain.classList.remove("close");
-    };
-});
-
-
-
-submenuItems.forEach((item, index) => {
-    item.addEventListener("click", () => {
-        item.classList.toggle("show_submenu");
-        submenuItems.forEach((item2, index2) => {
-            if (index !== index2) {
-                item2.classList.remove("show_submenu");
-            }
-        });
-    });
-});
+function closeAllSubMenus(){
+    Array.from(sidebar.getElementsByClassName('show')).forEach(ul => {
+        ul.classList.remove('show')
+        ul.previousElementSibling.classList.remove('rotate')
+    })
+}

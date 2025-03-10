@@ -1,15 +1,18 @@
 import pytest
-from ddeutil.observe.models.policy import Policy, Role
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ddeutil.observe.auth.models import Policy, Role
 
+
+@pytest.mark.asyncio
 async def test_select_policy(session: AsyncSession):
     policies = (await session.execute(select(Policy))).scalars().all()
     assert len(policies) == 0
 
 
+@pytest.mark.asyncio
 async def test_create_policies(session: AsyncSession):
     policies = [
         Policy(resource="workflow", action="read"),
@@ -29,6 +32,7 @@ async def test_create_policies(session: AsyncSession):
     assert len(policies) == 8
 
 
+@pytest.mark.asyncio
 async def test_create_policy_duplicate(session: AsyncSession):
     with pytest.raises(IntegrityError):
         session.add(Policy(resource="auth", action="delete"))
@@ -39,6 +43,7 @@ async def test_create_policy_duplicate(session: AsyncSession):
             raise
 
 
+@pytest.mark.asyncio
 async def test_create_roles(session: AsyncSession):
     roles = [
         Role(name="admin"),
@@ -54,6 +59,7 @@ async def test_create_roles(session: AsyncSession):
     assert len(roles) == 4
 
 
+@pytest.mark.asyncio
 async def test_create_role_with_policies(session: AsyncSession):
     stmt = select(Policy).where(Policy.resource == "auth")
     auth_policies = (await session.execute(stmt)).scalars().all()

@@ -14,10 +14,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.ddeutil.observe.auth.models import Token, User
+
 from ..conf import config
 from ..deps import get_async_session, get_templates
-from ..models.token import Token
-from ..models.user import User
 from .crud import TokenCRUD, UserCRUD, authenticate
 from .deps import required_current_active_user
 from .schemas import (

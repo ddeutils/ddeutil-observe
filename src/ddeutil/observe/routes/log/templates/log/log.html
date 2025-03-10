@@ -1,0 +1,14 @@
+{% extends "shared/layout.html" %}
+{% block main_content %}
+<article class="content">
+    <div class="content-section">
+        <div>
+            <h2>Logs</h2>
+        </div>
+        {% include 'log/partials/log_results.html' %}
+    </div>
+</article>
+{% endblock %}
+{% block additional_css %}
+<link rel="stylesheet" href="/static/css/main-content.css"/>
+{% endblock %}
