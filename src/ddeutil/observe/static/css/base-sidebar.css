@@ -1,4 +1,3 @@
-/* Sidebar Styles */
 .sidebar {
     width: var(--sidebar-width);
     height: 100vh;
@@ -68,7 +67,6 @@
     & .sidebar-menu {
         padding: 20px 0;
         flex-grow: 1;
-        overflow-y: auto;
 
         & ul {
             list-style: none;
@@ -163,11 +161,10 @@
 /* Media Queries for Responsive Design */
 @media (max-width: 768px) {
     .sidebar {
-        width: var(--sidebar-collapsed-width);
+        width: var(--sidebar-width);
 
-        &.expanded {
-            width: var(--sidebar-width);
-            box-shadow: 0 0 10px var(--shadow-color);
+        &.collapsed {
+            width: var(--sidebar-collapsed-width);
         }
     }
 }

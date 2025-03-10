@@ -394,10 +394,12 @@
     }
 
     .main-content {
-        margin-left: var(--sidebar-collapsed-width);
+        width: var(--sidebar-width);
 
-        &.sidebar-expanded {
-            margin-left: var(--sidebar-width);
+        &.expanded {
+
+            margin-left: var(--sidebar-collapsed-width);
+            box-shadow: 0 0 10px var(--shadow-color);
         }
     }
 }

@@ -7,17 +7,10 @@ document.getElementById('theme-toggle').addEventListener('click', function() {
     localStorage.setItem('theme', newTheme);
 });
 
-document.body.addEventListener('htmx:afterOnLoad', function(event) {
-    if (event.detail.pathInfo.requestPath === '/toggle-sidebar') {
-        document.getElementById('sidebar').classList.toggle('collapsed');
-        document.getElementById('main-content').classList.toggle('expanded');
-    }
-
-    if (event.detail.pathInfo.requestPath === '/toggle-theme') {
-        const themeIcon = document.querySelector('#theme-toggle i');
-        themeIcon.className = document.body.dataset.theme === 'light' ? 'bx bx-sun' : 'bx bx-moon';
-    }
-});
+function themeToggle(){
+    const themeIcon = document.querySelector('#theme-toggle i');
+    themeIcon.className = document.body.dataset.theme === 'light' ? 'bx bx-sun' : 'bx bx-moon';
+}
 
 // Check for saved theme preference
 document.addEventListener('DOMContentLoaded', function() {
