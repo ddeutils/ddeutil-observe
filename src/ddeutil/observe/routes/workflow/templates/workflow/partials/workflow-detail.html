@@ -8,74 +8,41 @@
     </div>
     <nav class="detail-tab">
         <ul class="tab active" data-tab="config">Configuration</ul>
-        <ul class="tab" data-tab="graph">Graph</ul>
         <ul class="tab" data-tab="history">Logs</ul>
     </nav>
 </header>
-
 <article class="tab-content active" id="config-tab">
     <div class="config-section">
         <div class="yaml-section">
-            <h3>Configuration</h3>
             <pre>wf-run-python-raise-for-job:
-type: Workflow
-jobs:
-first-job:
-  stages:
-    - name: Raise Error Inside
-      id: raise-error
-      run: |
-        raise ValueError('Testing raise error inside PyStage!!!')
-final-job:
-  strategy:
-    fail-fast: True
-    matrix:
-      name: ['foo', 'bar']
-  stages:
-    - name: Echo hello world
-      echo: "Hello World"
-      sleep: 3
-    - name: Raise Error Inside
-      id: raise-error
-      run: |
-        raise ValueError('Testing raise error inside PyStage!!!')
-    - name: Echo hello world 2
-      echo: "Hello World 2"</pre>
+  type: Workflow
+  jobs:
+    first-job:
+      stages:
+        - name: Raise Error Inside
+          id: raise-error
+          run: |
+            raise ValueError('Testing raise error inside PyStage!!!')
+    final-job:
+      strategy:
+        fail-fast: True
+        matrix:
+          name: ['foo', 'bar']
+      stages:
+        - name: Echo hello world
+          echo: "Hello World"
+          sleep: 3
+        - name: Raise Error Inside
+          id: raise-error
+          run: |
+            raise ValueError('Testing raise error inside PyStage!!!')
+        - name: Echo hello world 2
+          echo: "Hello World 2"</pre>
+            </div>
         </div>
-    </div>
 </article>
-
-<article class="tab-content" id="graph-tab">
-    <div class="graph-section">
-        <h3>Graph</h3>
-        <div class="mermaid" id="mermaid-diagram">
-graph TB
-Start[Start] --> First[First Job]
-First --> Final[Final Job]
-
-subgraph "First Job"
-    F1[Raise Error Inside]
-end
-
-subgraph "Final Job"
-    M{{ '{{' }}Matrix: foo, bar{{ '}}' }}
-    M --> F2_foo[Echo hello world - foo]
-    M --> F2_bar[Echo hello world - bar]
-    F2_foo --> F3_foo[Raise Error Inside - foo]
-    F2_bar --> F3_bar[Raise Error Inside - bar]
-    F3_foo -.-> F4_foo[Echo hello world 2 - foo]
-    F3_bar -.-> F4_bar[Echo hello world 2 - bar]
-end
-
-class F3_foo,F3_bar error;
-classDef error fill:#ffcccc,stroke:#ff0000;
-        </div>
-    </div>
-</article>
-
 <article class="tab-content" id="history-tab">
     <div class="history-section">
-        <h3>Trace</h3>
         <div class="history-entry">
             <div class="history-header">
                 <span class="run-date">2025-03-03 10:15:22</span>

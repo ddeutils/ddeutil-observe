@@ -31,4 +31,5 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('sidebar').classList.add('collapsed');
         document.getElementById('main-content').classList.add('expanded');
     }
+
 });
