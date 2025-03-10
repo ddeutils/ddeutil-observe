@@ -7,7 +7,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from .log.views import log
+from .trace.views import trace
 from .workflow.routes import workflow as workflow_api
 from .workflow.views import workflow
 

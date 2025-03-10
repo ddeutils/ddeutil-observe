@@ -1,0 +1,36 @@
+<table class="data-table" id="trace-results">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Metadata</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="workflow-name">{{ workflow.name }}</td>
+            <td>
+            </td>
+            <td>
+                <pre class="parameter-cell">
+                </pre>
+            </td>
+            <td class="action-cell">
+                <button class="btn"
+                        onclick="showDetail(this)"
+                        hx-get="/workflow/detail/{{ workflow.name }}"
+                        hx-trigger="click"
+                        hx-swap="innerHTML transition:true"
+                        hx-target="#workflow-content-article-detail"
+                        hx-push-url="false">
+                    <i class='bx bx-info-circle'></i>
+                </button>
+                <button class="btn btn-primary" onclick="runWorkflow(this)">
+                    <i class='bx bx-rocket' ></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot></tfoot>
+</table>

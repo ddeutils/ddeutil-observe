@@ -16,26 +16,26 @@ from ...utils import get_logger
 
 logger = get_logger("ddeutil.observe")
 
-log = APIRouter(
-    prefix="/log",
-    tags=["log", "frontend"],
+trace = APIRouter(
+    prefix="/trace",
+    tags=["trace", "frontend"],
     # NOTE: This page require authentication step first.
     dependencies=[Depends(required_current_active_user)],
 )
 
 
-@log.get("/")
-async def read_logs(
+@trace.get("/")
+async def read_traces(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    """Return all logs."""
-    return templates.TemplateResponse(request=request, name="log/log.html")
+    """Return all traces."""
+    return templates.TemplateResponse(request=request, name="trace/trace.html")
 
 
-@log.get("/search")
-async def search_logs(
+@trace.get("/search/")
+async def search_traces(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
@@ -43,7 +43,7 @@ async def search_logs(
     if hx_request:
         return templates.TemplateResponse(
             request=request,
-            name="log/partials/log_results.html",
+            name="trace/partials/trace-row.html",
             context={},
         )
-    return templates.TemplateResponse(request=request, name="log/log.html")
+    return templates.TemplateResponse(request=request, name="trace/trace.html")

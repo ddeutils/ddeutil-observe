@@ -1,0 +1,44 @@
+{% extends "shared/layout.html" %}
+{% block main_content %}
+<section class="content">
+    <!-- Content Header -->
+    <header class="content-header">
+        <h1>Trace</h1>
+    </header>
+    <!-- Content Section -->
+    <article class="content-article" id="trace-content-article">
+
+        <header class="content-article-header">
+            <h2>Trace Logs</h2>
+            <div class="search-container">
+                <i class="bx bx-search"></i>
+                <input class="form-control"
+                       type="text"
+                       name="search_text"
+                       placeholder="Running ID"
+                       value="{{ search_text }}"
+                       hx-get="/trace/search/"
+                       hx-trigger="keyup changed delay:750ms"
+                       hx-target="#trace-results"
+                       hx-push-url="true"
+                       hx-indicator=".htmx-indicator">
+                <span class="htmx-indicator"><img src="/static/img/bars.svg" alt="progress bars" /></span>
+            </div>
+        </header>
+
+        <div class="content-article-body">
+            <div class="content-article-table">
+                {% include 'trace/partials/trace-row.html' %}
+            </div>
+            <div class="content-article-detail" id="trace-content-article-detail">
+                <span class="htmx-indicator">
+                    <img src="/static/img/bars.svg" alt="progress bars" />
+                </span>
+            </div>
+        </div>
+    </article>
+</section>
+{% endblock %}
+{% block additional_css %}
+<link rel="stylesheet" href="/static/css/main-content.css"/>
+{% endblock %}
