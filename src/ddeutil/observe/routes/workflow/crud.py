@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 from collections.abc import AsyncIterator
 from datetime import datetime
 
@@ -13,11 +14,10 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import false
 
 from ...crud import BaseCRUD
-from ...utils import get_logger
 from .. import models as md
 from .schemas import Workflow, WorkflowCreate
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 
 
 class WorkflowCRUD(BaseCRUD):

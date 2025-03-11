@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, Form, HTTPException
@@ -15,7 +16,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.ddeutil.observe.auth.models import Role, User
 
 from ..deps import get_async_session
-from ..utils import get_logger
 from .crud import TokenCRUD, authenticate, verify_refresh_token
 from .deps import get_current_active_user, get_current_super_user
 from .schemas import (
@@ -29,7 +29,7 @@ from .securities import (
     create_refresh_token,
 )
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 auth = APIRouter(prefix="/auth", tags=["api", "auth"])
 
 

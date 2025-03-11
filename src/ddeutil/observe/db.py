@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 import time
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -22,9 +23,8 @@ from sqlalchemy.ext.asyncio import (
 from sqlalchemy.orm import Session
 
 from .conf import config
-from .utils import get_logger
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 
 
 class DatabaseManageException(Exception): ...

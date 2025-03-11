@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Header, Request
@@ -12,14 +13,13 @@ from fastapi.templating import Jinja2Templates
 
 from ...auth.deps import required_current_active_user
 from ...deps import get_templates
-from ...utils import get_logger
 from .crud import WorkflowCRUD
 from .schemas import (
     WorkflowView,
     WorkflowViews,
 )
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 
 # NOTE: This route require authentication step first.
 workflow = APIRouter(

@@ -10,6 +10,7 @@ the app starting step for create the super admin user and policies.
 from __future__ import annotations
 
 import asyncio
+import logging
 from datetime import datetime
 from typing import Optional
 
@@ -20,9 +21,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .auth.securities import get_password_hash
 from .conf import config
 from .db import sessionmanager
-from .utils import get_logger
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 sessionmanager.init(config.sqlalchemy_db_async_url)
 
 

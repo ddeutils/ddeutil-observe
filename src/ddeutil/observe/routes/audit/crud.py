@@ -5,16 +5,16 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 
 from sqlalchemy import select
 
 from ...crud import BaseCRUD
-from ...utils import get_logger
 from .. import models as md
 from .schemas import AuditTraceCreate
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 
 
 class AuditCRUD(BaseCRUD):

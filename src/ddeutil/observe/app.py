@@ -5,6 +5,7 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
 import time
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -22,9 +23,8 @@ from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
 from .routes import api_router, trace, workflow
-from .utils import get_logger
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 PARENT_PATH: Path = Path(__file__).parent
 
 # NOTE: Initial sqlalchemy session maker object that create instance of current

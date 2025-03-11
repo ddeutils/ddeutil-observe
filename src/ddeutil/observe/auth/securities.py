@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Union
 
@@ -14,9 +15,8 @@ from fastapi.security import OAuth2PasswordBearer
 from fastapi.security.utils import get_authorization_scheme_param
 
 from ..conf import config
-from ..utils import get_logger
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 ALGORITHM: str = "HS256"
 
 
