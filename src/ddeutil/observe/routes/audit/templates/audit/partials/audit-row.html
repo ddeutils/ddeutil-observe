@@ -1,0 +1,31 @@
+<table class="data-table" id="audit-results">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Metadata</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td class="audit-name">{{ audit.name }}</td>
+            <td>
+            </td>
+            <td>
+                <pre class="parameter-cell">
+                </pre>
+            </td>
+            <td class="action-cell">
+                <button class="btn"
+                        onclick="showDetail(this)">
+                    <i class='bx bx-info-circle'></i>
+                </button>
+                <button class="btn btn-primary" onclick="runWorkflow(this)">
+                    <i class='bx bx-rocket' ></i>
+                </button>
+            </td>
+        </tr>
+    </tbody>
+    <tfoot></tfoot>
+</table>

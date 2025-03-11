@@ -13,44 +13,44 @@ from fastapi.templating import Jinja2Templates
 
 from ...auth.deps import required_current_active_user
 from ...deps import get_templates
-from .schemas import TraceView, TraceViews
+from .schemas import AuditView, AuditViews
 
 logger = logging.getLogger("uvicorn.error")
 
-trace = APIRouter(
-    prefix="/trace",
-    tags=["trace", "frontend"],
+audit = APIRouter(
+    prefix="/audit",
+    tags=["audit", "frontend"],
     # NOTE: This page require authentication step first.
     dependencies=[Depends(required_current_active_user)],
 )
 
 
-@trace.get("/")
-async def trace_read_all(
+@audit.get("/")
+async def audit_read_all(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    """Return all traces."""
+    """Return all audits."""
     return templates.TemplateResponse(
         request=request,
-        name="trace/trace.html",
-        context={"trace": None},
+        name="audit/audit.html",
+        context={"audit": None},
     )
 
 
-@trace.get("/search/")
-async def trace_read_all_by_search(
+@audit.get("/search/")
+async def audit_read_all_by_search(
     request: Request,
     search_text: str,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    traces: list[TraceView] = TraceViews.validate_python()
+    audits: list[AuditView] = AuditViews.validate_python()
     if hx_request:
         return templates.TemplateResponse(
             request=request,
-            name="trace/partials/trace-row.html",
-            context={"traces": traces},
+            name="audit/partials/audit-row.html",
+            context={"audits": audits},
         )
     return templates.TemplateResponse(request=request, name="trace/trace.html")

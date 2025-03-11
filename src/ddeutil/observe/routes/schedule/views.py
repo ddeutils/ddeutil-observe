@@ -13,44 +13,46 @@ from fastapi.templating import Jinja2Templates
 
 from ...auth.deps import required_current_active_user
 from ...deps import get_templates
-from .schemas import TraceView, TraceViews
+from .schemas import ScheduleView, ScheduleViews
 
 logger = logging.getLogger("uvicorn.error")
 
-trace = APIRouter(
-    prefix="/trace",
-    tags=["trace", "frontend"],
+schedule = APIRouter(
+    prefix="/schedule",
+    tags=["schedule", "frontend"],
     # NOTE: This page require authentication step first.
     dependencies=[Depends(required_current_active_user)],
 )
 
 
-@trace.get("/")
-async def trace_read_all(
+@schedule.get("/")
+async def schedule_read_all(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    """Return all traces."""
+    """Return all schedules."""
     return templates.TemplateResponse(
         request=request,
-        name="trace/trace.html",
-        context={"trace": None},
+        name="schedule/schedule.html",
+        context={"schedule": None},
     )
 
 
-@trace.get("/search/")
-async def trace_read_all_by_search(
+@schedule.get("/search/")
+async def schedule_read_all_by_search(
     request: Request,
     search_text: str,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    traces: list[TraceView] = TraceViews.validate_python()
+    schedules: list[ScheduleView] = ScheduleViews.validate_python()
     if hx_request:
         return templates.TemplateResponse(
             request=request,
-            name="trace/partials/trace-row.html",
-            context={"traces": traces},
+            name="schedule/partials/schedule-row.html",
+            context={"schedules": schedules},
         )
-    return templates.TemplateResponse(request=request, name="trace/trace.html")
+    return templates.TemplateResponse(
+        request=request, name="schedule/schedule.html"
+    )

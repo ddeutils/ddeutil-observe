@@ -36,4 +36,8 @@ class AuditTrace(AuditBase):
     workflow_id: int
 
 
+class AuditView(Audit): ...
+
+
 Audits = TypeAdapter(list[Audit])
+AuditViews = TypeAdapter(list[AuditView])

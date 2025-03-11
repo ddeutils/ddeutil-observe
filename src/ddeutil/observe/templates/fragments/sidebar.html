@@ -9,14 +9,14 @@
     </div>
     <nav class="sidebar-menu">
         <ul>
-            <li {% if request.path.split('/')[1] == 'workflow' %}class="active"{% endif %}>
+            <li class="{% if request.path.split('/')[1] == 'workflow' %}active{% endif %}">
                 <a href="{{ url_for('workflow_read_all') }}">
                     <i class='bx bx-run'></i>
                     <span>Workflows</span>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li class="{% if request.path.split('/')[1] == 'schedule' %}active{% endif %}">
+                <a href="{{ url_for('schedule_read_all') }}">
                     <i class="bx bx-calendar-alt"></i>
                     <span>Schedulers</span>
                 </a>
@@ -29,8 +29,8 @@
                 </button>
                 <ul class="sub-menu">
                     <div>
-                        <li {% if request.path.split('/')[1] == 'trace' %}class="active"{% endif %}><a href="{{ url_for('trace_read_all') }}">Trace</a></li>
-                        <li><a href="#">Audit</a></li>
+                        <li class="{% if request.path.split('/')[1] == 'trace' %}active{% endif %}"><a href="{{ url_for('trace_read_all') }}">Trace</a></li>
+                        <li class="{% if request.path.split('/')[1] == 'audit' %}active{% endif %}"><a href="{{ url_for('audit_read_all') }}">Audit</a></li>
                     </div>
                 </ul>
             </li>

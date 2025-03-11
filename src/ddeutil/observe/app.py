@@ -22,7 +22,7 @@ from .auth import api_auth, auth
 from .backend import OAuth2Backend, OAuth2Middleware
 from .conf import config
 from .db import sessionmanager
-from .routes import api_router, trace, workflow
+from .routes import api_router, audit, schedule, trace, workflow
 
 logger = logging.getLogger("uvicorn.error")
 PARENT_PATH: Path = Path(__file__).parent
@@ -103,6 +103,8 @@ app.include_router(auth)
 app.include_router(api_router, prefix=config.api_prefix)
 app.include_router(workflow)
 app.include_router(trace)
+app.include_router(audit)
+app.include_router(schedule)
 
 # NOTE: Start mount all static files from /static path to this application.
 app.mount(
