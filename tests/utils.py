@@ -18,17 +18,12 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-from src.ddeutil.observe.routes.workflow.crud import (
-    create_release_log,
-    create_workflow,
-)
-
 OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
 def initial_auth(db_path: Optional[Path] = None):
     from src.ddeutil.observe.auth.schemas import UserCreateForm
-    from src.ddeutil.observe.routes.workflow.models import Base
+    from src.ddeutil.observe.routes.models import Base
 
     db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
     engine = create_async_engine(
@@ -82,11 +77,11 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
     """
-    from src.ddeutil.observe.routes.workflow.models import Base
-    from src.ddeutil.observe.routes.workflow.schemas import (
-        ReleaseLogCreate,
-        WorkflowCreate,
-    )
+    from src.ddeutil.observe.routes.audit.crud import AuditCRUD
+    from src.ddeutil.observe.routes.audit.schemas import AuditTraceCreate
+    from src.ddeutil.observe.routes.models import Base
+    from src.ddeutil.observe.routes.workflow.crud import WorkflowCRUD
+    from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
     db_path: Path = db_path or OUTSIDE_PATH / "observe.test.db"
     engine = create_async_engine(
@@ -140,10 +135,10 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
             jobs={"some-job": {"stages": [{"name": "Empty"}]}},
         ),
     ]:
-        await create_workflow(session=session, workflow=wf)
+        await WorkflowCRUD().create(workflow=wf)
 
     for data in [
-        ReleaseLogCreate(
+        AuditTraceCreate(
             release="20240902093600",
             logs=[
                 {
@@ -194,7 +189,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
                 },
             ],
         ),
-        ReleaseLogCreate(
+        AuditTraceCreate(
             release="20240901114700",
             logs=[
                 {
@@ -223,7 +218,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
             ],
         ),
     ]:
-        await create_release_log(session, 1, data)
+        await AuditCRUD().create_with_trace(1, data)
 
     await session.close()
 

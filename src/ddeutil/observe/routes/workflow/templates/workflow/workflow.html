@@ -39,13 +39,37 @@
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
             <div class="content-article-detail" id="workflow-content-article-detail">
-                <span class="htmx-indicator">
-                    <img src="/static/img/bars.svg" alt="progress bars" />
-                </span>
+                <!--  TODO: Use skeleton template instead and swap when close detail -->
             </div>
         </div>
     </article>
 </section>
+<template id="workflow-detail-skeleton">
+    <header>
+        <div class="detail-header">
+            <div class="skeleton skeleton-header"></div>
+            <button class="close-btn"
+                    onclick="hideDetail()">
+                <i class='bx bx-x'></i>
+            </button>
+        </div>
+        <nav class="detail-tab">
+            <ul class="skeleton skeleton-tab tab active" data-tab="config"></ul>
+            <ul class="skeleton skeleton-tab tab" data-tab="history"></ul>
+        </nav>
+    </header>
+    <article class="tab-content active">
+        <div class="config-section">
+            <div class="skeleton-border">
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text skeleton-75"></div>
+                <div class="skeleton skeleton-img"></div>
+            </div>
+        </div>
+    </article>
+</template>
 {% endblock %}
 {% block link_internal_css %}
     <link rel="stylesheet" href="/static/css/workflow-content.css"/>

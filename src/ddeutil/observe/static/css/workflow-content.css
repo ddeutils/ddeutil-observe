@@ -126,17 +126,17 @@
 
                 & .content-article-table {
                     width: 30%;
+                    transition: max-width 1s ease;
 
-                    & tr td,
-                    & tr th {
+                    & tr td:nth-child(n+2),
+                    & tr th:nth-child(n+2) {
                         display: none;
-                        text-align: center;
                     }
 
                     & tr td:nth-child(1),
                     & tr th:nth-child(1) {
-                        display: block;
                         height: 45px;
+                        text-align: center;
                     }
                 }
 

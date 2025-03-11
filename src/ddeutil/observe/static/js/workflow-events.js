@@ -4,6 +4,11 @@ function runWorkflow(element) {
 }
 
 function showDetail(element) {
+    const detail = document.getElementById("workflow-content-article-detail");
+    const detailTemplate = document.getElementById("workflow-detail-skeleton");
+    detail.innerHTML = "";
+    detail.appendChild(detailTemplate.content.cloneNode(true));
+
     document.getElementById('workflow-content-article').classList.add('with-detail');
     document.getElementById('workflow-content-article-detail').classList.add('active');
     element.closest('tr').classList.add('active');
