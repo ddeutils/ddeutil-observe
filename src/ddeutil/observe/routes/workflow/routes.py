@@ -7,16 +7,11 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status as st
-from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...deps import get_async_session
-from .crud import (
-    WorkflowsCRUD,
-    create_release_log,
-    create_workflow,
-    get_workflow_by_name,
-)
-from .schemas import ReleaseLog, ReleaseLogCreate, Workflow, WorkflowCreate
+from ..audit.crud import AuditCRUD
+from ..audit.schemas import AuditTrace, AuditTraceCreate
+from .crud import WorkflowCRUD
+from .schemas import Workflow, WorkflowCreate
 
 workflow = APIRouter(
     prefix="/workflow",
@@ -26,42 +21,42 @@ workflow = APIRouter(
 
 
 @workflow.get("/", response_model=list[Workflow])
-async def read_all(
+async def api_workflow_read_all(
     skip: int = 0,
     limit: int = 100,
-    service: WorkflowsCRUD = Depends(WorkflowsCRUD),
+    service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
     return [wf async for wf in service.get_all(skip=skip, limit=limit)]
 
 
 @workflow.post("/", response_model=Workflow)
-async def create_workflow_route(
+async def api_workflow_create(
     wf: WorkflowCreate,
-    session: AsyncSession = Depends(get_async_session),
+    service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
-    db_workflow = await get_workflow_by_name(session, name=wf.name)
+    db_workflow = await service.get_by_name(name=wf.name)
     if db_workflow:
         raise HTTPException(
             status_code=st.HTTP_302_FOUND,
             detail="Workflow already registered in observe database.",
         )
-    return await create_workflow(session=session, workflow=wf)
+    return await service.create(workflow=wf)
 
 
-@workflow.post("/{name}/release", response_model=ReleaseLog)
-async def create_workflow_release(
+@workflow.post("/{name}/audit", response_model=AuditTrace)
+async def api_workflow_create_audit(
     name: str,
-    rl: ReleaseLogCreate,
-    session: AsyncSession = Depends(get_async_session),
+    audit_trace: AuditTraceCreate,
+    service: WorkflowCRUD = Depends(WorkflowCRUD),
+    service_audit: AuditCRUD = Depends(AuditCRUD),
 ):
-    db_workflow = await get_workflow_by_name(session, name=name)
+    db_workflow = await service.get_by_name(name=name)
     if not db_workflow:
         raise HTTPException(
             status_code=st.HTTP_302_FOUND,
             detail="Workflow does not registered in observe database.",
         )
-    return await create_release_log(
-        session=session,
+    return await service_audit.create_with_trace(
         workflow_id=db_workflow.id,
-        release_log=rl,
+        audit_trace=audit_trace,
     )

@@ -90,15 +90,13 @@ async def create_role_policy(
 
 
 async def create_workflows(session: AsyncSession):
-    from src.ddeutil.observe.routes.workflow.models import (
+    from src.ddeutil.observe.routes.audit.schemas import AuditTraceCreate
+    from src.ddeutil.observe.routes.models import (
+        Audit,
+        Trace,
         Workflow,
-        WorkflowLog,
-        WorkflowRelease,
     )
-    from src.ddeutil.observe.routes.workflow.schemas import (
-        ReleaseLogCreate,
-        WorkflowCreate,
-    )
+    from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
     workflows = (await session.execute(select(Workflow))).scalars().all()
     if len(workflows) > 0:
@@ -159,7 +157,7 @@ async def create_workflows(session: AsyncSession):
         await session.commit()
 
     for release_log in [
-        ReleaseLogCreate(
+        AuditTraceCreate(
             release="20240902093600",
             logs=[
                 {
@@ -210,7 +208,7 @@ async def create_workflows(session: AsyncSession):
                 },
             ],
         ),
-        ReleaseLogCreate(
+        AuditTraceCreate(
             release="20240901114700",
             logs=[
                 {
@@ -239,7 +237,7 @@ async def create_workflows(session: AsyncSession):
             ],
         ),
     ]:
-        db_release = WorkflowRelease(
+        db_release = Audit(
             release=release_log.release,
             workflow_id=1,
         )
@@ -248,7 +246,7 @@ async def create_workflows(session: AsyncSession):
         await session.refresh(db_release)
 
         for log in release_log.logs:
-            db_log = WorkflowLog(
+            db_log = Trace(
                 run_id=log.run_id,
                 context=log.context,
                 release_id=db_release.id,

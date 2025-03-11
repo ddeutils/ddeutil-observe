@@ -10,7 +10,7 @@
     <nav class="sidebar-menu">
         <ul>
             <li {% if request.path.split('/')[1] == 'workflow' %}class="active"{% endif %}>
-                <a href="{{ url_for('read_workflows') }}">
+                <a href="{{ url_for('workflow_read_all') }}">
                     <i class='bx bx-run'></i>
                     <span>Workflows</span>
                 </a>
@@ -29,7 +29,7 @@
                 </button>
                 <ul class="sub-menu">
                     <div>
-                        <li {% if request.path.split('/')[1] == 'trace' %}class="active"{% endif %}><a href="{{ url_for('read_traces') }}">Trace</a></li>
+                        <li {% if request.path.split('/')[1] == 'trace' %}class="active"{% endif %}><a href="{{ url_for('trace_read_all') }}">Trace</a></li>
                         <li><a href="#">Audit</a></li>
                     </div>
                 </ul>

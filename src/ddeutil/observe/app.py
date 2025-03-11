@@ -117,7 +117,6 @@ async def home(request: Request):
     """The home page that redirect to main page."""
     return RedirectResponse(
         # TODO: remove current request url_for to workflow page.
-        # request.url_for("read_workflows"),
-        request.url_for("read_workflows"),
+        request.url_for("workflow_read_all"),
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,
     )

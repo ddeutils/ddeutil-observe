@@ -9,12 +9,11 @@ from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, Header, Request
 from fastapi.templating import Jinja2Templates
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...auth.deps import required_current_active_user
-from ...deps import get_async_session, get_templates
+from ...deps import get_templates
 from ...utils import get_logger
-from . import crud
+from .crud import WorkflowCRUD
 from .schemas import (
     WorkflowView,
     WorkflowViews,
@@ -31,14 +30,14 @@ workflow = APIRouter(
 
 
 @workflow.get("/")
-async def read_workflows(
+async def workflow_read_all(
     request: Request,
-    session: AsyncSession = Depends(get_async_session),
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all workflows."""
     workflows: list[WorkflowView] = WorkflowViews.validate_python(
-        await crud.list_workflows(session)
+        [wf async for wf in crud.get_all(include_release=True)]
     )
     return templates.TemplateResponse(
         request=request,
@@ -51,14 +50,14 @@ async def read_workflows(
 
 
 @workflow.get("/detail/{name}")
-async def read_workflow_detail(
+async def workflow_read_detail(
     name: str,
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
-    session: AsyncSession = Depends(get_async_session),
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    _workflow_model = await crud.get_workflow_by_name(session, name)
+    _workflow_model = await crud.get_by_name(name)
     if _workflow_model is None:
         raise ValueError(f"Workflow name {name} does not exists")
     _workflow: Optional[WorkflowView] = WorkflowView.model_validate(
@@ -78,15 +77,15 @@ async def read_workflow_detail(
 
 
 @workflow.get("/search/")
-async def search_workflows(
+async def workflow_read_all_by_search(
     request: Request,
     search_text: str,
     hx_request: Annotated[Optional[str], Header(...)] = None,
-    session: AsyncSession = Depends(get_async_session),
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
     templates: Jinja2Templates = Depends(get_templates),
 ):
     workflows: list[WorkflowView] = WorkflowViews.validate_python(
-        await crud.search_workflow(session=session, search_text=search_text)
+        await crud.search(search_text=search_text)
     )
     if hx_request:
         return templates.TemplateResponse(

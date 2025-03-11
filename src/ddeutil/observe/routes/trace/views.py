@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 from ...auth.deps import required_current_active_user
 from ...deps import get_templates
 from ...utils import get_logger
+from .schemas import TraceView, TraceViews
 
 logger = get_logger("ddeutil.observe")
 
@@ -25,7 +26,7 @@ trace = APIRouter(
 
 
 @trace.get("/")
-async def read_traces(
+async def trace_read_all(
     request: Request,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
@@ -39,15 +40,17 @@ async def read_traces(
 
 
 @trace.get("/search/")
-async def search_traces(
+async def trace_read_all_by_search(
     request: Request,
+    search_text: str,
     hx_request: Annotated[Optional[str], Header(...)] = None,
     templates: Jinja2Templates = Depends(get_templates),
 ):
+    traces: list[TraceView] = TraceViews.validate_python()
     if hx_request:
         return templates.TemplateResponse(
             request=request,
             name="trace/partials/trace-row.html",
-            context={},
+            context={"traces": traces},
         )
     return templates.TemplateResponse(request=request, name="trace/trace.html")

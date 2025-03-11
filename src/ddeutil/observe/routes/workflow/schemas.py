@@ -1,3 +1,8 @@
+# ------------------------------------------------------------------------------
+# Copyright (c) 2022 Korawich Anuttra. All rights reserved.
+# Licensed under the MIT License. See LICENSE in the project root for
+# license information.
+# ------------------------------------------------------------------------------
 from __future__ import annotations
 
 import json
@@ -12,8 +17,10 @@ class WorkflowBase(BaseModel):
     that create on the observe database.
     """
 
-    name: str
-    desc: Optional[str] = None
+    name: str = Field(description="A workflow name.")
+    desc: Optional[str] = Field(
+        default=None, description="A workflow description."
+    )
     params: dict[str, Any]
     on: list[dict[str, Any]]
     jobs: dict[str, Any]
@@ -49,47 +56,3 @@ class WorkflowView(Workflow):
 
 Workflows = TypeAdapter(list[Workflow])
 WorkflowViews = TypeAdapter(list[WorkflowView])
-
-
-class ReleaseBase(BaseModel):
-    """Base Release Pydantic model that does not include surrogate key column
-    that create on the observe database.
-    """
-
-    release: int
-
-
-class Release(ReleaseBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    id: int
-    workflow_id: int
-
-
-class LogBase(BaseModel):
-    """Base Log Pydantic model that does not include surrogate key column
-    that create on the observe database.
-    """
-
-    run_id: str
-    context: dict[str, Any] = Field(default_factory=dict)
-
-
-class LogCreate(LogBase): ...
-
-
-class Log(LogBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    release_id: int
-
-
-class ReleaseLogCreate(ReleaseBase):
-    logs: list[LogCreate] = Field(default_factory=list)
-
-
-class ReleaseLog(ReleaseBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    logs: list[Log]
-    workflow_id: int
