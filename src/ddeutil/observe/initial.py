@@ -90,7 +90,7 @@ async def create_role_policy(
 
 
 async def create_workflows(session: AsyncSession):
-    from src.ddeutil.observe.routes.audit.schemas import AuditTraceCreate
+    from src.ddeutil.observe.routes.audit.schemas import AuditCreate
     from src.ddeutil.observe.routes.models import (
         Audit,
         Trace,
@@ -157,7 +157,7 @@ async def create_workflows(session: AsyncSession):
         await session.commit()
 
     for release_log in [
-        AuditTraceCreate(
+        AuditCreate(
             release="20240902093600",
             logs=[
                 {
@@ -208,7 +208,7 @@ async def create_workflows(session: AsyncSession):
                 },
             ],
         ),
-        AuditTraceCreate(
+        AuditCreate(
             release="20240901114700",
             logs=[
                 {
