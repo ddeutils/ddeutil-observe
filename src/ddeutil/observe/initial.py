@@ -93,9 +93,12 @@ async def create_workflows(session: AsyncSession):
     from src.ddeutil.observe.routes.audit.schemas import AuditCreate
     from src.ddeutil.observe.routes.models import (
         Audit,
+        AuditLog,
         Trace,
+        TraceMeta,
         Workflow,
     )
+    from src.ddeutil.observe.routes.trace.schemas import TraceCreate
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
     workflows = (await session.execute(select(Workflow))).scalars().all()
@@ -151,60 +154,54 @@ async def create_workflows(session: AsyncSession):
             on=workflow.on,
             jobs=workflow.jobs,
             valid_start=datetime.now(),
-            valid_end=datetime(2999, 12, 31),
+            valid_end=datetime(9999, 12, 31),
         )
         session.add(db_workflow)
         await session.commit()
 
-    for release_log in [
+    for audit_log in [
         AuditCreate(
             release="20240902093600",
             logs=[
                 {
-                    "run_id": "635351540020240902093554579053",
+                    "name": "wf-scheduling",
+                    "release": "2024-09-02 09:36:00+07:00",
+                    "type": "task",
                     "context": {
-                        "name": "wf-scheduling",
-                        "on": "*/3 * * * *",
-                        "release": "2024-09-02 09:36:00+07:00",
-                        "context": {
-                            "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
-                            "jobs": {
-                                "condition-job": {
-                                    "matrix": {},
-                                    "stages": {
-                                        "6708019737": {"outputs": {}},
-                                        "0663452000": {"outputs": {}},
-                                    },
-                                }
-                            },
+                        "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
+                        "jobs": {
+                            "condition-job": {
+                                "matrix": {},
+                                "stages": {
+                                    "6708019737": {"outputs": {}},
+                                    "0663452000": {"outputs": {}},
+                                },
+                            }
                         },
-                        "parent_run_id": "635351540020240902093554579053",
-                        "run_id": "635351540020240902093554579053",
-                        "update": "2024-09-02 09:35:54.579053",
                     },
+                    "parent_run_id": "635351540020240902093554579053",
+                    "run_id": "635351540020240902093554579053",
+                    "update": "2024-09-02 09:35:54.579053",
                 },
                 {
-                    "run_id": "635351540020240902093554573333",
+                    "name": "wf-scheduling",
+                    "release": "2024-09-02 09:36:00+07:00",
+                    "type": "task",
                     "context": {
-                        "name": "wf-scheduling",
-                        "on": "*/3 * * * *",
-                        "release": "2024-09-02 09:36:00+07:00",
-                        "context": {
-                            "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
-                            "jobs": {
-                                "condition-job": {
-                                    "matrix": {},
-                                    "stages": {
-                                        "6708019737": {"outputs": {}},
-                                        "0663452000": {"outputs": {}},
-                                    },
-                                }
-                            },
+                        "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
+                        "jobs": {
+                            "condition-job": {
+                                "matrix": {},
+                                "stages": {
+                                    "6708019737": {"outputs": {}},
+                                    "0663452000": {"outputs": {}},
+                                },
+                            }
                         },
-                        "parent_run_id": "635351540020240902093554573333",
-                        "run_id": "635351540020240902093554573333",
-                        "update": "2024-09-02 09:35:54.579053",
                     },
+                    "parent_run_id": "635351540020240902093554573333",
+                    "run_id": "635351540020240902093554573333",
+                    "update": "2024-09-02 09:35:54.579053",
                 },
             ],
         ),
@@ -212,46 +209,96 @@ async def create_workflows(session: AsyncSession):
             release="20240901114700",
             logs=[
                 {
-                    "run_id": "635351540020240901114649502176",
+                    "name": "wf-scheduling",
+                    "release": "2024-09-01 11:47:00+07:00",
+                    "type": "task",
                     "context": {
-                        "name": "wf-scheduling",
-                        "on": "* * * * *",
-                        "release": "2024-09-01 11:47:00+07:00",
-                        "context": {
-                            "params": {"asat-dt": "2024-09-01 11:47:00+07:00"},
-                            "jobs": {
-                                "condition-job": {
-                                    "matrix": {},
-                                    "stages": {
-                                        "6708019737": {"outputs": {}},
-                                        "0663452000": {"outputs": {}},
-                                    },
-                                }
-                            },
+                        "params": {"asat-dt": "2024-09-01 11:47:00+07:00"},
+                        "jobs": {
+                            "condition-job": {
+                                "matrix": {},
+                                "stages": {
+                                    "6708019737": {"outputs": {}},
+                                    "0663452000": {"outputs": {}},
+                                },
+                            }
                         },
-                        "parent_run_id": "635351540020240901114649502176",
-                        "run_id": "635351540020240901114649502176",
-                        "update": "2024-09-01 11:46:49.503175",
                     },
+                    "parent_run_id": "635351540020240901114649502176",
+                    "run_id": "635351540020240901114649502176",
+                    "update": "2024-09-01 11:46:49.503175",
                 }
             ],
         ),
     ]:
-        db_release = Audit(
-            release=release_log.release,
+        db_audit = Audit(
+            release_id=audit_log.release,
             workflow_id=1,
         )
-        session.add(db_release)
+        session.add(db_audit)
         await session.commit()
-        await session.refresh(db_release)
+        await session.refresh(db_audit)
 
-        for log in release_log.logs:
-            db_log = Trace(
-                run_id=log.run_id,
+        for log in audit_log.logs:
+            db_audit_log = AuditLog(
+                id=log.parent_run_id or log.run_id,
+                audit_id=db_audit.id,
+                workflow_name=log.name,
+                release=log.release,
+                type=log.type,
                 context=log.context,
-                release_id=db_release.id,
+                parent_run_id=log.parent_run_id,
+                run_id=log.run_id,
+                release_create_date=log.update,
             )
-            session.add(db_log)
+            session.add(db_audit_log)
+            await session.commit()
+
+    for trace in [
+        TraceCreate(
+            run_id="635351540020240901114649502176",
+            data={
+                "meta": [
+                    {
+                        "mode": "stdout",
+                        "datetime": "2025-03-12 10:28:12",
+                        "process": 26232,
+                        "thread": 7852,
+                        "message": "(643202 ->       ) [POKING]: Start Poking: 'tmp-wf-scheduling-minute' from 2025-03-12 10:28:11 to 2025-03-12 10:29:11",
+                        "filename": "workflow.py",
+                        "lineno": 745,
+                    },
+                    {
+                        "mode": "stdout",
+                        "datetime": "2025-03-12 10:28:12",
+                        "process": 26232,
+                        "thread": 7852,
+                        "message": "(643202 ->       ) [POKING]: The latest release, 2025-03-12 10:29:00, is not able to run on this minute",
+                        "filename": "workflow.py",
+                        "lineno": 785,
+                    },
+                ]
+            },
+        ),
+    ]:
+        db_trace = Trace(run_id=trace.run_id)
+        session.add(db_trace)
+        await session.commit()
+        await session.refresh(db_trace)
+
+        for index, meta in enumerate(trace.data.meta, start=1):
+            db_trace_meta = TraceMeta(
+                run_id=db_trace.run_id,
+                trace_id=index,
+                mode=meta.mode,
+                datetime=meta.datetime,
+                process=meta.process,
+                thread=meta.thread,
+                message=meta.message,
+                filename=meta.filename,
+                lineno=meta.lineno,
+            )
+            session.add(db_trace_meta)
             await session.commit()
 
 

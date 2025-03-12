@@ -25,8 +25,8 @@ from ..auth.models import Base
 class Schedule(Base):
     __tablename__ = "schedules"
 
-    id = mapped_column(Integer, primary_key=True, index=True)
-    name = mapped_column(String(128), index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(String(128), index=True)
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -36,11 +36,14 @@ class Schedule(Base):
 class ScheduleWorkflow(Base):
     __tablename__ = "schedule_workflows"
 
-    id = mapped_column(Integer, primary_key=True, index=True)
-    schedule_id = mapped_column(Integer, ForeignKey("schedules.id"))
-    alias = mapped_column(String(128), index=True)
-    on = mapped_column(String(128), index=True)
-    params = mapped_column(String(128), index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    schedule_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("schedules.id")
+    )
+    alias: Mapped[str] = mapped_column(String(128), index=True)
+    name: Mapped[str] = mapped_column(String(128))
+    on: Mapped[str] = mapped_column(String(64))
+    params: Mapped[str] = mapped_column(JSON)
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -52,7 +55,7 @@ class Workflow(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(128), index=True)
-    desc: Mapped[str] = mapped_column(String)
+    desc: Mapped[str] = mapped_column(String, nullable=True)
     params: Mapped[dict[str, Any]] = mapped_column(JSON)
     on: Mapped[dict[str, Any]] = mapped_column(JSON)
     jobs: Mapped[dict[str, Any]] = mapped_column(JSON)
@@ -75,13 +78,15 @@ class Workflow(Base):
 class Audit(Base):
     __tablename__ = "audits"
 
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     release_id: Mapped[str] = mapped_column(
-        Integer, primary_key=True, index=True
+        String,
+        index=True,
     )
-    release: Mapped[datetime] = mapped_column(DateTime)
-    data: Mapped[dict] = mapped_column(JSON)
     workflow_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("workflows.id")
+        Integer,
+        ForeignKey("workflows.id"),
+        index=True,
     )
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
@@ -102,15 +107,22 @@ class Audit(Base):
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    release_id: int = mapped_column(Integer, ForeignKey("Audit.release_id"))
-    workflow_name: str
-    release: datetime
-    type: str
-    context: dict
-    parent_run_id: str
-    run_id: str
-    release_create_date: datetime
+    id: Mapped[str] = mapped_column(
+        String(64),
+        primary_key=True,
+        index=True,
+    )
+    audit_id: Mapped[str] = mapped_column(
+        String,
+        ForeignKey("audits.id"),
+    )
+    workflow_name: Mapped[str]
+    release: Mapped[datetime]
+    type: Mapped[str]
+    context: Mapped[dict] = mapped_column(JSON)
+    parent_run_id: Mapped[str] = mapped_column(String, nullable=True)
+    run_id: Mapped[str]
+    release_create_date: Mapped[datetime]
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
@@ -121,7 +133,7 @@ class AuditLog(Base):
         back_populates="logs",
     )
 
-    trace: Mapped[list[Trace]] = relationship(
+    trace: Mapped[Trace] = relationship(
         "Trace",
         back_populates="audit_log",
     )
@@ -130,28 +142,38 @@ class AuditLog(Base):
 class Trace(Base):
     __tablename__ = "traces"
 
-    run_id: Mapped[str] = mapped_column(String, primary_key=True, index=True)
-    audit_log_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("audit_logs.run_id")
+    run_id: Mapped[str] = mapped_column(
+        String,
+        ForeignKey("audit_logs.id"),
+        primary_key=True,
+        index=True,
     )
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
     )
 
-    audit_log: Mapped[AuditLog] = relationship(
+    audit_log: Mapped[Trace] = relationship(
         "AuditLog",
         back_populates="trace",
     )
 
-    meta: Mapped[TraceMeta] = relationship("TraceMeta", back_populates="trace")
+    meta: Mapped[TraceMeta] = relationship(
+        "TraceMeta",
+        back_populates="trace",
+    )
 
 
 class TraceMeta(Base):
     __tablename__ = "trace_meta"
 
-    run_id: Mapped[str] = mapped_column(String, ForeignKey("traces.run_id"))
-    trace_id: Mapped[int] = mapped_column(String)
+    run_id: Mapped[str] = mapped_column(
+        String,
+        ForeignKey("traces.run_id"),
+        primary_key=True,
+        index=True,
+    )
+    trace_id: Mapped[int] = mapped_column(String, primary_key=True, index=True)
     mode: Mapped[str]
     datetime: Mapped[datetime]
     process: Mapped[int]

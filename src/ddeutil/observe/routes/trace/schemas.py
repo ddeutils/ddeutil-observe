@@ -5,15 +5,26 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 
+class TraceMeta(BaseModel):
+    mode: str
+    datetime: datetime
+    process: int
+    thread: int
+    message: str
+    filename: str
+    lineno: int
+
+
 class TraceData(BaseModel):
     stdout: Optional[str] = None
     stderr: Optional[str] = None
-    meta: list[dict] = Field(default_factory=dict)
+    meta: list[TraceMeta]
 
 
 class TraceBase(BaseModel):
