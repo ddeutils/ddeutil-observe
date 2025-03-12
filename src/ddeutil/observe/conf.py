@@ -5,9 +5,10 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import json
 import os
 import secrets
-from typing import Optional
+from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
 from ddeutil.core import str2bool
@@ -96,6 +97,17 @@ class Config:
     @property
     def web_admin_email(self) -> str:
         return env("WEB_ADMIN_EMAIL", "observe@mail.com")
+
+    @property
+    def workflow_endpoints(self) -> dict[str, Any]:
+        prefix: str = f"{PREFIX}_WORKFLOW_ENDPOINTS__"
+        return {
+            e.replace(prefix, ""): json.loads(os.getenv(e))
+            for e in filter(
+                lambda x: x.startswith(f"{PREFIX}_WORKFLOW_ENDPOINTS__"),
+                os.environ,
+            )
+        }
 
 
 config = Config()
