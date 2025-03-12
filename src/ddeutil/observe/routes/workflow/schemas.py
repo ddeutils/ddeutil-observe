@@ -40,10 +40,13 @@ class Workflow(WorkflowBase):
     delete_flag: bool
     valid_start: datetime
     valid_end: datetime
+    update_date: datetime
 
 
 class WorkflowView(Workflow):
     model_config = ConfigDict(from_attributes=True)
+
+    def dump_yaml(self) -> str: ...
 
     def dump_params(self) -> str:
         return json.dumps(
