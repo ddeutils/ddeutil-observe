@@ -9,7 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi import status as st
 
 from ..audit.crud import AuditCRUD
-from ..audit.schemas import AuditTrace, AuditTraceCreate
+from ..audit.schemas import Audit, AuditCreate
 from .crud import WorkflowCRUD
 from .schemas import Workflow, WorkflowCreate
 
@@ -43,10 +43,10 @@ async def api_workflow_create(
     return await service.create(workflow=wf)
 
 
-@workflow.post("/{name}/audit", response_model=AuditTrace)
+@workflow.post("/{name}/audit", response_model=Audit)
 async def api_workflow_create_audit(
     name: str,
-    audit_trace: AuditTraceCreate,
+    audit_trace: AuditCreate,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
     service_audit: AuditCRUD = Depends(AuditCRUD),
 ):

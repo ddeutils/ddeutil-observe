@@ -5,9 +5,24 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+from datetime import datetime
+from typing import Any, Optional
+
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
-from ..trace.schemas import Trace, TraceCreate
+
+class AuditLog(BaseModel):
+    name: str = Field(description="A workflow name.")
+    release: datetime = Field(description="A release datetime.")
+    type: str = Field(description="A running type before logging.")
+    context: dict[str, Any] = Field(
+        default_factory=dict,
+        description="A context that receive from a workflow execution result.",
+    )
+    parent_run_id: Optional[str] = Field(default=None)
+    run_id: str
+    update: datetime = Field(default_factory=datetime.now)
+    execution_time: float = Field(default=0)
 
 
 class AuditBase(BaseModel):
@@ -23,17 +38,11 @@ class Audit(AuditBase):
 
     id: int
     workflow_id: int
+    logs: list[AuditLog] = Field(default_factory=list)
 
 
-class AuditTraceCreate(AuditBase):
-    logs: list[TraceCreate] = Field(default_factory=list)
-
-
-class AuditTrace(AuditBase):
-    model_config = ConfigDict(from_attributes=True)
-
-    logs: list[Trace]
-    workflow_id: int
+class AuditCreate(AuditBase):
+    logs: list[AuditLog] = Field(default_factory=list)
 
 
 class AuditView(Audit): ...

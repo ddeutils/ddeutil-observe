@@ -78,7 +78,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     The data will cover all testcases.
     """
     from src.ddeutil.observe.routes.audit.crud import AuditCRUD
-    from src.ddeutil.observe.routes.audit.schemas import AuditTraceCreate
+    from src.ddeutil.observe.routes.audit.schemas import AuditCreate
     from src.ddeutil.observe.routes.models import Base
     from src.ddeutil.observe.routes.workflow.crud import WorkflowCRUD
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
@@ -138,7 +138,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
         await WorkflowCRUD().create(workflow=wf)
 
     for data in [
-        AuditTraceCreate(
+        AuditCreate(
             release="20240902093600",
             logs=[
                 {
@@ -189,7 +189,7 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
                 },
             ],
         ),
-        AuditTraceCreate(
+        AuditCreate(
             release="20240901114700",
             logs=[
                 {

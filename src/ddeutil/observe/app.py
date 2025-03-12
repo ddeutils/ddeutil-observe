@@ -55,7 +55,11 @@ async def lifespan(inside: FastAPI):
 
 
 app = FastAPI(
-    titile="Observe Web Application",
+    titile="Observe",
+    description=(
+        "This is observe FastAPI application that use to display workflow "
+        "and execution logging pages."
+    ),
     version=__version__,
     lifespan=lifespan,
     docs_url="/api/docs",

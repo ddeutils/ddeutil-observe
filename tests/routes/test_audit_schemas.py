@@ -1,34 +1,32 @@
-from src.ddeutil.observe.routes.audit.schemas import AuditTraceCreate
+from src.ddeutil.observe.routes.audit.schemas import AuditCreate
 
 
-def test_workflow_schema_log():
+def test_audit_schema():
     value = {
         "release": "20240902093600",
         "logs": [
             {
-                "run_id": "635351540020240902093554579053",
+                "name": "wf-scheduling",
+                "release": "2025-01-06 18:47:00+07:00",
+                "type": "task",
                 "context": {
-                    "name": "wf-scheduling",
-                    "on": "*/3 * * * *",
-                    "release": "2024-09-02 09:36:00+07:00",
-                    "context": {
-                        "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
-                        "jobs": {
-                            "condition-job": {
-                                "matrix": {},
-                                "stages": {
-                                    "6708019737": {"outputs": {}},
-                                    "0663452000": {"outputs": {}},
-                                },
-                            }
-                        },
+                    "params": {"asat-dt": "2025-01-06 18:47:00+07:00"},
+                    "jobs": {
+                        "condition-job": {
+                            "matrix": {},
+                            "stages": {
+                                "6708019737": {"outputs": {}},
+                                "0663452000": {"outputs": {}},
+                            },
+                        }
                     },
-                    "parent_run_id": "635351540020240902093554579053",
-                    "run_id": "635351540020240902093554579053",
-                    "update": "2024-09-02 09:35:54.579053",
                 },
+                "parent_run_id": "426592786720250106184702647269",
+                "run_id": "426592786720250106184702647269",
+                "update": "2025-01-06 18:47:02.781320",
             },
         ],
     }
-    rs = AuditTraceCreate.model_validate(value)
+    rs = AuditCreate.model_validate(value)
     assert rs.release == 20240902093600
+    assert len(rs.logs) == 1

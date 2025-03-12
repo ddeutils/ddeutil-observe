@@ -45,24 +45,6 @@ class Workflow(Base):
         back_populates="workflow",
     )
 
-    # @classmethod
-    # async def get_all(
-    #     cls,
-    #     session: AsyncSession,
-    #     skip: int = 0,
-    #     limit: int = 100,
-    #     include_release: bool = False,
-    # ) -> AsyncIterator[Self]:
-    #     stmt = select(cls)
-    #     if include_release:
-    #         stmt = stmt.options(selectinload(cls.audits))
-    #     if skip > 0 and limit > 0:
-    #         stmt = stmt.offset(skip).limit(limit)
-    #     for row in (
-    #         await (await session.stream(stmt.order_by(cls.id))).scalars().all()
-    #     ):
-    #         yield row
-
 
 class Audit(Base):
     __tablename__ = "audits"

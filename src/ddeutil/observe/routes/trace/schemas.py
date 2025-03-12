@@ -5,9 +5,15 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
-from typing import Any
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+
+
+class TraceData(BaseModel):
+    stdout: Optional[str] = None
+    stderr: Optional[str] = None
+    meta: list[dict] = Field(default_factory=dict)
 
 
 class TraceBase(BaseModel):
@@ -16,7 +22,7 @@ class TraceBase(BaseModel):
     """
 
     run_id: str
-    context: dict[str, Any] = Field(default_factory=dict)
+    data: TraceData = Field(default_factory=TraceData)
 
 
 class TraceCreate(TraceBase): ...

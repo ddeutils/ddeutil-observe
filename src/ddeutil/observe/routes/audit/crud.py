@@ -12,7 +12,7 @@ from sqlalchemy import select
 
 from ...crud import BaseCRUD
 from .. import models as md
-from .schemas import AuditTraceCreate
+from .schemas import AuditCreate
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -32,7 +32,7 @@ class AuditCRUD(BaseCRUD):
     async def create_with_trace(
         self,
         workflow_id: int,
-        audit_trace: AuditTraceCreate,
+        audit_trace: AuditCreate,
     ) -> md.Audit:
         db_release = md.Audit(
             release=audit_trace.release,
