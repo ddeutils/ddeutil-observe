@@ -21,6 +21,10 @@ class TraceMeta(BaseModel):
     lineno: int
 
 
+class TraceMetaView(TraceMeta):
+    model_config = ConfigDict(from_attributes=True)
+
+
 class TraceData(BaseModel):
     stdout: Optional[str] = None
     stderr: Optional[str] = None
@@ -33,19 +37,21 @@ class TraceBase(BaseModel):
     """
 
     run_id: str
+
+
+class TraceCreate(TraceBase):
     data: TraceData = Field(default_factory=TraceData)
-
-
-class TraceCreate(TraceBase): ...
 
 
 class Trace(TraceBase):
     model_config = ConfigDict(from_attributes=True)
 
-    release_id: int
+    meta: list[TraceMeta] = Field(default_factory=list)
+    update_date: datetime
 
 
-class TraceView(Trace): ...
+class TraceView(Trace):
+    meta: list[TraceMetaView] = Field(default_factory=list)
 
 
 Traces = TypeAdapter(list[Trace])

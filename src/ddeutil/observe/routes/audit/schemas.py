@@ -25,6 +25,10 @@ class AuditLog(BaseModel):
     execution_time: float = Field(default=0)
 
 
+class AuditLogView(AuditLog):
+    model_config = ConfigDict(from_attributes=True)
+
+
 class AuditBase(BaseModel):
     """Base Audit Pydantic model that does not include surrogate key column
     that create on the observe database.

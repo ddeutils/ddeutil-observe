@@ -13,6 +13,7 @@ from fastapi.templating import Jinja2Templates
 
 from ...auth.deps import required_current_active_user
 from ...deps import get_templates
+from .crud import TraceCRUD
 from .schemas import TraceView, TraceViews
 
 logger = logging.getLogger("uvicorn.error")
@@ -28,14 +29,17 @@ trace = APIRouter(
 @trace.get("/")
 async def trace_read_all(
     request: Request,
-    hx_request: Annotated[Optional[str], Header(...)] = None,
+    crud: TraceCRUD = Depends(TraceCRUD),
     templates: Jinja2Templates = Depends(get_templates),
 ):
     """Return all traces."""
+    traces: list[TraceView] = TraceViews.validate_python(
+        [wf async for wf in crud.list()]
+    )
     return templates.TemplateResponse(
         request=request,
         name="trace/trace.html",
-        context={"trace": None},
+        context={"traces": traces},
     )
 
 

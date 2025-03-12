@@ -158,9 +158,10 @@ class Trace(Base):
         back_populates="trace",
     )
 
-    meta: Mapped[TraceMeta] = relationship(
+    meta: Mapped[list[TraceMeta]] = relationship(
         "TraceMeta",
         back_populates="trace",
+        uselist=True,
     )
 
 

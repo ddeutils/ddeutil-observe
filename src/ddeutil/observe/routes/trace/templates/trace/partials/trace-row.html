@@ -1,17 +1,17 @@
 <table class="data-table" id="trace-results">
     <thead>
         <tr>
-            <th>Name</th>
-            <th>Status</th>
+            <th>Run ID</th>
+            <th>Update Date</th>
             <th>Metadata</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
+        {% for trace in traces %}
         <tr>
-            <td class="trace-name">{{ trace.name }}</td>
-            <td>
-            </td>
+            <td class="trace-run-id">{{ trace.run_id }}</td>
+            <td>{{ trace.update_date }}</td>
             <td>
                 <pre class="parameter-cell">
                 </pre>
@@ -21,11 +21,9 @@
                         onclick="showDetail(this)">
                     <i class='bx bx-info-circle'></i>
                 </button>
-                <button class="btn btn-primary" onclick="runWorkflow(this)">
-                    <i class='bx bx-rocket' ></i>
-                </button>
             </td>
         </tr>
+        {% endfor %}
     </tbody>
     <tfoot></tfoot>
 </table>

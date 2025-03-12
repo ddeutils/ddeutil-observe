@@ -5,20 +5,48 @@
 # ------------------------------------------------------------------------------
 from __future__ import annotations
 
+import logging
+
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 
 from ...crud import BaseCRUD
-from ...utils import get_logger
 from .. import models as md
 
-logger = get_logger("ddeutil.observe")
+logger = logging.getLogger("uvicorn.error")
 
 
 class TraceCRUD(BaseCRUD):
 
-    async def get_log(self, run_id: str) -> md.Trace:
+    async def list(
+        self,
+        skip: int = 0,
+        limit: int = 1000,
+    ) -> list[md.Trace]:
+        for row in (
+            await (
+                await self.async_session.stream(
+                    select(md.Trace)
+                    .options(selectinload(md.Trace.meta))
+                    .offset(skip)
+                    .limit(limit)
+                )
+            )
+            .scalars()
+            .all()
+        ):
+            yield row
+
+    async def get(
+        self,
+        run_id: str,
+        include_meta: bool = True,
+    ) -> md.Trace:
+        stmt = select(md.Workflow)
+        if include_meta:
+            stmt = stmt.options(selectinload(md.Trace.meta))
         return (
             await self.async_session.execute(
-                select(md.Trace).filter(md.Trace.run_id == run_id).limit(1)
+                stmt.filter(md.Trace.run_id == run_id).limit(1)
             )
         ).first()
