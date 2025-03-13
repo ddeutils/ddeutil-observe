@@ -23,7 +23,7 @@
     min-height: 100vh;
 
     & .content-header {
-        padding: 0px 20px 20px;
+        padding: 20px;
         display: flex;
         justify-content: space-between;
 
@@ -86,7 +86,7 @@
 
             & .search-container {
                 position: relative;
-                width: 300px;
+                width: 200px;
 
                 & input {
                     width: 100%;
@@ -248,6 +248,7 @@
                 }
             }
 
+            /* Detail */
             & .content-article-detail {
                 display: none;
                 background-color: var(--bg-primary);
@@ -270,6 +271,7 @@
                     & .close-btn {
                         background: transparent;
                         border: none;
+                        color: var(--text-color);
                         cursor: pointer;
                         width: 32px;
                         height: 32px;

@@ -65,7 +65,7 @@
     }
 
     & .sidebar-menu {
-        padding: 20px 0;
+        padding: 25px 0;
         flex-grow: 1;
 
         & ul {
@@ -75,7 +75,7 @@
         & a, & .dropdown-btn {
             cursor: pointer;
             border-radius: .5em;
-            padding: .8em;
+            padding: .3em;
             text-decoration: none;
             color: var(--text-clr);
             display: flex;
@@ -142,11 +142,8 @@
         }
 
         & li {
-            /*cursor: pointer;
-            transition: background-color 0.2s;
-            */
             border-radius: 4px;
-            margin: 4px 10px;
+            margin: 4px 15px;
 
             &.active {
                 background-color: var(--bg-accent-color);
