@@ -20,6 +20,8 @@ function toggleSubMenu(button){
     button.classList.toggle('rotate')
 
     if (sidebar.classList.contains('collapsed')) {
+        const toggleButton = document.getElementById('sidebar-toggle-btn');
+
         sidebar.classList.toggle('collapsed')
         document.getElementById('main-content').classList.toggle('expanded');
         toggleButton.classList.toggle('rotate')
@@ -32,3 +34,11 @@ function closeAllSubMenus(){
         ul.previousElementSibling.classList.remove('rotate')
     })
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Start with collapsed sidebar on mobile
+    if (window.innerWidth <= 768) {
+        toggleSidebar()
+    }
+});
