@@ -11,7 +11,10 @@
         {% for trace in traces %}
         <tr>
             <td class="trace-run-id">{{ trace.run_id }}</td>
-            <td>{{ trace.update_date }}</td>
+            <td>
+                <span class="crontab-cell">
+                    {{ trace.update_date }}
+                </span></td>
             <td>
                 <pre class="parameter-cell">
                 </pre>

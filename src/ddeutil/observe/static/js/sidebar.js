@@ -12,15 +12,16 @@ function toggleSidebar() {
 
 function toggleSubMenu(button){
 
-    if(!button.nextElementSibling.classList.contains('show')){
+    if (!button.nextElementSibling.classList.contains('show')) {
         closeAllSubMenus()
     }
 
     button.nextElementSibling.classList.toggle('show')
     button.classList.toggle('rotate')
 
-    if(sidebar.classList.contains('close')){
-        sidebar.classList.toggle('close')
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.toggle('collapsed')
+        document.getElementById('main-content').classList.toggle('expanded');
         toggleButton.classList.toggle('rotate')
     }
 }
