@@ -42,13 +42,9 @@
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                padding: 8px 12px;
-                border-radius: 6px;
                 background-color: var(--bg-primary);
-                cursor: pointer;
                 transition: all 0.2s;
                 border: 1px solid var(--border-color);
-                color: var(--text-primary);
 
                 &:hover {
                     background-color: var(--border-color);
@@ -142,6 +138,7 @@
 
                 & .content-article-detail {
                     display: block;
+                    opacity: 1;
                     width: 70%;
                     display: flex;
                     flex-direction: column;
@@ -258,6 +255,7 @@
 /* Detail */
 .content-article-detail {
     display: none;
+    opacity: 0;
     background-color: var(--bg-primary);
     border-radius: 8px;
     box-shadow: 0 1px 3px var(--shadow-color);
@@ -430,6 +428,67 @@
             }
         }
     }
+}
+
+
+dialog {
+    position: fixed;
+    margin: 10vh auto;
+    top: 0;
+    left: 40%;
+    width: 35vw;
+    transform: translateX(-50%);
+    z-index: 999;
+    max-height: 80vh;
+    max-width: 90vw;
+    overflow: auto;
+    border: none;
+    border-radius: 8px;
+
+    &::backdrop {
+        /*background-color: var(--bg-secondary);*/
+    }
+
+    & .dialog-wrapper {
+        padding: 20px;
+
+        & .dialog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0px 15px 15px;
+
+            & h2 {
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
+
+            & .close-btn {
+                background: transparent;
+                border: none;
+                color: var(--text-color);
+                cursor: pointer;
+                width: 32px;
+                height: 32px;
+                border-radius: 4px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                &:hover {
+                    background-color: var(--border-color);
+                }
+            }
+
+        }
+
+        & .dialog-article {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+    }
+
 }
 
 

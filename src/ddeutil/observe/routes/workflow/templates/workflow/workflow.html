@@ -3,19 +3,16 @@
 {% block title %}Workflows{% endblock %}
 {% block main_content %}
 <section class="content">
-    <!-- Content Header -->
     <header class="content-header">
         <h1>Workflows</h1>
         <div class="header-actions">
-            <button class="action-btn">
+            <button class="action-btn" onclick="showCreateDialog(true)">
                 <i class="bx bx-plus"></i>
                 <span>New Workflow</span>
             </button>
         </div>
     </header>
-    <!-- Content Section -->
     <article class="content-article" id="workflow-content-article">
-
         <header class="content-article-header">
             <h2>Workflow List</h2>
             <div class="search-container">
@@ -33,13 +30,11 @@
                 <span class="htmx-indicator"><img src="/static/img/bars.svg" alt="progress bars" /></span>
             </div>
         </header>
-
         <div class="content-article-body">
             <div class="content-article-table">
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
             <div class="content-article-detail" id="workflow-content-article-detail">
-                <!--  TODO: Use skeleton template instead and swap when close detail -->
             </div>
         </div>
     </article>
@@ -70,6 +65,35 @@
         </div>
     </article>
 </template>
+{% endblock %}
+{% block modal_keeper %}
+<dialog id="create-workflow-dialog">
+    <div class="dialog-wrapper">
+        <header class="dialog-header">
+            <h2>Create Workflow</h2>
+            <button class="close-btn"
+                    onclick="showCreateDialog(false)">
+                <i class='bx bx-x'></i>
+            </button>
+        </header>
+        <article class="dialog-article">
+            <form>
+                <div class="input-group">
+                    <input type="text">
+                </div>
+                <div class="input-group">
+                    <input type="text">
+                </div>
+                <div class="submit-btn">
+                <button type="submit" class="button">
+                    Create
+                </button>
+                </div>
+            </form>
+        </article>
+        <footer class="dialog-footer"></footer>
+    </div>
+</dialog>
 {% endblock %}
 {% block link_internal_css %}
     <link rel="stylesheet" href="/static/css/workflow-content.css"/>

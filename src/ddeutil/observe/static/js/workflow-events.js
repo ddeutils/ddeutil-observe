@@ -1,3 +1,6 @@
+const dialog = document.getElementById("create-workflow-dialog");
+const dialogWrapper = document.querySelector(".dialog-wrapper");
+
 function runWorkflow(element) {
     const workflowName = element.closest('tr').querySelector('.workflow-name').textContent;
     alert(`Triggering workflow: ${workflowName}`);
@@ -44,3 +47,8 @@ function toggleHistoryDetails(header) {
     const details = header.nextElementSibling;
     details.classList.toggle('open');
 }
+
+
+// Modal
+const showCreateDialog = (show) => show ? dialog.showModal() : dialog.close()
+dialog.addEventListener("click", (event) => !dialogWrapper.contains(event.target) && dialog.close())

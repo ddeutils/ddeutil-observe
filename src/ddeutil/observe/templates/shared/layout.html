@@ -16,6 +16,7 @@
     {% block additional_css %}{% endblock %}
 </head>
 <body data-theme="light">
+    {% block modal_keeper %}{% endblock %}
     {% set active_sidebar_js = active_sidebar_js|default('true') %}
     {% block body_content_wrapper %}
         {% include 'fragments/sidebar.html' %}
