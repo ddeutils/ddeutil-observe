@@ -177,5 +177,6 @@ observe.test*
 # Workflow files
 audits/
 logs/
+data/
 !src/ddeutil/observe/routes/log
 !src/ddeutil/observe/routes/audit

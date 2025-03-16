@@ -27,7 +27,7 @@ classifiers = [
 requires-python = ">=3.9.13"
 dependencies = [
     "ddeutil[all]>=0.4.3,<0.5.0",
-    "ddeutil-workflow==0.0.35",
+    "ddeutil-workflow==0.0.36",
     "python-dotenv==1.0.1",
     "fastapi==0.115.10",
     "uvicorn==0.34.0",
