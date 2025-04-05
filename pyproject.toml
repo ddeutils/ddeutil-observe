@@ -50,7 +50,7 @@ perf = [
 test = [
     "httpx==0.28.1",
     "aiosqlite==0.21.0",
-    "pytest-asyncio==0.25.3",
+    "pytest-asyncio==0.26.0",
 ]
 
 [project.urls]
