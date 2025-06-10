@@ -165,4 +165,4 @@
 
 ---
 
-These optimizations significantly improve your application's frontend performance, accessibility, and user experience while maintaining compatibility with your existing FastAPI backend and HTMX-driven architecture. 
+These optimizations significantly improve your application's frontend performance, accessibility, and user experience while maintaining compatibility with your existing FastAPI backend and HTMX-driven architecture.

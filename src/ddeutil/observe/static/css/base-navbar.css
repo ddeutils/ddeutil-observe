@@ -206,27 +206,27 @@
     .header {
         padding: 0 var(--spacing-lg);
     }
-    
+
     .header-actions {
         gap: var(--spacing-sm);
     }
-    
+
     .action-item {
         width: 36px;
         height: 36px;
         font-size: var(--font-size-base);
     }
-    
+
     .dropdown-trigger {
         padding: var(--spacing-xs) var(--spacing-sm);
         min-width: 60px;
     }
-    
+
     .profile-avatar {
         width: 24px;
         height: 24px;
     }
-    
+
     .dropdown-menu {
         right: -20px;
         min-width: 180px;
@@ -238,7 +238,7 @@
     .notification-badge {
         animation: none;
     }
-    
+
     .dropdown-trigger,
     .dropdown-menu,
     .action-item {
@@ -251,12 +251,12 @@
     .header {
         border-bottom-width: 2px;
     }
-    
+
     .action-item:focus,
     .dropdown-trigger:focus {
         outline-width: 3px;
     }
-    
+
     .dropdown-menu {
         border-width: 2px;
     }

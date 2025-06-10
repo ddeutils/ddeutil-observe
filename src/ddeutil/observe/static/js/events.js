@@ -26,14 +26,14 @@ class DropdownManager {
     toggleDropdown(event) {
         event.preventDefault();
         event.stopPropagation();
-        
+
         const trigger = event.currentTarget;
         const dropdown = trigger.closest('.action-dropdown');
-        
+
         if (this.activeDropdown && this.activeDropdown !== dropdown) {
             this.closeDropdown(this.activeDropdown);
         }
-        
+
         if (dropdown.classList.contains('open')) {
             this.closeDropdown(dropdown);
         } else {
@@ -45,16 +45,16 @@ class DropdownManager {
         dropdown.classList.add('open');
         const trigger = dropdown.querySelector('.dropdown-trigger');
         const menu = dropdown.querySelector('.dropdown-menu');
-        
+
         trigger.setAttribute('aria-expanded', 'true');
         menu.setAttribute('aria-hidden', 'false');
-        
+
         // Focus first menu item
         const firstItem = menu.querySelector('.dropdown-item');
         if (firstItem) {
             setTimeout(() => firstItem.focus(), 100);
         }
-        
+
         this.activeDropdown = dropdown;
     }
 
@@ -62,10 +62,10 @@ class DropdownManager {
         dropdown.classList.remove('open');
         const trigger = dropdown.querySelector('.dropdown-trigger');
         const menu = dropdown.querySelector('.dropdown-menu');
-        
+
         trigger.setAttribute('aria-expanded', 'false');
         menu.setAttribute('aria-hidden', 'true');
-        
+
         if (this.activeDropdown === dropdown) {
             this.activeDropdown = null;
         }
@@ -100,7 +100,7 @@ class NotificationManager {
     init() {
         // Simulate notification updates
         this.updateNotificationCount();
-        
+
         // Handle notification click
         const notificationBtn = document.querySelector('.notification-btn');
         if (notificationBtn) {
@@ -133,7 +133,7 @@ class ThemeManager {
     init() {
         // Apply saved theme on page load
         this.applySavedTheme();
-        
+
         // Update theme toggle icon
         this.updateThemeIcon();
     }
@@ -154,11 +154,11 @@ class ThemeManager {
     toggle() {
         const currentTheme = document.body.getAttribute('data-theme');
         const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-        
+
         document.body.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         this.updateThemeIcon();
-        
+
         // Announce theme change for screen readers
         this.announceThemeChange(newTheme);
     }
@@ -169,7 +169,7 @@ class ThemeManager {
         announcement.setAttribute('aria-atomic', 'true');
         announcement.className = 'sr-only';
         announcement.textContent = `Theme changed to ${theme} mode`;
-        
+
         document.body.appendChild(announcement);
         setTimeout(() => document.body.removeChild(announcement), 1000);
     }
@@ -225,7 +225,7 @@ document.addEventListener('keydown', function(event) {
         const menuItems = dropdownManager.activeDropdown.querySelectorAll('.dropdown-item');
         const currentFocus = document.activeElement;
         const currentIndex = Array.from(menuItems).indexOf(currentFocus);
-        
+
         switch(event.key) {
             case 'ArrowDown':
                 event.preventDefault();

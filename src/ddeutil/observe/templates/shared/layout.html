@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Observe{% endblock %}</title>
-    
+
     <!-- Resource Hints for Better Performance -->
     <link rel="preconnect" href="https://cdnjs.cloudflare.com">
     <link rel="preconnect" href="https://unpkg.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
     <link rel="dns-prefetch" href="//unpkg.com">
-    
+
     <!-- Optimized Font Loading -->
     <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
-    
+
     <link rel="preload" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"></noscript>
-    
+
     {%- block link_internal_css %}{% endblock -%}
-    
+
     <!-- Design System CSS - Load in correct order -->
     <link rel="stylesheet" href="/static/css/variables.css"/>
     <link rel="stylesheet" href="/static/css/utilities.css"/>
@@ -30,7 +30,7 @@
     <link rel="stylesheet" href="/static/css/skeleton.css"/>
     {% endblock -%}
     {% block additional_css %}{% endblock %}
-    
+
     <!-- Meta tags for SEO and PWA -->
     <meta name="description" content="Lightweight observation web application for monitoring workflows and data pipelines">
     <meta name="theme-color" content="#4f46e5">
@@ -47,7 +47,7 @@
             {% include 'fragments/footer.html' %}
         </main>
     {% endblock %}
-    
+
     <!-- Optimized Script Loading -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js" defer></script>
     <script type="text/javascript" src="/static/js/theme.js" defer></script>

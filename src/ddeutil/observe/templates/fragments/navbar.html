@@ -1,31 +1,31 @@
 <header class="header" role="banner">
     <div class="header-actions">
-        <button class="action-item" 
-                onclick="themeToggle()" 
+        <button class="action-item"
+                onclick="themeToggle()"
                 id="theme-toggle"
                 aria-label="Toggle dark/light theme"
                 title="Toggle theme">
             <i class="bx bx-sun" aria-hidden="true"></i>
         </button>
-        
-        <button class="action-item notification-btn" 
+
+        <button class="action-item notification-btn"
                 aria-label="View notifications"
                 title="Notifications">
             <i class="bx bx-bell" aria-hidden="true"></i>
             <span class="notification-badge" aria-hidden="true">3</span>
         </button>
-        
+
         <div class="action-item action-dropdown" role="menu">
-            <button class="dropdown-trigger" 
+            <button class="dropdown-trigger"
                     aria-label="User menu"
                     aria-expanded="false"
                     aria-haspopup="true">
-                <img src="/static/img/profile.svg" 
+                <img src="/static/img/profile.svg"
                      alt="User profile"
                      class="profile-avatar"/>
                 <i class="bx bx-chevron-down dropdown-arrow" aria-hidden="true"></i>
             </button>
-            
+
             <div class="dropdown-menu" role="menu" aria-hidden="true">
                 <div class="dropdown-item" role="menuitem" tabindex="0">
                     <i class="bx bx-user" aria-hidden="true"></i>
@@ -36,8 +36,8 @@
                     <span>Settings</span>
                 </div>
                 <hr class="dropdown-divider" role="separator">
-                <div class="dropdown-item logout-item" 
-                     role="menuitem" 
+                <div class="dropdown-item logout-item"
+                     role="menuitem"
                      tabindex="0"
                      hx-post="/auth/logout"
                      hx-confirm="Are you sure you want to logout?">

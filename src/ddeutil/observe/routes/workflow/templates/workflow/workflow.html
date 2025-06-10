@@ -10,13 +10,13 @@
             <p class="header-subtitle">Manage and monitor your data workflows</p>
         </div>
         <div class="header-actions">
-            <button class="action-btn btn-primary" 
+            <button class="action-btn btn-primary"
                     onclick="showCreateDialog(true)"
                     aria-label="Create new workflow">
                 <i class="bx bx-plus" aria-hidden="true"></i>
                 <span>New Workflow</span>
             </button>
-            <button class="action-btn" 
+            <button class="action-btn"
                     onclick="refreshWorkflows()"
                     aria-label="Refresh workflow list"
                     title="Refresh">
@@ -29,12 +29,12 @@
         <header class="content-article-header">
             <div class="article-title">
                 <h2 id="workflow-list-title">Workflow List</h2>
-                <span class="workflow-count" aria-live="polite">
+                <span class="workflow-count" aria-live="polite" id="workflow-count">
                     Loading workflows...
                 </span>
             </div>
             <div class="search-container">
-                <i class="bx bx-search" aria-hidden="true"></i>
+                <i class="bx bx-search search-icon" aria-hidden="true"></i>
                 <input class="form-control"
                        type="text"
                        name="search_text"
@@ -47,9 +47,16 @@
                        hx-push-url="true"
                        hx-indicator=".search-loading"
                        autocomplete="off">
-                <div class="search-loading" aria-hidden="true">
+                <div class="search-loading" aria-hidden="true" style="display: none;">
                     <div class="spinner"></div>
                 </div>
+                <button type="button"
+                        class="search-clear"
+                        aria-label="Clear search"
+                        style="display: none;"
+                        onclick="clearSearch()">
+                    <i class="bx bx-x" aria-hidden="true"></i>
+                </button>
             </div>
         </header>
 
@@ -58,8 +65,8 @@
                 <h3 id="workflow-table-title" class="sr-only">Workflow data table</h3>
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
-            
-            <div class="content-article-detail" 
+
+            <div class="content-article-detail"
                  id="workflow-content-article-detail"
                  role="complementary"
                  aria-labelledby="workflow-detail-title">
@@ -84,16 +91,16 @@
         </button>
     </header>
     <nav class="detail-tab" role="tablist">
-        <button class="tab active" 
-                data-tab="config" 
-                role="tab" 
+        <button class="tab active"
+                data-tab="config"
+                role="tab"
                 aria-selected="true"
                 aria-controls="config-tab">
             <div class="skeleton skeleton-tab-text"></div>
         </button>
-        <button class="tab" 
-                data-tab="history" 
-                role="tab" 
+        <button class="tab"
+                data-tab="history"
+                role="tab"
                 aria-selected="false"
                 aria-controls="history-tab">
             <div class="skeleton skeleton-tab-text"></div>
@@ -123,77 +130,129 @@
 {% endblock %}
 
 {% block modal_keeper %}
-<!-- Enhanced Create Dialog -->
-<dialog id="create-workflow-dialog" 
-        role="dialog" 
+<!-- Enhanced Create Workflow Dialog -->
+<dialog id="create-workflow-dialog"
+        role="dialog"
         aria-labelledby="create-dialog-title"
-        aria-describedby="create-dialog-desc">
-    <div class="dialog-wrapper">
+        aria-describedby="create-dialog-desc"
+        class="workflow-dialog">
+    <div class="dialog-backdrop" onclick="hideCreateDialog()"></div>
+    <div class="dialog-container">
         <header class="dialog-header">
-            <h2 id="create-dialog-title">Create New Workflow</h2>
-            <button class="close-btn"
-                    onclick="showCreateDialog(false)"
-                    aria-label="Close dialog">
+            <div class="dialog-title-section">
+                <div class="dialog-icon">
+                    <i class="bx bx-plus-circle" aria-hidden="true"></i>
+                </div>
+                <div class="dialog-title-text">
+                    <h2 id="create-dialog-title">Create New Workflow</h2>
+                    <p id="create-dialog-desc" class="dialog-subtitle">
+                        Set up a new workflow to automate your data processing tasks
+                    </p>
+                </div>
+            </div>
+            <button class="dialog-close-btn"
+                    onclick="hideCreateDialog()"
+                    aria-label="Close dialog"
+                    type="button">
                 <i class='bx bx-x' aria-hidden="true"></i>
             </button>
         </header>
-        
-        <article class="dialog-article">
-            <p id="create-dialog-desc" class="dialog-description">
-                Create a new workflow to automate your data processing tasks.
-            </p>
-            
-            <form class="workflow-form" onsubmit="createWorkflow(event)">
-                <div class="form-grid">
-                    <div class="input-group">
+
+        <form class="dialog-form" id="create-workflow-form" onsubmit="handleCreateWorkflow(event)">
+            <div class="form-content">
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="workflow-name" class="form-label">
-                            Workflow Name <span class="required">*</span>
+                            <i class="bx bx-rename" aria-hidden="true"></i>
+                            Workflow Name
+                            <span class="required-indicator" aria-label="required">*</span>
                         </label>
-                        <input type="text" 
+                        <input type="text"
                                id="workflow-name"
                                name="name"
-                               class="form-control"
-                               placeholder="Enter workflow name"
+                               class="form-input"
+                               placeholder="e.g., Daily Data Processing"
                                required
+                               maxlength="100"
                                aria-describedby="name-help">
-                        <small id="name-help" class="form-help">
-                            Choose a descriptive name for your workflow
+                        <small id="name-help" class="form-hint">
+                            Choose a clear, descriptive name for your workflow
                         </small>
+                        <div class="form-error" id="name-error" style="display: none;"></div>
                     </div>
-                    
-                    <div class="input-group">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="workflow-description" class="form-label">
+                            <i class="bx bx-text" aria-hidden="true"></i>
                             Description
+                            <span class="optional-indicator">(Optional)</span>
                         </label>
                         <textarea id="workflow-description"
                                   name="description"
-                                  class="form-control"
-                                  placeholder="Describe what this workflow does"
-                                  rows="3"
+                                  class="form-input form-textarea"
+                                  placeholder="Describe what this workflow does, its purpose, and any important details..."
+                                  rows="4"
+                                  maxlength="500"
                                   aria-describedby="desc-help"></textarea>
-                        <small id="desc-help" class="form-help">
-                            Optional description to help identify the workflow purpose
+                        <small id="desc-help" class="form-hint">
+                            Help your team understand the workflow's purpose
+                        </small>
+                        <div class="character-count">
+                            <span id="description-count">0</span>/500 characters
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="workflow-schedule" class="form-label">
+                            <i class="bx bx-time" aria-hidden="true"></i>
+                            Schedule Type
+                        </label>
+                        <select id="workflow-schedule"
+                                name="schedule_type"
+                                class="form-input form-select"
+                                aria-describedby="schedule-help">
+                            <option value="manual">Manual Trigger</option>
+                            <option value="cron">Scheduled (Cron)</option>
+                            <option value="event">Event-Based</option>
+                        </select>
+                        <small id="schedule-help" class="form-hint">
+                            Choose how this workflow should be triggered
                         </small>
                     </div>
                 </div>
-                
-                <div class="form-actions">
-                    <button type="button" 
-                            class="button button-secondary"
-                            onclick="showCreateDialog(false)">
+            </div>
+
+            <footer class="dialog-footer">
+                <div class="footer-actions">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            onclick="hideCreateDialog()">
+                        <i class="bx bx-x" aria-hidden="true"></i>
                         Cancel
                     </button>
-                    <button type="submit" 
-                            class="button btn-primary"
+                    <button type="submit"
+                            class="btn btn-primary"
                             id="create-submit-btn">
-                        <span class="button-text">Create Workflow</span>
-                        <div class="button-spinner" style="display: none;">
-                            <div class="spinner"></div>
-                        </div>
+                        <span class="btn-content">
+                            <i class="bx bx-plus" aria-hidden="true"></i>
+                            Create Workflow
+                        </span>
+                        <span class="btn-loading" style="display: none;">
+                            <div class="spinner spinner-sm"></div>
+                            Creating...
+                        </span>
                     </button>
                 </div>
-            </form>
-        </article>
+                <div class="footer-info">
+                    <i class="bx bx-info-circle" aria-hidden="true"></i>
+                    <span>You can configure detailed settings after creating the workflow</span>
+                </div>
+            </footer>
+        </form>
     </div>
 </dialog>
 {% endblock %}

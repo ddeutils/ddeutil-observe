@@ -2,7 +2,7 @@
  * Utility Functions
  * =================
  * Common utility functions for the Observe application.
- * 
+ *
  * @version 1.0.0
  * @author ddeutil-observe
  */
@@ -50,7 +50,7 @@ export const DOM = {
      */
     create(tag, attributes = {}, content = '') {
         const element = document.createElement(tag);
-        
+
         Object.entries(attributes).forEach(([key, value]) => {
             if (key === 'className' || key === 'class') {
                 element.className = value;
@@ -92,8 +92,8 @@ export const DOM = {
     isVisible(element) {
         if (!element) return false;
         const style = window.getComputedStyle(element);
-        return style.display !== 'none' && 
-               style.visibility !== 'hidden' && 
+        return style.display !== 'none' &&
+               style.visibility !== 'hidden' &&
                style.opacity !== '0';
     },
 
@@ -332,7 +332,7 @@ export const Obj = {
      * @returns {*} Property value
      */
     get(obj, path, defaultValue = undefined) {
-        return path.split('.').reduce((current, key) => 
+        return path.split('.').reduce((current, key) =>
             current && current[key] !== undefined ? current[key] : defaultValue, obj
         );
     },
@@ -517,7 +517,7 @@ export const Date = {
         if (isNaN(d.getTime())) return '';
 
         const pad = (num) => String(num).padStart(2, '0');
-        
+
         return format
             .replace(/YYYY/g, d.getFullYear())
             .replace(/MM/g, pad(d.getMonth() + 1))
@@ -676,10 +676,10 @@ export const CSS = {
      */
     classes(...args) {
         const result = [];
-        
+
         args.forEach(arg => {
             if (!arg) return;
-            
+
             if (typeof arg === 'string') {
                 result.push(arg);
             } else if (Array.isArray(arg)) {
@@ -690,7 +690,7 @@ export const CSS = {
                 });
             }
         });
-        
+
         return result.join(' ');
     },
 
@@ -738,4 +738,4 @@ export default {
     URL,
     Validate,
     CSS
-}; 
+};

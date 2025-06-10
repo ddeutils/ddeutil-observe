@@ -2,12 +2,12 @@
  * Application Configuration
  * =========================
  * Centralized configuration for the Observe application.
- * 
+ *
  * Usage:
  * - Import this module to access configuration values
  * - Modify values here to change application behavior
  * - Environment-specific overrides can be applied
- * 
+ *
  * @version 1.0.0
  * @author ddeutil-observe
  */
@@ -322,4 +322,4 @@ export function logConfig() {
 applyEnvironmentConfig();
 
 // Export the main configuration object as default
-export default Config; 
+export default Config;

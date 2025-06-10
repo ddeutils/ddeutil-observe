@@ -70,13 +70,13 @@ Utility-first classes for rapid development:
 ```html
 <!-- Spacing -->
 <div class="p-4 m-2 gap-3">
-  
+
 <!-- Layout -->
 <div class="flex items-center justify-between">
-  
+
 <!-- Typography -->
 <h1 class="text-2xl font-semibold text-primary">
-  
+
 <!-- Colors -->
 <div class="bg-primary text-white border border-accent">
 ```
@@ -157,13 +157,13 @@ class MyComponent {
         this.cleanup = [];
         this.init();
     }
-    
+
     init() {
         // Add event with automatic cleanup
         const cleanup = DOM.on(this.element, 'click', this.handleClick.bind(this));
         this.cleanup.push(cleanup);
     }
-    
+
     destroy() {
         // Clean up all event listeners
         this.cleanup.forEach(fn => fn());
@@ -184,22 +184,22 @@ class MyComponent {
     padding: var(--space-4);
     background-color: var(--bg-primary);
     border-radius: var(--radius-lg);
-    
+
     /* Component-specific styles */
     &__header {
         font-weight: var(--font-weight-semibold);
     }
-    
+
     &__content {
         margin-top: var(--space-3);
     }
-    
+
     /* States */
     &.is-loading {
         opacity: 0.6;
         pointer-events: none;
     }
-    
+
     /* Responsive */
     @media (max-width: 768px) {
         padding: var(--space-2);
@@ -216,36 +216,36 @@ class MyComponent {
         this.options = { ...this.defaults, ...options };
         this.state = {};
         this.cleanup = [];
-        
+
         this.init();
     }
-    
+
     get defaults() {
         return {
             autoClose: true,
             duration: getConfig('ui.animation.duration.normal', 250)
         };
     }
-    
+
     init() {
         this.bindEvents();
         this.setState({ initialized: true });
     }
-    
+
     bindEvents() {
         const cleanup = DOM.on(this.element, 'click', this.handleClick.bind(this));
         this.cleanup.push(cleanup);
     }
-    
+
     setState(newState) {
         this.state = { ...this.state, ...newState };
         this.render();
     }
-    
+
     render() {
         // Update DOM based on state
     }
-    
+
     destroy() {
         this.cleanup.forEach(fn => fn());
         this.element.remove();
@@ -281,7 +281,7 @@ Always ensure components are accessible:
 
 ```html
 <!-- Good accessibility example -->
-<button class="dropdown-trigger" 
+<button class="dropdown-trigger"
         aria-label="User menu"
         aria-expanded="false"
         aria-haspopup="true">
@@ -289,8 +289,8 @@ Always ensure components are accessible:
     <i class="bx bx-chevron-down" aria-hidden="true"></i>
 </button>
 
-<div class="dropdown-menu" 
-     role="menu" 
+<div class="dropdown-menu"
+     role="menu"
      aria-hidden="true">
     <div class="dropdown-item" role="menuitem" tabindex="0">
         Profile
@@ -509,5 +509,5 @@ For questions or issues:
 
 ---
 
-**Last Updated:** $(date +%Y-%m-%d)  
-**Version:** 1.0.0 
+**Last Updated:** $(date +%Y-%m-%d)
+**Version:** 1.0.0

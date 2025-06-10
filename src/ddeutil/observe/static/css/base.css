@@ -30,7 +30,7 @@
     --error-color: rgba(239, 68, 68, 1);
     --warning-color: rgba(245, 158, 11, 1);
     --info-color: rgba(59, 130, 246, 1);
-    
+
     /* Enhanced Spacing & Typography */
     --border-radius-sm: 4px;
     --border-radius: 6px;
@@ -52,7 +52,7 @@
     --font-weight-medium: 500;
     --font-weight-semibold: 600;
     --font-weight-bold: 700;
-    
+
     /* Animation & Transitions */
     --transition-fast: 0.15s ease;
     --transition-normal: 0.25s ease;

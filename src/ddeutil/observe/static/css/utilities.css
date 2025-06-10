@@ -2,12 +2,12 @@
  * Utility Classes
  * ===============
  * Utility-first CSS classes for rapid development and consistent styling.
- * 
+ *
  * Usage:
  * - Apply utility classes directly to HTML elements
  * - Combine utilities for complex layouts
  * - Use !important sparingly and only when necessary
- * 
+ *
  * @version 1.0.0
  * @author ddeutil-observe
  */
@@ -408,12 +408,12 @@
    ======================================== */
 .transition-none { transition: none; }
 .transition-all { transition: all var(--duration-normal) var(--ease-out); }
-.transition { transition: color var(--duration-normal) var(--ease-out), 
-                         background-color var(--duration-normal) var(--ease-out), 
-                         border-color var(--duration-normal) var(--ease-out), 
+.transition { transition: color var(--duration-normal) var(--ease-out),
+                         background-color var(--duration-normal) var(--ease-out),
+                         border-color var(--duration-normal) var(--ease-out),
                          box-shadow var(--duration-normal) var(--ease-out); }
-.transition-colors { transition: color var(--duration-normal) var(--ease-out), 
-                               background-color var(--duration-normal) var(--ease-out), 
+.transition-colors { transition: color var(--duration-normal) var(--ease-out),
+                               background-color var(--duration-normal) var(--ease-out),
                                border-color var(--duration-normal) var(--ease-out); }
 .transition-opacity { transition: opacity var(--duration-normal) var(--ease-out); }
 .transition-transform { transition: transform var(--duration-normal) var(--ease-out); }
@@ -473,4 +473,4 @@
     .lg\:flex { display: flex; }
     .lg\:hidden { display: none !important; }
     .lg\:text-xl { font-size: var(--font-size-xl); }
-} 
+}
