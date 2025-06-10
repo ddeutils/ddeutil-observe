@@ -1,103 +1,207 @@
 {% extends "shared/layout.html" %}
 {% set active_sidebar_js = 'true' %}
-{% block title %}Workflows{% endblock %}
+{% block title %}Workflows - Observe{% endblock %}
+
 {% block main_content %}
-<section class="content">
+<section class="content" role="main" aria-labelledby="workflow-title">
     <header class="content-header">
-        <h1>Workflows</h1>
+        <div class="header-title">
+            <h1 id="workflow-title">Workflows</h1>
+            <p class="header-subtitle">Manage and monitor your data workflows</p>
+        </div>
         <div class="header-actions">
-            <button class="action-btn" onclick="showCreateDialog(true)">
-                <i class="bx bx-plus"></i>
+            <button class="action-btn btn-primary" 
+                    onclick="showCreateDialog(true)"
+                    aria-label="Create new workflow">
+                <i class="bx bx-plus" aria-hidden="true"></i>
                 <span>New Workflow</span>
+            </button>
+            <button class="action-btn" 
+                    onclick="refreshWorkflows()"
+                    aria-label="Refresh workflow list"
+                    title="Refresh">
+                <i class="bx bx-refresh" aria-hidden="true"></i>
             </button>
         </div>
     </header>
-    <article class="content-article" id="workflow-content-article">
+
+    <article class="content-article" id="workflow-content-article" role="region" aria-labelledby="workflow-list-title">
         <header class="content-article-header">
-            <h2>Workflow List</h2>
+            <div class="article-title">
+                <h2 id="workflow-list-title">Workflow List</h2>
+                <span class="workflow-count" aria-live="polite">
+                    Loading workflows...
+                </span>
+            </div>
             <div class="search-container">
-                <i class="bx bx-search"></i>
+                <i class="bx bx-search" aria-hidden="true"></i>
                 <input class="form-control"
                        type="text"
                        name="search_text"
-                       placeholder="Search workflow name"
+                       placeholder="Search workflow name..."
                        value="{{ search_text }}"
+                       aria-label="Search workflows"
                        hx-get="/workflow/search/"
                        hx-trigger="keyup changed delay:750ms"
                        hx-target="#workflow-results"
                        hx-push-url="true"
-                       hx-indicator=".htmx-indicator">
-                <span class="htmx-indicator"><img src="/static/img/bars.svg" alt="progress bars" /></span>
+                       hx-indicator=".search-loading"
+                       autocomplete="off">
+                <div class="search-loading" aria-hidden="true">
+                    <div class="spinner"></div>
+                </div>
             </div>
         </header>
+
         <div class="content-article-body">
-            <div class="content-article-table">
+            <div class="content-article-table" role="region" aria-labelledby="workflow-table-title">
+                <h3 id="workflow-table-title" class="sr-only">Workflow data table</h3>
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
-            <div class="content-article-detail" id="workflow-content-article-detail">
+            
+            <div class="content-article-detail" 
+                 id="workflow-content-article-detail"
+                 role="complementary"
+                 aria-labelledby="workflow-detail-title">
+                <div class="detail-placeholder">
+                    <i class="bx bx-info-circle placeholder-icon" aria-hidden="true"></i>
+                    <h3>Select a workflow</h3>
+                    <p>Choose a workflow from the list to view details, configuration, and execution history.</p>
+                </div>
             </div>
         </div>
     </article>
 </section>
+
+<!-- Enhanced Skeleton Template -->
 <template id="workflow-detail-skeleton">
-    <header>
-        <div class="detail-header">
-            <div class="skeleton skeleton-header"></div>
-            <button class="close-btn"
-                    onclick="hideDetail()">
-                <i class='bx bx-x'></i>
-            </button>
-        </div>
-        <nav class="detail-tab">
-            <ul class="skeleton skeleton-tab tab active" data-tab="config"></ul>
-            <ul class="skeleton skeleton-tab tab" data-tab="history"></ul>
-        </nav>
+    <header class="detail-header">
+        <div class="skeleton skeleton-header"></div>
+        <button class="close-btn"
+                onclick="hideDetail()"
+                aria-label="Close workflow details">
+            <i class='bx bx-x' aria-hidden="true"></i>
+        </button>
     </header>
-    <article class="tab-content active">
+    <nav class="detail-tab" role="tablist">
+        <button class="tab active" 
+                data-tab="config" 
+                role="tab" 
+                aria-selected="true"
+                aria-controls="config-tab">
+            <div class="skeleton skeleton-tab-text"></div>
+        </button>
+        <button class="tab" 
+                data-tab="history" 
+                role="tab" 
+                aria-selected="false"
+                aria-controls="history-tab">
+            <div class="skeleton skeleton-tab-text"></div>
+        </button>
+    </nav>
+    <article class="tab-content active" id="config-tab" role="tabpanel">
         <div class="config-section">
-            <div class="skeleton-border">
-                <div class="skeleton skeleton-text"></div>
+            <div class="skeleton-content">
                 <div class="skeleton skeleton-text"></div>
                 <div class="skeleton skeleton-text"></div>
                 <div class="skeleton skeleton-text skeleton-75"></div>
-                <div class="skeleton skeleton-img"></div>
+                <div class="skeleton skeleton-code"></div>
             </div>
         </div>
     </article>
 </template>
+
+<!-- Loading States -->
+<div class="global-loader" aria-hidden="true" style="display: none;">
+    <div class="loader-backdrop">
+        <div class="loader-content">
+            <div class="spinner"></div>
+            <span>Loading...</span>
+        </div>
+    </div>
+</div>
 {% endblock %}
+
 {% block modal_keeper %}
-<dialog id="create-workflow-dialog">
+<!-- Enhanced Create Dialog -->
+<dialog id="create-workflow-dialog" 
+        role="dialog" 
+        aria-labelledby="create-dialog-title"
+        aria-describedby="create-dialog-desc">
     <div class="dialog-wrapper">
         <header class="dialog-header">
-            <h2>Create Workflow</h2>
+            <h2 id="create-dialog-title">Create New Workflow</h2>
             <button class="close-btn"
-                    onclick="showCreateDialog(false)">
-                <i class='bx bx-x'></i>
+                    onclick="showCreateDialog(false)"
+                    aria-label="Close dialog">
+                <i class='bx bx-x' aria-hidden="true"></i>
             </button>
         </header>
+        
         <article class="dialog-article">
-            <form>
-                <div class="input-group">
-                    <input type="text">
+            <p id="create-dialog-desc" class="dialog-description">
+                Create a new workflow to automate your data processing tasks.
+            </p>
+            
+            <form class="workflow-form" onsubmit="createWorkflow(event)">
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label for="workflow-name" class="form-label">
+                            Workflow Name <span class="required">*</span>
+                        </label>
+                        <input type="text" 
+                               id="workflow-name"
+                               name="name"
+                               class="form-control"
+                               placeholder="Enter workflow name"
+                               required
+                               aria-describedby="name-help">
+                        <small id="name-help" class="form-help">
+                            Choose a descriptive name for your workflow
+                        </small>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="workflow-description" class="form-label">
+                            Description
+                        </label>
+                        <textarea id="workflow-description"
+                                  name="description"
+                                  class="form-control"
+                                  placeholder="Describe what this workflow does"
+                                  rows="3"
+                                  aria-describedby="desc-help"></textarea>
+                        <small id="desc-help" class="form-help">
+                            Optional description to help identify the workflow purpose
+                        </small>
+                    </div>
                 </div>
-                <div class="input-group">
-                    <input type="text">
-                </div>
-                <div class="submit-btn">
-                <button type="submit" class="button">
-                    Create
-                </button>
+                
+                <div class="form-actions">
+                    <button type="button" 
+                            class="button button-secondary"
+                            onclick="showCreateDialog(false)">
+                        Cancel
+                    </button>
+                    <button type="submit" 
+                            class="button btn-primary"
+                            id="create-submit-btn">
+                        <span class="button-text">Create Workflow</span>
+                        <div class="button-spinner" style="display: none;">
+                            <div class="spinner"></div>
+                        </div>
+                    </button>
                 </div>
             </form>
         </article>
-        <footer class="dialog-footer"></footer>
     </div>
 </dialog>
 {% endblock %}
+
 {% block link_internal_css %}
     <link rel="stylesheet" href="/static/css/workflow-content.css"/>
 {% endblock %}
+
 {% block additional_js %}
-    <script type="text/javascript" src="/static/js/workflow-events.js"></script>
+    <script type="text/javascript" src="/static/js/workflow-events.js" defer></script>
 {% endblock %}

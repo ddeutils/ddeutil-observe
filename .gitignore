@@ -171,6 +171,9 @@ observe.db-wal
 observe.db-journal
 observe.test*
 
+# Cursor IDE
+.cursor/
+
 # Assets
 *.bkp
 

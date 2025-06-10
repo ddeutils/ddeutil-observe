@@ -4,8 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Observe{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+    
+    <!-- Resource Hints for Better Performance -->
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
+    <link rel="dns-prefetch" href="//unpkg.com">
+    
+    <!-- Optimized Font Loading -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
+    
+    <link rel="preload" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"></noscript>
+    
     {%- block link_internal_css %}{% endblock -%}
     <link rel="stylesheet" href="/static/css/base.css"/>
     {%- block main_css %}
@@ -14,6 +26,11 @@
     <link rel="stylesheet" href="/static/css/skeleton.css"/>
     {% endblock -%}
     {% block additional_css %}{% endblock %}
+    
+    <!-- Meta tags for SEO and PWA -->
+    <meta name="description" content="Lightweight observation web application for monitoring workflows and data pipelines">
+    <meta name="theme-color" content="#4f46e5">
+    <link rel="icon" type="image/svg+xml" href="/static/img/favicon.svg">
 </head>
 <body data-theme="light">
     {% block modal_keeper %}{% endblock %}
@@ -26,12 +43,14 @@
             {% include 'fragments/footer.html' %}
         </main>
     {% endblock %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"></script>
-    <script type="text/javascript" src="/static/js/theme.js"></script>
-    <script type="text/javascript" src="/static/js/events.js"></script>
+    
+    <!-- Optimized Script Loading -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js" defer></script>
+    <script type="text/javascript" src="/static/js/theme.js" defer></script>
+    <script type="text/javascript" src="/static/js/events.js" defer></script>
     {%- block additional_js %}{% endblock -%}
     {%- if active_sidebar_js == 'true' %}
-    <script type="text/javascript" src="/static/js/sidebar.js"></script>
+    <script type="text/javascript" src="/static/js/sidebar.js" defer></script>
     {% endif -%}
 </body>
 </html>
