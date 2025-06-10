@@ -1,0 +1,304 @@
+/**
+ * Design System Variables
+ * ======================
+ * Centralized design tokens for consistent theming and easy maintenance.
+ * 
+ * Usage:
+ * - Import this file first in your main CSS
+ * - Use var(--token-name) to reference variables
+ * - Modify values here to change the entire design system
+ * 
+ * @version 1.0.0
+ * @author ddeutil-observe
+ */
+
+:root {
+    /* ========================================
+       CORE COLORS - Light Theme
+       ======================================== */
+    --color-white: rgba(255, 255, 255, 1);
+    --color-black: rgba(0, 0, 0, 1);
+    --color-transparent: transparent;
+    
+    /* Background Colors */
+    --bg-primary: rgba(255, 255, 255, 1);
+    --bg-secondary: rgba(249, 250, 251, 1);
+    --bg-tertiary: rgba(243, 244, 246, 1);
+    --bg-accent: rgba(79, 70, 229, 0.1);
+    --bg-overlay: rgba(0, 0, 0, 0.5);
+    
+    /* Text Colors */
+    --text-primary: rgba(17, 24, 39, 1);
+    --text-secondary: rgba(75, 85, 99, 1);
+    --text-tertiary: rgba(156, 163, 175, 1);
+    --text-inverse: rgba(255, 255, 255, 1);
+    --text-muted: rgba(107, 114, 128, 1);
+    
+    /* Border Colors */
+    --border-primary: rgba(229, 231, 235, 1);
+    --border-secondary: rgba(209, 213, 219, 1);
+    --border-accent: rgba(79, 70, 229, 1);
+    --border-focus: rgba(79, 70, 229, 0.5);
+    
+    /* ========================================
+       SEMANTIC COLORS
+       ======================================== */
+    --color-primary: rgba(79, 70, 229, 1);
+    --color-primary-hover: rgba(67, 56, 202, 1);
+    --color-primary-light: rgba(99, 102, 241, 0.1);
+    
+    --color-success: rgba(34, 197, 94, 1);
+    --color-success-hover: rgba(22, 163, 74, 1);
+    --color-success-light: rgba(34, 197, 94, 0.1);
+    
+    --color-error: rgba(239, 68, 68, 1);
+    --color-error-hover: rgba(220, 38, 38, 1);
+    --color-error-light: rgba(239, 68, 68, 0.1);
+    
+    --color-warning: rgba(245, 158, 11, 1);
+    --color-warning-hover: rgba(217, 119, 6, 1);
+    --color-warning-light: rgba(245, 158, 11, 0.1);
+    
+    --color-info: rgba(59, 130, 246, 1);
+    --color-info-hover: rgba(37, 99, 235, 1);
+    --color-info-light: rgba(59, 130, 246, 0.1);
+    
+    /* ========================================
+       TYPOGRAPHY SYSTEM
+       ======================================== */
+    --font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --font-family-mono: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+    
+    /* Font Sizes */
+    --font-size-xs: 0.75rem;      /* 12px */
+    --font-size-sm: 0.875rem;     /* 14px */
+    --font-size-base: 1rem;       /* 16px */
+    --font-size-lg: 1.125rem;     /* 18px */
+    --font-size-xl: 1.25rem;      /* 20px */
+    --font-size-2xl: 1.5rem;      /* 24px */
+    --font-size-3xl: 1.875rem;    /* 30px */
+    --font-size-4xl: 2.25rem;     /* 36px */
+    
+    /* Font Weights */
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+    
+    /* Line Heights */
+    --line-height-tight: 1.25;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.625;
+    --line-height-loose: 2;
+    
+    /* ========================================
+       SPACING SYSTEM (8px base)
+       ======================================== */
+    --space-0: 0;
+    --space-px: 1px;
+    --space-0-5: 0.125rem;  /* 2px */
+    --space-1: 0.25rem;     /* 4px */
+    --space-1-5: 0.375rem;  /* 6px */
+    --space-2: 0.5rem;      /* 8px */
+    --space-2-5: 0.625rem;  /* 10px */
+    --space-3: 0.75rem;     /* 12px */
+    --space-3-5: 0.875rem;  /* 14px */
+    --space-4: 1rem;        /* 16px */
+    --space-5: 1.25rem;     /* 20px */
+    --space-6: 1.5rem;      /* 24px */
+    --space-7: 1.75rem;     /* 28px */
+    --space-8: 2rem;        /* 32px */
+    --space-9: 2.25rem;     /* 36px */
+    --space-10: 2.5rem;     /* 40px */
+    --space-12: 3rem;       /* 48px */
+    --space-14: 3.5rem;     /* 56px */
+    --space-16: 4rem;       /* 64px */
+    --space-20: 5rem;       /* 80px */
+    --space-24: 6rem;       /* 96px */
+    --space-32: 8rem;       /* 128px */
+    
+    /* ========================================
+       BORDER RADIUS SYSTEM
+       ======================================== */
+    --radius-none: 0;
+    --radius-sm: 0.125rem;   /* 2px */
+    --radius-base: 0.25rem;  /* 4px */
+    --radius-md: 0.375rem;   /* 6px */
+    --radius-lg: 0.5rem;     /* 8px */
+    --radius-xl: 0.75rem;    /* 12px */
+    --radius-2xl: 1rem;      /* 16px */
+    --radius-3xl: 1.5rem;    /* 24px */
+    --radius-full: 9999px;
+    
+    /* ========================================
+       SHADOW SYSTEM
+       ======================================== */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+    
+    /* ========================================
+       ANIMATION & TRANSITIONS
+       ======================================== */
+    --duration-instant: 0ms;
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+    --duration-slow: 350ms;
+    --duration-slower: 500ms;
+    
+    --ease-linear: linear;
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* ========================================
+       LAYOUT DIMENSIONS
+       ======================================== */
+    --sidebar-width: 220px;
+    --sidebar-collapsed-width: 60px;
+    --header-height: 60px;
+    --footer-height: 40px;
+    --max-content-width: 1200px;
+    
+    /* ========================================
+       Z-INDEX SCALE
+       ======================================== */
+    --z-dropdown: 100;
+    --z-sticky: 200;
+    --z-fixed: 300;
+    --z-modal-backdrop: 400;
+    --z-modal: 500;
+    --z-popover: 600;
+    --z-tooltip: 700;
+    --z-toast: 800;
+    --z-loading: 900;
+    --z-debug: 1000;
+}
+
+/* ========================================
+   DARK THEME OVERRIDES
+   ======================================== */
+[data-theme="dark"] {
+    /* Background Colors */
+    --bg-primary: rgba(24, 24, 27, 1);
+    --bg-secondary: rgba(39, 39, 42, 1);
+    --bg-tertiary: rgba(52, 52, 56, 1);
+    --bg-accent: rgba(99, 102, 241, 0.15);
+    --bg-overlay: rgba(0, 0, 0, 0.8);
+    
+    /* Text Colors */
+    --text-primary: rgba(244, 244, 245, 1);
+    --text-secondary: rgba(212, 212, 216, 1);
+    --text-tertiary: rgba(161, 161, 170, 1);
+    --text-inverse: rgba(24, 24, 27, 1);
+    --text-muted: rgba(113, 113, 122, 1);
+    
+    /* Border Colors */
+    --border-primary: rgba(63, 63, 70, 1);
+    --border-secondary: rgba(82, 82, 91, 1);
+    --border-accent: rgba(99, 102, 241, 1);
+    --border-focus: rgba(99, 102, 241, 0.5);
+    
+    /* Semantic Colors - Adjusted for dark theme */
+    --color-primary: rgba(99, 102, 241, 1);
+    --color-primary-hover: rgba(129, 140, 248, 1);
+    --color-primary-light: rgba(99, 102, 241, 0.2);
+    
+    --color-success: rgba(34, 197, 94, 1);
+    --color-success-hover: rgba(74, 222, 128, 1);
+    --color-success-light: rgba(34, 197, 94, 0.2);
+    
+    --color-error: rgba(248, 113, 113, 1);
+    --color-error-hover: rgba(252, 165, 165, 1);
+    --color-error-light: rgba(248, 113, 113, 0.2);
+    
+    --color-warning: rgba(251, 191, 36, 1);
+    --color-warning-hover: rgba(252, 211, 77, 1);
+    --color-warning-light: rgba(251, 191, 36, 0.2);
+    
+    --color-info: rgba(96, 165, 250, 1);
+    --color-info-hover: rgba(147, 197, 253, 1);
+    --color-info-light: rgba(96, 165, 250, 0.2);
+    
+    /* Enhanced shadows for dark theme */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+    --shadow-base: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+    --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   ACCESSIBILITY OVERRIDES
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --duration-fast: 0ms;
+        --duration-normal: 0ms;
+        --duration-slow: 0ms;
+        --duration-slower: 0ms;
+    }
+}
+
+@media (prefers-contrast: high) {
+    :root {
+        --border-primary: rgba(0, 0, 0, 1);
+        --border-secondary: rgba(0, 0, 0, 1);
+    }
+    
+    [data-theme="dark"] {
+        --border-primary: rgba(255, 255, 255, 1);
+        --border-secondary: rgba(255, 255, 255, 1);
+    }
+}
+
+/* ========================================
+   LEGACY COMPATIBILITY
+   Note: These will be deprecated in v2.0
+   ======================================== */
+:root {
+    /* Legacy names for backward compatibility */
+    --bg-color: var(--bg-primary);
+    --text-color: var(--text-primary);
+    --border-color: var(--border-primary);
+    --accent-color: var(--color-primary);
+    --accent-hover: var(--color-primary-hover);
+    --success-color: var(--color-success);
+    --error-color: var(--color-error);
+    --warning-color: var(--color-warning);
+    --info-color: var(--color-info);
+    
+    /* Legacy spacing */
+    --spacing-xs: var(--space-1);
+    --spacing-sm: var(--space-2);
+    --spacing-md: var(--space-3);
+    --spacing-lg: var(--space-4);
+    --spacing-xl: var(--space-5);
+    --spacing-2xl: var(--space-6);
+    
+    /* Legacy transitions */
+    --transition-fast: var(--duration-fast) var(--ease-out);
+    --transition-normal: var(--duration-normal) var(--ease-out);
+    --transition-slow: var(--duration-slow) var(--ease-out);
+    
+    /* Legacy border radius */
+    --border-radius-sm: var(--radius-sm);
+    --border-radius: var(--radius-md);
+    --border-radius-lg: var(--radius-lg);
+    --border-radius-xl: var(--radius-xl);
+    
+    /* Legacy shadows */
+    --shadow-color: rgba(15, 15, 15, 0.05);
+    --shadow: var(--shadow-sm);
+    --shadow-lg: var(--shadow-md);
+} 

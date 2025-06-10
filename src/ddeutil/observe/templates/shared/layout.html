@@ -19,6 +19,10 @@
     <noscript><link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"></noscript>
     
     {%- block link_internal_css %}{% endblock -%}
+    
+    <!-- Design System CSS - Load in correct order -->
+    <link rel="stylesheet" href="/static/css/variables.css"/>
+    <link rel="stylesheet" href="/static/css/utilities.css"/>
     <link rel="stylesheet" href="/static/css/base.css"/>
     {%- block main_css %}
     <link rel="stylesheet" href="/static/css/base-sidebar.css"/>
