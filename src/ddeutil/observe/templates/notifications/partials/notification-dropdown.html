@@ -1,0 +1,165 @@
+<div class="notification-dropdown-content">
+    <!-- Dropdown Header -->
+    <div class="notification-header">
+        <div class="notification-title">
+            <i class="bx bx-bell" aria-hidden="true"></i>
+            <span>Notifications</span>
+            {% if metadata.unread_count > 0 %}
+            <span class="unread-badge">{{ metadata.unread_count }}</span>
+            {% endif %}
+        </div>
+        {% if notifications %}
+        <div class="notification-actions">
+            <button class="action-btn mark-all-read"
+                    hx-post="/notifications/mark-all-read"
+                    hx-target="#notification-dropdown-content"
+                    hx-trigger="click"
+                    title="Mark all as read">
+                <i class="bx bx-check-double" aria-hidden="true"></i>
+            </button>
+            <a href="/notifications" class="action-btn" title="View all notifications">
+                <i class="bx bx-external-link" aria-hidden="true"></i>
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Notifications List -->
+    <div class="notification-list">
+        {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item {{ 'unread' if not notification.is_read else 'read' }} {{ notification.priority }}"
+                 data-notification-id="{{ notification.id }}">
+
+                <!-- Notification Icon -->
+                <div class="notification-icon {{ notification.color }}">
+                    <i class="bx {{ notification.icon }}" aria-hidden="true"></i>
+                </div>
+
+                <!-- Notification Content -->
+                <div class="notification-content">
+                    <div class="notification-main">
+                        <h4 class="notification-title-text">{{ notification.title }}</h4>
+                        <p class="notification-message">{{ notification.message }}</p>
+                        {% if notification.workflow_name %}
+                        <div class="notification-workflow">
+                            <i class="bx bx-run" aria-hidden="true"></i>
+                            <span>{{ notification.workflow_name }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="notification-meta">
+                        <span class="notification-time" title="{{ notification.timestamp.isoformat() }}">
+                            {{ notification.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                        </span>
+                        <div class="notification-priority {{ notification.priority }}">
+                            {% if notification.priority == 'high' %}
+                                <i class="bx bx-error" aria-hidden="true"></i>
+                            {% elif notification.priority == 'medium' %}
+                                <i class="bx bx-info-circle" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="bx bx-check-circle" aria-hidden="true"></i>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Actions -->
+                <div class="notification-item-actions">
+                    {% if not notification.is_read %}
+                    <button class="item-action read"
+                            hx-post="/notifications/{{ notification.id }}/mark-read"
+                            hx-target="#notification-dropdown-content"
+                            hx-trigger="click"
+                            title="Mark as read">
+                        <i class="bx bx-check" aria-hidden="true"></i>
+                    </button>
+                    {% else %}
+                    <button class="item-action unread"
+                            hx-post="/notifications/{{ notification.id }}/mark-unread"
+                            hx-target="#notification-dropdown-content"
+                            hx-trigger="click"
+                            title="Mark as unread">
+                        <i class="bx bx-undo" aria-hidden="true"></i>
+                    </button>
+                    {% endif %}
+
+                    <button class="item-action delete"
+                            hx-delete="/notifications/{{ notification.id }}"
+                            hx-target="#notification-dropdown-content"
+                            hx-trigger="click"
+                            hx-confirm="Are you sure you want to delete this notification?"
+                            title="Delete notification">
+                        <i class="bx bx-trash" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="notification-empty">
+                <div class="empty-icon">
+                    <i class="bx bx-bell-off" aria-hidden="true"></i>
+                </div>
+                <h4>No notifications</h4>
+                <p>You're all caught up! Check back later for updates.</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Dropdown Footer -->
+    {% if notifications %}
+    <div class="notification-footer">
+        <a href="/notifications" class="view-all-link">
+            <span>View All Notifications</span>
+            <i class="bx bx-chevron-right" aria-hidden="true"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Time formatting script -->
+<script>
+// Simple time formatting function to show "time ago"
+function formatTimeAgo(timestamp) {
+    const now = new Date();
+    const time = new Date(timestamp);
+    const diff = now - time;
+
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 7) {
+        // Show actual date if more than a week old
+        return time.toLocaleDateString();
+    } else if (days > 0) {
+        return `${days} day${days === 1 ? '' : 's'} ago`;
+    } else if (hours > 0) {
+        return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    } else if (minutes > 0) {
+        return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    } else {
+        return 'Just now';
+    }
+}
+
+// Update time displays on load
+document.addEventListener('DOMContentLoaded', function() {
+    updateTimeDisplays();
+});
+
+// Function to update time displays
+function updateTimeDisplays() {
+    document.querySelectorAll('.notification-time').forEach(el => {
+        const timestamp = el.getAttribute('title');
+        if (timestamp) {
+            el.textContent = formatTimeAgo(timestamp);
+        }
+    });
+}
+
+// Update times every minute for better accuracy
+setInterval(updateTimeDisplays, 60000);
+</script>

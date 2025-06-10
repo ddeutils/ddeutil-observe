@@ -91,36 +91,152 @@ class DropdownManager {
     }
 }
 
-// Notification Manager
+// Enhanced Notification Manager
 class NotificationManager {
     constructor() {
+        this.isDropdownOpen = false;
+        this.badge = document.getElementById('notification-count');
         this.init();
     }
 
     init() {
-        // Simulate notification updates
-        this.updateNotificationCount();
+        this.loadUnreadCount();
+        this.setupEventListeners();
 
-        // Handle notification click
-        const notificationBtn = document.querySelector('.notification-btn');
-        if (notificationBtn) {
-            notificationBtn.addEventListener('click', () => this.showNotifications());
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            if (!this.isDropdownOpen) {
+                this.loadUnreadCount();
+            }
+        }, 30000);
+    }
+
+    setupEventListeners() {
+        // Listen for HTMX events to refresh count
+        document.addEventListener('htmx:afterRequest', (event) => {
+            if (event.detail.xhr.responseURL?.includes('/notifications/')) {
+                this.loadUnreadCount();
+            }
+        });
+
+        // Handle notification dropdown close events
+        document.addEventListener('click', (event) => {
+            const dropdown = document.querySelector('.notification-dropdown');
+            if (dropdown && !dropdown.contains(event.target) && this.isDropdownOpen) {
+                this.closeDropdown();
+            }
+        });
+    }
+
+    async loadUnreadCount() {
+        try {
+            const response = await fetch('/notifications/count?user_id=observe');
+            const data = await response.json();
+            this.updateBadge(data.unread_count);
+        } catch (error) {
+            console.error('Failed to load notification count:', error);
+            // Fallback to mock data if API fails
+            this.updateBadge(4);
         }
     }
 
-    updateNotificationCount(count = 3) {
-        const badge = document.querySelector('.notification-badge');
-        if (badge) {
-            badge.textContent = count;
-            badge.style.display = count > 0 ? 'flex' : 'none';
+    updateBadge(count) {
+        if (this.badge) {
+            this.badge.textContent = count;
+            this.badge.classList.toggle('has-notifications', count > 0);
+
+            // Update accessibility
+            const button = this.badge.closest('.notification-btn');
+            if (button) {
+                const label = count > 0
+                    ? `View ${count} notification${count === 1 ? '' : 's'}`
+                    : 'No new notifications';
+                button.setAttribute('aria-label', label);
+            }
         }
     }
 
-    showNotifications() {
-        // This would typically show a notification panel
-        console.log('Show notifications panel');
-        // For now, just hide the badge
-        this.updateNotificationCount(0);
+    toggleDropdown(button) {
+        const dropdown = button.closest('.notification-dropdown');
+        const menu = dropdown?.querySelector('.notification-menu');
+
+        if (!menu) return;
+
+        this.isDropdownOpen = !this.isDropdownOpen;
+
+        menu.setAttribute('aria-hidden', (!this.isDropdownOpen).toString());
+        button.setAttribute('aria-expanded', this.isDropdownOpen.toString());
+
+        if (this.isDropdownOpen) {
+            dropdown.classList.add('open');
+
+            // Close other dropdowns
+            document.querySelectorAll('.action-dropdown.open').forEach(dd => {
+                if (dd !== dropdown) {
+                    dd.classList.remove('open');
+                }
+            });
+
+            // Close on escape key
+            const handleEscape = (event) => {
+                if (event.key === 'Escape') {
+                    this.closeDropdown();
+                    document.removeEventListener('keydown', handleEscape);
+                }
+            };
+            document.addEventListener('keydown', handleEscape);
+
+        } else {
+            dropdown.classList.remove('open');
+        }
+    }
+
+    closeDropdown() {
+        const dropdown = document.querySelector('.notification-dropdown');
+        const button = dropdown?.querySelector('.notification-btn');
+        const menu = dropdown?.querySelector('.notification-menu');
+
+        if (dropdown && button && menu) {
+            this.isDropdownOpen = false;
+            dropdown.classList.remove('open');
+            menu.setAttribute('aria-hidden', 'true');
+            button.setAttribute('aria-expanded', 'false');
+        }
+    }
+
+    // Method to add new notification (for real-time updates)
+    addNotification(notification) {
+        console.log('New notification received:', notification);
+        this.loadUnreadCount();
+
+        // Show brief notification toast if needed
+        this.showToast(notification);
+    }
+
+    showToast(notification) {
+        // Create a brief toast notification for new alerts
+        const toast = document.createElement('div');
+        toast.className = 'notification-toast';
+        toast.innerHTML = `
+            <div class="toast-icon ${notification.color}">
+                <i class="bx ${notification.icon}"></i>
+            </div>
+            <div class="toast-content">
+                <strong>${notification.title}</strong>
+                <p>${notification.message}</p>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+
+        // Animate in
+        setTimeout(() => toast.classList.add('show'), 100);
+
+        // Remove after 5 seconds
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => document.body.removeChild(toast), 300);
+        }, 5000);
     }
 }
 
@@ -209,6 +325,7 @@ const loadingManager = new LoadingManager();
 
 // Global functions for backward compatibility
 window.themeToggle = () => themeManager.toggle();
+window.toggleNotificationDropdown = (button) => notificationManager.toggleDropdown(button);
 
 // Enhanced HTMX integration
 document.addEventListener('htmx:beforeRequest', function(event) {

@@ -8,12 +8,30 @@
             <i class="bx bx-sun" aria-hidden="true"></i>
         </button>
 
-        <button class="action-item notification-btn"
-                aria-label="View notifications"
-                title="Notifications">
-            <i class="bx bx-bell" aria-hidden="true"></i>
-            <span class="notification-badge" aria-hidden="true">3</span>
-        </button>
+        <div class="action-item action-dropdown notification-dropdown" role="menu">
+            <button class="notification-btn dropdown-trigger"
+                    aria-label="View notifications"
+                    aria-expanded="false"
+                    aria-haspopup="true"
+                    title="Notifications"
+                    hx-get="/notifications/dropdown"
+                    hx-target="#notification-dropdown-content"
+                    hx-trigger="click"
+                    onclick="toggleNotificationDropdown(this)">
+                <i class="bx bx-bell" aria-hidden="true"></i>
+                <span class="notification-badge" aria-hidden="true" id="notification-count">0</span>
+            </button>
+
+            <div class="dropdown-menu notification-menu" role="menu" aria-hidden="true">
+                <div id="notification-dropdown-content">
+                    <!-- Content will be loaded by HTMX -->
+                    <div class="notification-loading">
+                        <div class="spinner"></div>
+                        <span>Loading notifications...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="action-item action-dropdown" role="menu">
             <button class="dropdown-trigger"
