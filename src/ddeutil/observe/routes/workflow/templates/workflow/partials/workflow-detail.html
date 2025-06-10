@@ -6,15 +6,36 @@
             <i class='bx bx-x'></i>
         </button>
     </div>
-    <nav class="detail-tab">
-        <ul class="tab active" data-tab="config">Configuration</ul>
-        <ul class="tab" data-tab="history">Logs</ul>
+    <nav class="detail-tab" role="tablist" aria-label="Workflow details">
+        <button class="tab active"
+                data-tab="config"
+                role="tab"
+                aria-selected="true"
+                aria-controls="config-tab"
+                id="config-tab-button">
+            <i class="bx bx-cog" aria-hidden="true"></i>
+            Configuration
+        </button>
+        <button class="tab"
+                data-tab="history"
+                role="tab"
+                aria-selected="false"
+                aria-controls="history-tab"
+                id="history-tab-button">
+            <i class="bx bx-history" aria-hidden="true"></i>
+            Logs
+        </button>
     </nav>
 </header>
-<article class="tab-content active" id="config-tab">
+<article class="tab-content active"
+         id="config-tab"
+         role="tabpanel"
+         aria-labelledby="config-tab-button"
+         aria-hidden="false">
     <div class="config-section">
         <div class="yaml-section">
-            <pre>{{ workflow.name }}:
+            <h3 class="sr-only">Workflow Configuration</h3>
+            <pre aria-label="Workflow configuration YAML">{{ workflow.name }}:
   type: Workflow
   jobs:
     first-job:
@@ -41,7 +62,11 @@
             </div>
         </div>
 </article>
-<article class="tab-content" id="history-tab">
+<article class="tab-content"
+         id="history-tab"
+         role="tabpanel"
+         aria-labelledby="history-tab-button"
+         aria-hidden="true">
     <div class="history-section">
 
         <article class="history">

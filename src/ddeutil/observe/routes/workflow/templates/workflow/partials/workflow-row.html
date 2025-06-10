@@ -9,30 +9,51 @@
     </thead>
     <tbody>
         {% for workflow in workflows %}
-        <tr>
-            <td class="workflow-name">{{ workflow.name }}</td>
-            <td>
+        <tr data-workflow-name="{{ workflow.name }}" class="workflow-row">
+            <td class="workflow-name-cell">
+                <button class="workflow-name-btn"
+                        data-workflow-name="{{ workflow.name }}"
+                        onclick="showDetail(this)"
+                        hx-get="/workflow/detail/{{ workflow.name }}"
+                        hx-trigger="click"
+                        hx-swap="innerHTML transition:true"
+                        hx-target="#workflow-content-article-detail"
+                        hx-push-url="false"
+                        hx-indicator=".detail-loading"
+                        title="View {{ workflow.name }} details">
+                    <i class="bx bx-file-blank workflow-icon" aria-hidden="true"></i>
+                    <span class="workflow-name">{{ workflow.name }}</span>
+                    <i class="bx bx-chevron-right detail-arrow" aria-hidden="true"></i>
+                </button>
+            </td>
+            <td class="cronjob-cell">
                 {% for n in workflow.on %}
                 <span class="crontab-cell">{{ n.cronjob }}</span>
                 {% endfor %}
             </td>
-            <td>
+            <td class="params-cell">
                 <pre class="parameter-cell">
                     {{- workflow.dump_params() -}}
                 </pre>
             </td>
             <td class="action-cell">
-                <button class="btn"
+                <button class="btn action-btn"
                         onclick="showDetail(this)"
                         hx-get="/workflow/detail/{{ workflow.name }}"
-                        hx-trigger="click delay:1000ms"
+                        hx-trigger="click"
                         hx-swap="innerHTML transition:true"
                         hx-target="#workflow-content-article-detail"
-                        hx-push-url="false">
+                        hx-push-url="false"
+                        hx-indicator=".detail-loading"
+                        title="View details"
+                        aria-label="View {{ workflow.name }} details">
                     <i class='bx bx-info-circle'></i>
                 </button>
-                <button class="btn btn-primary" onclick="runWorkflow(this)">
-                    <i class='bx bx-rocket' ></i>
+                <button class="btn btn-primary action-btn"
+                        onclick="runWorkflow(this)"
+                        title="Run workflow"
+                        aria-label="Run {{ workflow.name }}">
+                    <i class='bx bx-rocket'></i>
                 </button>
             </td>
         </tr>

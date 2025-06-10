@@ -249,25 +249,100 @@ function runWorkflow(element) {
 }
 
 function showDetail(element) {
-    const detail = document.getElementById("workflow-content-article-detail");
-    const detailTemplate = document.getElementById("workflow-detail-skeleton");
+    const workflowName = element.getAttribute('data-workflow-name') ||
+                        element.closest('tr')?.getAttribute('data-workflow-name');
 
-    if (detail && detailTemplate) {
-        detail.innerHTML = "";
-        detail.appendChild(detailTemplate.content.cloneNode(true));
+    if (!workflowName) {
+        console.error('No workflow name found');
+        return;
+    }
 
-        document.getElementById('workflow-content-article')?.classList.add('with-detail');
-        document.getElementById('workflow-content-article-detail')?.classList.add('active');
-        element.closest('tr')?.classList.add('active');
+    // Update active states
+    updateActiveWorkflow(workflowName);
+
+    // Show detail panel
+    const contentArticle = document.getElementById('workflow-content-article');
+    const detailPanel = document.getElementById('workflow-content-article-detail');
+
+    if (contentArticle && detailPanel) {
+        contentArticle.classList.add('with-detail');
+        detailPanel.classList.add('active');
+
+        // Update workflow count
+        updateWorkflowCount();
     }
 }
 
 function hideDetail() {
-    document.getElementById('workflow-content-article')?.classList.remove('with-detail');
-    document.getElementById('workflow-content-article-detail')?.classList.remove('active');
+    const contentArticle = document.getElementById('workflow-content-article');
+    const detailPanel = document.getElementById('workflow-content-article-detail');
 
-    const rows = document.querySelectorAll('#workflow-results tr');
+    if (contentArticle && detailPanel) {
+        contentArticle.classList.remove('with-detail');
+        detailPanel.classList.remove('active');
+
+        // Reset detail panel content
+        const placeholder = detailPanel.querySelector('.detail-placeholder');
+        if (placeholder) {
+            placeholder.style.display = 'flex';
+        }
+
+        // Remove loading if present
+        const loading = detailPanel.querySelector('.detail-loading');
+        if (loading) {
+            loading.style.display = 'none';
+        }
+    }
+
+    // Clear all active states
+    const rows = document.querySelectorAll('#workflow-results .workflow-row');
     rows.forEach(row => row.classList.remove('active'));
+
+    // Update workflow count
+    updateWorkflowCount();
+}
+
+function updateActiveWorkflow(workflowName) {
+    // Remove active state from all rows
+    const rows = document.querySelectorAll('#workflow-results .workflow-row');
+    rows.forEach(row => {
+        row.classList.remove('active');
+        const nameBtn = row.querySelector('.workflow-name-btn');
+        if (nameBtn) {
+            nameBtn.setAttribute('aria-selected', 'false');
+        }
+    });
+
+    // Add active state to the selected row
+    const targetRow = document.querySelector(`#workflow-results .workflow-row[data-workflow-name="${workflowName}"]`);
+    if (targetRow) {
+        targetRow.classList.add('active');
+        const nameBtn = targetRow.querySelector('.workflow-name-btn');
+        if (nameBtn) {
+            nameBtn.setAttribute('aria-selected', 'true');
+        }
+
+        // Scroll into view if needed
+        targetRow.scrollIntoView({
+            behavior: 'smooth',
+            block: 'nearest'
+        });
+    }
+}
+
+function updateWorkflowCount() {
+    const countElement = document.getElementById('workflow-count');
+    const totalWorkflows = document.querySelectorAll('#workflow-results .workflow-row').length;
+    const activeWorkflow = document.querySelector('#workflow-results .workflow-row.active');
+
+    if (countElement) {
+        if (activeWorkflow) {
+            const workflowName = activeWorkflow.getAttribute('data-workflow-name');
+            countElement.textContent = `${totalWorkflows} workflows • Viewing: ${workflowName}`;
+        } else {
+            countElement.textContent = `${totalWorkflows} workflows`;
+        }
+    }
 }
 
 function toggleHistoryDetails(header) {
@@ -311,6 +386,20 @@ document.addEventListener('htmx:beforeRequest', (event) => {
             loadingIndicator.style.display = 'flex';
         }
     }
+
+    // Handle workflow detail loading
+    if (event.detail.elt.hasAttribute('hx-get') &&
+        event.detail.elt.getAttribute('hx-get').includes('/workflow/detail/')) {
+
+        const detailPanel = document.getElementById('workflow-content-article-detail');
+        const loading = detailPanel?.querySelector('.detail-loading');
+        const placeholder = detailPanel?.querySelector('.detail-placeholder');
+
+        if (loading && placeholder) {
+            placeholder.style.display = 'none';
+            loading.style.display = 'flex';
+        }
+    }
 });
 
 document.addEventListener('htmx:afterRequest', (event) => {
@@ -320,8 +409,66 @@ document.addEventListener('htmx:afterRequest', (event) => {
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none';
         }
+
+        // Update workflow count after search
+        setTimeout(() => {
+            updateWorkflowCount();
+        }, 100);
+    }
+
+    // Handle workflow detail loading completion
+    if (event.detail.elt.hasAttribute('hx-get') &&
+        event.detail.elt.getAttribute('hx-get').includes('/workflow/detail/')) {
+
+        const detailPanel = document.getElementById('workflow-content-article-detail');
+        const loading = detailPanel?.querySelector('.detail-loading');
+
+        if (loading) {
+            loading.style.display = 'none';
+        }
+
+        // Reinitialize tab functionality for the new content
+        initializeDetailTabs();
     }
 });
+
+// Initialize detail tabs after content is loaded
+function initializeDetailTabs() {
+    const tabs = document.querySelectorAll('.detail-tab .tab');
+    tabs.forEach(tab => {
+        // Remove existing listeners to avoid duplicates
+        tab.removeEventListener('click', handleTabClick);
+        tab.addEventListener('click', handleTabClick);
+    });
+}
+
+function handleTabClick(event) {
+    const tab = event.currentTarget;
+    const tabId = tab.dataset.tab;
+
+    if (!tabId) return;
+
+    // Update active tab
+    document.querySelectorAll('.detail-tab .tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+    });
+
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+
+    // Show corresponding content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+        content.setAttribute('aria-hidden', 'true');
+    });
+
+    const targetContent = document.getElementById(tabId + '-tab');
+    if (targetContent) {
+        targetContent.classList.add('active');
+        targetContent.setAttribute('aria-hidden', 'false');
+    }
+}
 
 // Detail Tab switching
 document.body.addEventListener('htmx:afterSwap', function (event) {

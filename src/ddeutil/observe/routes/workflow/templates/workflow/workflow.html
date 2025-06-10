@@ -66,7 +66,7 @@
                 {% include 'workflow/partials/workflow-row.html' %}
             </div>
 
-            <div class="content-article-detail"
+                        <div class="content-article-detail"
                  id="workflow-content-article-detail"
                  role="complementary"
                  aria-labelledby="workflow-detail-title">
@@ -74,6 +74,12 @@
                     <i class="bx bx-info-circle placeholder-icon" aria-hidden="true"></i>
                     <h3>Select a workflow</h3>
                     <p>Choose a workflow from the list to view details, configuration, and execution history.</p>
+                </div>
+                <div class="detail-loading" aria-hidden="true" style="display: none;">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <span>Loading workflow details...</span>
+                    </div>
                 </div>
             </div>
         </div>
