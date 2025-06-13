@@ -183,3 +183,4 @@ logs/
 data/
 !src/ddeutil/observe/routes/log
 !src/ddeutil/observe/routes/audit
+!src/ddeutil/observe/static/data

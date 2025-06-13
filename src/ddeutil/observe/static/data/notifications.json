@@ -1,0 +1,142 @@
+{
+  "notifications": [
+    {
+      "id": "notif-001",
+      "user_id": "observe",
+      "type": "workflow_success",
+      "title": "Workflow Completed Successfully",
+      "message": "Workflow 'wf-scheduling' has completed successfully",
+      "workflow_name": "wf-scheduling",
+      "timestamp": "2024-01-15T14:30:00+00:00",
+      "is_read": true,
+      "priority": "medium",
+      "icon": "bx-check-circle",
+      "color": "success",
+      "last_modified": "2025-06-13T08:39:08.918397"
+    },
+    {
+      "id": "notif-002",
+      "user_id": "observe",
+      "type": "workflow_failed",
+      "title": "Workflow Execution Failed",
+      "message": "Workflow 'wf-run-python-01' failed during execution. Error: ValueError in stage 'raise-error'",
+      "workflow_name": "wf-run-python-01",
+      "timestamp": "2024-01-15T13:45:00+00:00",
+      "is_read": false,
+      "priority": "high",
+      "icon": "bx-error-circle",
+      "color": "error"
+    },
+    {
+      "id": "notif-003",
+      "user_id": "observe",
+      "type": "workflow_started",
+      "title": "Workflow Started",
+      "message": "Workflow 'wf-batch-job-02' has been triggered and is now running",
+      "workflow_name": "wf-batch-job-02",
+      "timestamp": "2024-01-15T13:15:00+00:00",
+      "is_read": true,
+      "priority": "low",
+      "icon": "bx-play-circle",
+      "color": "info"
+    },
+    {
+      "id": "notif-004",
+      "user_id": "observe",
+      "type": "system_alert",
+      "title": "System Maintenance",
+      "message": "Scheduled maintenance will occur tonight at 2:00 AM EST for approximately 30 minutes",
+      "workflow_name": null,
+      "timestamp": "2024-01-15T12:00:00+00:00",
+      "is_read": true,
+      "priority": "medium",
+      "icon": "bx-wrench",
+      "color": "warning",
+      "last_modified": "2025-06-10T22:36:20.293931"
+    },
+    {
+      "id": "notif-005",
+      "user_id": "observe",
+      "type": "workflow_warning",
+      "title": "Workflow Performance Warning",
+      "message": "Workflow 'wf-trigger' is taking longer than expected to complete (running for 45 minutes)",
+      "workflow_name": "wf-trigger",
+      "timestamp": "2024-01-15T11:30:00+00:00",
+      "is_read": true,
+      "priority": "medium",
+      "icon": "bx-time",
+      "color": "warning"
+    },
+    {
+      "id": "notif-006",
+      "user_id": "observe",
+      "type": "workflow_success",
+      "title": "Batch Job Completed",
+      "message": "All stages in workflow 'wf-batch-job-01' have completed successfully. 127 records processed.",
+      "workflow_name": "wf-batch-job-01",
+      "timestamp": "2024-01-15T10:15:00+00:00",
+      "is_read": true,
+      "priority": "low",
+      "icon": "bx-check-circle",
+      "color": "success"
+    },
+    {
+      "id": "notif-007",
+      "user_id": "observe",
+      "type": "workflow_failed",
+      "title": "Critical Workflow Failure",
+      "message": "High-priority workflow 'wf-run-python-02' failed with database connection timeout",
+      "workflow_name": "wf-run-python-02",
+      "timestamp": "2024-01-15T09:45:00+00:00",
+      "is_read": true,
+      "priority": "high",
+      "icon": "bx-error-circle",
+      "color": "error",
+      "last_modified": "2025-06-10T22:36:25.104571"
+    },
+    {
+      "id": "notif-008",
+      "user_id": "observe",
+      "type": "system_info",
+      "title": "New Feature Available",
+      "message": "Workflow templates are now available! Create reusable workflow configurations.",
+      "workflow_name": null,
+      "timestamp": "2024-01-15T08:00:00+00:00",
+      "is_read": true,
+      "priority": "low",
+      "icon": "bx-info-circle",
+      "color": "info"
+    },
+    {
+      "id": "notif-009",
+      "user_id": "observe",
+      "type": "workflow_scheduled",
+      "title": "Workflow Scheduled",
+      "message": "Workflow 'wf-scheduling' has been scheduled to run at 3:00 PM daily",
+      "workflow_name": "wf-scheduling",
+      "timestamp": "2024-01-14T16:20:00+00:00",
+      "is_read": true,
+      "priority": "low",
+      "icon": "bx-calendar",
+      "color": "info"
+    },
+    {
+      "id": "notif-010",
+      "user_id": "observe",
+      "type": "workflow_retry",
+      "title": "Workflow Auto-Retry",
+      "message": "Workflow 'wf-trigger' failed and will be retried in 5 minutes (attempt 2/3)",
+      "workflow_name": "wf-trigger",
+      "timestamp": "2024-01-14T15:55:00+00:00",
+      "is_read": false,
+      "priority": "medium",
+      "icon": "bx-refresh",
+      "color": "warning"
+    }
+  ],
+  "metadata": {
+    "total_count": 10,
+    "unread_count": 2,
+    "last_updated": "2025-06-13T08:39:08.918423"
+  }
+}
