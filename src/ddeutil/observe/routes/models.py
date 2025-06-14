@@ -88,6 +88,16 @@ class Audit(Base):
         ForeignKey("workflows.id"),
         index=True,
     )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        default="pending",
+        index=True,
+    )  # pending, running, success, failed, cancelled
+    start_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    end_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+    execution_date: Mapped[datetime] = mapped_column(DateTime, index=True)
+    duration: Mapped[int] = mapped_column(Integer, nullable=True)  # in seconds
+    error_message: Mapped[str] = mapped_column(String, nullable=True)
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),

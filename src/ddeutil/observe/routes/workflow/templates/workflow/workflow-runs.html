@@ -1,0 +1,183 @@
+{% extends "shared/layout.html" %}
+{% set active_sidebar_js = 'true' %}
+{% block title %}Workflow Runs - Observe{% endblock %}
+
+{% block main_content %}
+<section class="content" role="main" aria-labelledby="runs-title">
+    <header class="content-header">
+        <div class="header-title">
+            <h1 id="runs-title">Workflow Runs</h1>
+            <p class="header-subtitle">Monitor workflow execution status and history</p>
+        </div>
+        <div class="header-actions">
+            <button class="action-btn" onclick="refreshRuns()" aria-label="Refresh runs" title="Refresh">
+                <i class="bx bx-refresh" aria-hidden="true"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <form class="filters-form" id="runs-filter-form" method="GET">
+            <div class="filter-group">
+                <label for="workflow-filter">Workflow:</label>
+                <select id="workflow-filter" name="workflow_name" class="form-select">
+                    <option value="">All Workflows</option>
+                    {% for workflow in workflows %}
+                    <option value="{{ workflow.name }}" {% if workflow.name == selected_workflow %}selected{% endif %}>
+                        {{ workflow.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter" name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    {% for status in statuses %}
+                    <option value="{{ status }}" {% if status == selected_status %}selected{% endif %}>
+                        {{ status.title() }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="start-date">Start Date:</label>
+                <input type="date" id="start-date" name="start_date" value="{{ start_date }}" class="form-input">
+            </div>
+
+            <div class="filter-group">
+                <label for="end-date">End Date:</label>
+                <input type="date" id="end-date" name="end_date" value="{{ end_date }}" class="form-input">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </form>
+    </div>
+
+    <!-- Runs Table -->
+    <article class="runs-table-container">
+        <div class="table-wrapper">
+            <table class="runs-table">
+                <thead>
+                    <tr>
+                        <th>Workflow</th>
+                        <th>Run ID</th>
+                        <th>Status</th>
+                        <th>Execution Date</th>
+                        <th>Start Time</th>
+                        <th>Duration</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for run in runs_data %}
+                    <tr class="run-row status-{{ run.status }}">
+                        <td class="workflow-cell">
+                            <div class="workflow-info">
+                                <span class="workflow-name">{{ run.workflow_name }}</span>
+                                {% if run.workflow_desc %}
+                                <span class="workflow-desc">{{ run.workflow_desc }}</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="run-id-cell">
+                            <span class="run-id">{{ run.release_id }}</span>
+                        </td>
+                        <td class="status-cell">
+                            <span class="status-badge status-{{ run.status }}">
+                                {% if run.status == 'running' %}
+                                    <i class="bx bx-loader-alt bx-spin"></i>
+                                {% elif run.status == 'success' %}
+                                    <i class="bx bx-check-circle"></i>
+                                {% elif run.status == 'failed' %}
+                                    <i class="bx bx-x-circle"></i>
+                                {% elif run.status == 'pending' %}
+                                    <i class="bx bx-time"></i>
+                                {% elif run.status == 'cancelled' %}
+                                    <i class="bx bx-stop-circle"></i>
+                                {% endif %}
+                                {{ run.status.title() }}
+                            </span>
+                        </td>
+                        <td class="date-cell">
+                            {% if run.execution_date %}
+                                {{ run.execution_date.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="date-cell">
+                            {% if run.start_time %}
+                                {{ run.start_time.strftime('%H:%M:%S') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="duration-cell">
+                            {% if run.duration %}
+                                {{ run.duration }}s
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="actions-cell">
+                            <button class="btn btn-sm"
+                                    onclick="viewRunDetail('{{ run.id }}')"
+                                    title="View run details">
+                                <i class="bx bx-info-circle"></i>
+                            </button>
+                            {% if run.status == 'running' %}
+                            <button class="btn btn-sm btn-warning"
+                                    onclick="cancelRun('{{ run.id }}')"
+                                    title="Cancel run">
+                                <i class="bx bx-stop"></i>
+                            </button>
+                            {% endif %}
+                            {% if run.status in ['failed', 'cancelled'] %}
+                            <button class="btn btn-sm btn-primary"
+                                    onclick="retryRun('{{ run.id }}')"
+                                    title="Retry run">
+                                <i class="bx bx-refresh"></i>
+                            </button>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% if not runs_data %}
+            <div class="empty-state">
+                <i class="bx bx-calendar-x"></i>
+                <h3>No workflow runs found</h3>
+                <p>No workflow runs match your current filters. Try adjusting your search criteria.</p>
+            </div>
+            {% endif %}
+        </div>
+    </article>
+</section>
+
+<!-- Run Detail Modal -->
+<div id="run-detail-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Run Details</h2>
+            <button class="close-btn" onclick="closeRunDetail()">&times;</button>
+        </div>
+        <div class="modal-body" id="run-detail-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block link_internal_css %}
+    <link rel="stylesheet" href="/static/css/workflow-runs.css"/>
+{% endblock %}
+
+{% block additional_js %}
+    <script type="text/javascript" src="/static/js/workflow-runs.js" defer></script>
+{% endblock %}

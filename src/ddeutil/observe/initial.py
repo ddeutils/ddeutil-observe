@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi.routing import APIRoute
@@ -90,15 +90,13 @@ async def create_role_policy(
 
 
 async def create_workflows(session: AsyncSession):
-    from src.ddeutil.observe.routes.audit.schemas import AuditCreate
+    import random
+
     from src.ddeutil.observe.routes.models import (
         Audit,
         AuditLog,
-        Trace,
-        TraceMeta,
         Workflow,
     )
-    from src.ddeutil.observe.routes.trace.schemas import TraceCreate
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
     workflows = (await session.execute(select(Workflow))).scalars().all()
@@ -106,47 +104,101 @@ async def create_workflows(session: AsyncSession):
         logger.warning("Skip initial workflow data because it already existed.")
         return
 
-    for workflow in [
+    # Create workflows
+    workflow_data = [
         WorkflowCreate(
-            name="wf-scheduling",
-            params={"asat-dt": {"type": "datetime"}, "notify": {"type": "str"}},
-            on=[{"cronjob": "*/3 * * * *", "timezone": "Asia/Bangkok"}],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
-        ),
-        WorkflowCreate(
-            name="wf-trigger",
-            params={"asat-dt": {"type": "datetime"}},
-            on=[{"cronjob": "*/5 * * * *", "timezone": "Asia/Bangkok"}],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
-        ),
-        WorkflowCreate(
-            name="wf-batch-job-01",
-            params={"asat-dt": {"type": "datetime"}},
-            on=[
-                {"cronjob": "*/5 * * * *", "timezone": "Asia/Bangkok"},
-                {"cronjob": "*/10 * * * *", "timezone": "Asia/Bangkok"},
-            ],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
-        ),
-        WorkflowCreate(
-            name="wf-batch-job-02",
-            params={"asat-dt": {"type": "datetime"}},
-            on=[{"cronjob": "*/15 */10 * * *", "timezone": "Asia/Bangkok"}],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
-        ),
-        WorkflowCreate(
-            name="wf-run-python-01",
-            params={"asat-dt": {"type": "datetime"}},
-            on=[{"cronjob": "*/3 12 * * *", "timezone": "Asia/Bangkok"}],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
-        ),
-        WorkflowCreate(
-            name="wf-run-python-02",
+            name="wf-data-ingestion",
+            desc="Daily data ingestion from external sources",
             params={"asat-dt": {"type": "datetime"}, "source": {"type": "str"}},
-            on=[{"cronjob": "*/3 12 * * *", "timezone": "Asia/Bangkok"}],
-            jobs={"some-job": {"stages": [{"name": "Empty"}]}},
+            on=[{"cronjob": "0 6 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "ingest-job": {
+                    "stages": [{"name": "Extract"}, {"name": "Load"}]
+                }
+            },
         ),
-    ]:
+        WorkflowCreate(
+            name="wf-etl-pipeline",
+            desc="Extract, transform, and load data pipeline",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "batch_size": {"type": "int"},
+            },
+            on=[{"cronjob": "0 8 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "etl-job": {
+                    "stages": [
+                        {"name": "Extract"},
+                        {"name": "Transform"},
+                        {"name": "Load"},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-report-generation",
+            desc="Generate daily business reports",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "report_type": {"type": "str"},
+            },
+            on=[{"cronjob": "0 10 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "report-job": {
+                    "stages": [{"name": "Process"}, {"name": "Generate"}]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-ml-training",
+            desc="Machine learning model training pipeline",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "model_version": {"type": "str"},
+            },
+            on=[{"cronjob": "0 2 * * 1", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "ml-job": {
+                    "stages": [
+                        {"name": "Prepare"},
+                        {"name": "Train"},
+                        {"name": "Validate"},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-data-validation",
+            desc="Validate data quality and integrity",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "table_name": {"type": "str"},
+            },
+            on=[{"cronjob": "0 */4 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "validation-job": {
+                    "stages": [{"name": "Check"}, {"name": "Report"}]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-backup-cleanup",
+            desc="Cleanup old backup files and archives",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "retention_days": {"type": "int"},
+            },
+            on=[{"cronjob": "0 1 * * 0", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "cleanup-job": {
+                    "stages": [{"name": "Scan"}, {"name": "Delete"}]
+                }
+            },
+        ),
+    ]
+
+    workflow_models = []
+    for workflow in workflow_data:
         db_workflow = Workflow(
             name=workflow.name,
             desc=workflow.desc,
@@ -157,149 +209,111 @@ async def create_workflows(session: AsyncSession):
             valid_end=datetime(9999, 12, 31),
         )
         session.add(db_workflow)
-        await session.commit()
+        await session.flush()
+        workflow_models.append(db_workflow)
 
-    for audit_log in [
-        AuditCreate(
-            release="20240902093600",
-            logs=[
-                {
-                    "name": "wf-scheduling",
-                    "release": "2024-09-02 09:36:00+07:00",
-                    "type": "task",
-                    "context": {
-                        "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
-                        "jobs": {
-                            "condition-job": {
-                                "matrix": {},
-                                "stages": {
-                                    "6708019737": {"outputs": {}},
-                                    "0663452000": {"outputs": {}},
-                                },
-                            }
-                        },
-                    },
-                    "parent_run_id": "635351540020240902093554579053",
-                    "run_id": "635351540020240902093554579053",
-                    "update": "2024-09-02 09:35:54.579053",
-                },
-                {
-                    "name": "wf-scheduling",
-                    "release": "2024-09-02 09:36:00+07:00",
-                    "type": "task",
-                    "context": {
-                        "params": {"asat-dt": "2024-09-02 09:36:00+07:00"},
-                        "jobs": {
-                            "condition-job": {
-                                "matrix": {},
-                                "stages": {
-                                    "6708019737": {"outputs": {}},
-                                    "0663452000": {"outputs": {}},
-                                },
-                            }
-                        },
-                    },
-                    "parent_run_id": "635351540020240902093554573333",
-                    "run_id": "635351540020240902093554573333",
-                    "update": "2024-09-02 09:35:54.579053",
-                },
-            ],
-        ),
-        AuditCreate(
-            release="20240901114700",
-            logs=[
-                {
-                    "name": "wf-scheduling",
-                    "release": "2024-09-01 11:47:00+07:00",
-                    "type": "task",
-                    "context": {
-                        "params": {"asat-dt": "2024-09-01 11:47:00+07:00"},
-                        "jobs": {
-                            "condition-job": {
-                                "matrix": {},
-                                "stages": {
-                                    "6708019737": {"outputs": {}},
-                                    "0663452000": {"outputs": {}},
-                                },
-                            }
-                        },
-                    },
-                    "parent_run_id": "635351540020240901114649502176",
-                    "run_id": "635351540020240901114649502176",
-                    "update": "2024-09-01 11:46:49.503175",
-                }
-            ],
-        ),
-    ]:
-        db_audit = Audit(
-            release_id=audit_log.release,
-            workflow_id=1,
-        )
-        session.add(db_audit)
-        await session.commit()
-        await session.refresh(db_audit)
+    await session.commit()
 
-        for log in audit_log.logs:
-            db_audit_log = AuditLog(
-                id=log.parent_run_id or log.run_id,
-                audit_id=db_audit.id,
-                workflow_name=log.name,
-                release=log.release,
-                type=log.type,
-                context=log.context,
-                parent_run_id=log.parent_run_id,
-                run_id=log.run_id,
-                release_create_date=log.update,
+    # Create realistic workflow runs for the past 30 days
+    base_date = datetime.now()
+    statuses = ["success", "failed", "running", "pending", "cancelled"]
+
+    for workflow in workflow_models:
+        for i in range(30):  # Last 30 days
+            execution_date = base_date - timedelta(days=i)
+
+            # Skip some days randomly to make it more realistic
+            if random.random() < 0.3:
+                continue
+
+            # Create 1-3 runs per day for some workflows
+            num_runs = (
+                random.randint(1, 3)
+                if workflow.name in ["wf-data-ingestion", "wf-etl-pipeline"]
+                else 1
             )
-            session.add(db_audit_log)
-            await session.commit()
 
-    for trace in [
-        TraceCreate(
-            run_id="635351540020240901114649502176",
-            data={
-                "meta": [
-                    {
-                        "mode": "stdout",
-                        "datetime": "2025-03-12 10:28:12",
-                        "process": 26232,
-                        "thread": 7852,
-                        "message": "(643202 ->       ) [POKING]: Start Poking: 'tmp-wf-scheduling-minute' from 2025-03-12 10:28:11 to 2025-03-12 10:29:11",
-                        "filename": "workflow.py",
-                        "lineno": 745,
-                    },
-                    {
-                        "mode": "stdout",
-                        "datetime": "2025-03-12 10:28:12",
-                        "process": 26232,
-                        "thread": 7852,
-                        "message": "(643202 ->       ) [POKING]: The latest release, 2025-03-12 10:29:00, is not able to run on this minute",
-                        "filename": "workflow.py",
-                        "lineno": 785,
-                    },
-                ]
-            },
-        ),
-    ]:
-        db_trace = Trace(run_id=trace.run_id)
-        session.add(db_trace)
-        await session.commit()
-        await session.refresh(db_trace)
+            for run_num in range(num_runs):
+                status = random.choices(statuses, weights=[70, 20, 3, 5, 2])[0]
 
-        for index, meta in enumerate(trace.data.meta, start=1):
-            db_trace_meta = TraceMeta(
-                run_id=db_trace.run_id,
-                trace_id=index,
-                mode=meta.mode,
-                datetime=meta.datetime,
-                process=meta.process,
-                thread=meta.thread,
-                message=meta.message,
-                filename=meta.filename,
-                lineno=meta.lineno,
-            )
-            session.add(db_trace_meta)
-            await session.commit()
+                # Calculate realistic start and end times
+                start_time = execution_date.replace(
+                    hour=random.randint(6, 23),
+                    minute=random.randint(0, 59),
+                    second=random.randint(0, 59),
+                )
+
+                duration = None
+                end_time = None
+                error_message = None
+
+                if status == "success":
+                    duration = random.randint(
+                        30, 1800
+                    )  # 30 seconds to 30 minutes
+                    end_time = start_time + timedelta(seconds=duration)
+                elif status == "failed":
+                    duration = random.randint(
+                        10, 600
+                    )  # 10 seconds to 10 minutes
+                    end_time = start_time + timedelta(seconds=duration)
+                    error_message = random.choice(
+                        [
+                            "Connection timeout to external API",
+                            "Insufficient memory allocation",
+                            "Data validation failed",
+                            "Network connection error",
+                            "File not found in source location",
+                        ]
+                    )
+                elif status == "cancelled":
+                    duration = random.randint(5, 300)  # 5 seconds to 5 minutes
+                    end_time = start_time + timedelta(seconds=duration)
+                elif status == "running":
+                    # Only for recent runs
+                    if i <= 1:
+                        start_time = execution_date.replace(
+                            hour=datetime.now().hour,
+                            minute=datetime.now().minute
+                            - random.randint(5, 60),
+                            second=datetime.now().second,
+                        )
+
+                release_id = f"{workflow.name}-{execution_date.strftime('%Y%m%d')}-{run_num + 1:02d}"
+
+                audit = Audit(
+                    release_id=release_id,
+                    workflow_id=workflow.id,
+                    status=status,
+                    start_time=start_time,
+                    end_time=end_time,
+                    execution_date=execution_date,
+                    duration=duration,
+                    error_message=error_message,
+                )
+                session.add(audit)
+                await session.flush()
+
+                # Create audit logs for each run
+                audit_log = AuditLog(
+                    id=f"log-{audit.id}-{random.randint(1000, 9999)}",
+                    audit_id=str(audit.id),
+                    workflow_name=workflow.name,
+                    release=execution_date,
+                    type="task",
+                    context={
+                        "params": {"asat-dt": execution_date.isoformat()},
+                        "status": status,
+                        "duration": duration,
+                        "error": error_message,
+                    },
+                    parent_run_id=None,
+                    run_id=release_id,
+                    release_create_date=start_time,
+                )
+                session.add(audit_log)
+
+    await session.commit()
 
 
 async def main():

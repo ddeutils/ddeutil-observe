@@ -9,11 +9,19 @@
     </div>
     <nav class="sidebar-menu">
         <ul>
-            <li class="{% if request.path.split('/')[1] == 'workflow' %}active{% endif %}">
-                <a href="{{ url_for('workflow_read_all') }}">
+            <li>
+                <button onclick=toggleSubMenu(this) class="dropdown-btn {% if request.path.split('/')[1] == 'workflow' %}active{% endif %}">
                     <i class='bx bx-run'></i>
                     <span>Workflows</span>
-                </a>
+                    <i class='bx bx-chevron-down' ></i>
+                </button>
+                <ul class="sub-menu">
+                    <div>
+                        <li class="{% if request.path.endswith('/workflow/') %}active{% endif %}"><a href="{{ url_for('workflow_read_all') }}">All Workflows</a></li>
+                        <li class="{% if request.path.endswith('/workflow/runs') %}active{% endif %}"><a href="/workflow/runs">Workflow Runs</a></li>
+                        <li class="{% if request.path.endswith('/workflow/calendar') %}active{% endif %}"><a href="/workflow/calendar">Calendar View</a></li>
+                    </div>
+                </ul>
             </li>
             <li class="{% if request.path.split('/')[1] == 'schedule' %}active{% endif %}">
                 <a href="{{ url_for('schedule_read_all') }}">

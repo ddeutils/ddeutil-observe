@@ -6,10 +6,12 @@
 from __future__ import annotations
 
 import logging
+from calendar import monthrange
 from collections.abc import AsyncIterator
 from datetime import datetime
+from typing import Any, Optional
 
-from sqlalchemy import select
+from sqlalchemy import and_, case, desc, func, select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import false
 
@@ -120,3 +122,215 @@ class WorkflowCRUD(BaseCRUD):
         await self.async_session.commit()
         await self.async_session.refresh(db_workflow)
         return db_workflow
+
+    async def get_workflow_runs(
+        self,
+        workflow_name: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+        status: Optional[str] = None,
+        limit: int = 100,
+    ) -> list[dict[str, Any]]:
+        """Get workflow runs data for the runs view."""
+
+        # Build the query
+        stmt = (
+            select(
+                md.Audit.id,
+                md.Audit.release_id,
+                md.Audit.status,
+                md.Audit.start_time,
+                md.Audit.end_time,
+                md.Audit.execution_date,
+                md.Audit.duration,
+                md.Audit.error_message,
+                md.Workflow.name.label("workflow_name"),
+                md.Workflow.desc.label("workflow_desc"),
+            )
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(md.Workflow.delete_flag == false())
+        )
+
+        # Apply filters
+        if workflow_name:
+            stmt = stmt.filter(md.Workflow.name == workflow_name)
+
+        if start_date:
+            start_dt = datetime.strptime(start_date, "%Y-%m-%d")
+            stmt = stmt.filter(md.Audit.execution_date >= start_dt)
+
+        if end_date:
+            end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+            stmt = stmt.filter(md.Audit.execution_date <= end_dt)
+
+        if status:
+            stmt = stmt.filter(md.Audit.status == status)
+
+        # Order by execution date desc and limit
+        stmt = stmt.order_by(desc(md.Audit.execution_date)).limit(limit)
+
+        result = await self.async_session.execute(stmt)
+        runs = []
+
+        for row in result:
+            run_data = {
+                "id": row.id,
+                "release_id": row.release_id,
+                "workflow_name": row.workflow_name,
+                "workflow_desc": row.workflow_desc,
+                "status": row.status,
+                "start_time": row.start_time,
+                "end_time": row.end_time,
+                "execution_date": row.execution_date,
+                "duration": row.duration,
+                "error_message": row.error_message,
+            }
+            runs.append(run_data)
+
+        return runs
+
+    async def get_workflow_calendar_data(
+        self, workflow_name: Optional[str] = None, month: Optional[str] = None
+    ) -> dict[str, Any]:
+        """Get workflow calendar data for the calendar view."""
+
+        if not month:
+            month = datetime.now().strftime("%Y-%m")
+
+        year, month_num = map(int, month.split("-"))
+        _, last_day = monthrange(year, month_num)
+
+        start_date = datetime(year, month_num, 1)
+        end_date = datetime(year, month_num, last_day, 23, 59, 59)
+
+        # Build the query
+        stmt = (
+            select(
+                func.date(md.Audit.execution_date).label("run_date"),
+                func.count(md.Audit.id).label("total_runs"),
+                func.sum(
+                    case((md.Audit.status == "success", 1), else_=0)
+                ).label("success_runs"),
+                func.sum(case((md.Audit.status == "failed", 1), else_=0)).label(
+                    "failed_runs"
+                ),
+                func.sum(
+                    case((md.Audit.status == "running", 1), else_=0)
+                ).label("running_runs"),
+                func.sum(
+                    case((md.Audit.status == "pending", 1), else_=0)
+                ).label("pending_runs"),
+            )
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(
+                and_(
+                    md.Workflow.delete_flag == false(),
+                    md.Audit.execution_date >= start_date,
+                    md.Audit.execution_date <= end_date,
+                )
+            )
+        )
+
+        if workflow_name:
+            stmt = stmt.filter(md.Workflow.name == workflow_name)
+
+        stmt = stmt.group_by(func.date(md.Audit.execution_date))
+
+        result = await self.async_session.execute(stmt)
+
+        calendar_data = {
+            "year": year,
+            "month": month_num,
+            "month_name": start_date.strftime("%B"),
+            "days_in_month": last_day,
+            "first_weekday": start_date.weekday(),
+            "days": {},
+        }
+
+        for row in result:
+            # row.run_date is a string in 'YYYY-MM-DD' format, extract day
+            if isinstance(row.run_date, str):
+                day = int(row.run_date.split("-")[2])
+            else:
+                day = row.run_date.day
+            calendar_data["days"][day] = {
+                "total_runs": row.total_runs,
+                "success_runs": row.success_runs or 0,
+                "failed_runs": row.failed_runs or 0,
+                "running_runs": row.running_runs or 0,
+                "pending_runs": row.pending_runs or 0,
+            }
+
+        return calendar_data
+
+    async def get_run_detail(self, run_id: str) -> Optional[dict[str, Any]]:
+        """Get detailed information about a specific workflow run."""
+
+        stmt = (
+            select(md.Audit, md.Workflow)
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .options(
+                selectinload(md.Audit.logs).selectinload(md.AuditLog.trace)
+            )
+            .filter(md.Audit.id == int(run_id))
+        )
+
+        result = await self.async_session.execute(stmt)
+        row = result.first()
+
+        if not row:
+            return None
+
+        audit, workflow = row
+
+        return {
+            "id": audit.id,
+            "release_id": audit.release_id,
+            "workflow_name": workflow.name,
+            "workflow_desc": workflow.desc,
+            "status": audit.status,
+            "start_time": audit.start_time,
+            "end_time": audit.end_time,
+            "execution_date": audit.execution_date,
+            "duration": audit.duration,
+            "error_message": audit.error_message,
+            "logs": (
+                [
+                    {
+                        "id": log.id,
+                        "workflow_name": log.workflow_name,
+                        "release": log.release,
+                        "type": log.type,
+                        "context": log.context,
+                        "run_id": log.run_id,
+                        "parent_run_id": log.parent_run_id,
+                        "release_create_date": log.release_create_date,
+                        "traces": [
+                            {
+                                "run_id": trace.run_id,
+                                "meta": (
+                                    [
+                                        {
+                                            "trace_id": meta.trace_id,
+                                            "mode": meta.mode,
+                                            "datetime": meta.datetime,
+                                            "message": meta.message,
+                                            "filename": meta.filename,
+                                            "lineno": meta.lineno,
+                                        }
+                                        for meta in trace.meta
+                                    ]
+                                    if trace.meta
+                                    else []
+                                ),
+                            }
+                            for trace in [log.trace]
+                            if log.trace
+                        ],
+                    }
+                    for log in audit.logs
+                ]
+                if audit.logs
+                else []
+            ),
+        }

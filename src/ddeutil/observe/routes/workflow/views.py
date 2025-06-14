@@ -6,9 +6,10 @@
 from __future__ import annotations
 
 import logging
+from datetime import datetime, timedelta
 from typing import Annotated, Optional
 
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Header, Query, Request
 from fastapi.templating import Jinja2Templates
 
 from ...auth.deps import required_current_active_user
@@ -49,6 +50,98 @@ async def workflow_read_all(
     )
 
 
+@workflow.get("/runs")
+async def workflow_runs_view(
+    request: Request,
+    workflow_name: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    """Workflow runs view similar to Airflow DAG runs."""
+    # Set default date range (last 30 days)
+    if not start_date:
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    if not end_date:
+        end_date = datetime.now().strftime("%Y-%m-%d")
+
+    # Get workflow runs data
+    runs_data = await crud.get_workflow_runs(
+        workflow_name=workflow_name,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+    )
+
+    # Get all workflows for filter dropdown
+    workflows = [wf async for wf in crud.get_all()]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workflow/workflow-runs.html",
+        context={
+            "runs_data": runs_data,
+            "workflows": workflows,
+            "selected_workflow": workflow_name,
+            "start_date": start_date,
+            "end_date": end_date,
+            "selected_status": status,
+            "statuses": [
+                "pending",
+                "running",
+                "success",
+                "failed",
+                "cancelled",
+            ],
+        },
+    )
+
+
+@workflow.get("/calendar")
+async def workflow_calendar_view(
+    request: Request,
+    workflow_name: Optional[str] = Query(None),
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    """Workflow timeline view similar to Airflow DAG log view."""
+    # Set default date range (last 30 days)
+    if not start_date:
+        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    if not end_date:
+        end_date = datetime.now().strftime("%Y-%m-%d")
+
+    # Get timeline data (same as workflow runs)
+    timeline_data = await crud.get_workflow_runs(
+        workflow_name=workflow_name,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+        limit=200,  # Increase limit for timeline view
+    )
+
+    # Get all workflows for filter dropdown
+    workflows = [wf async for wf in crud.get_all()]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workflow/workflow-calendar.html",
+        context={
+            "timeline_data": timeline_data,
+            "workflows": workflows,
+            "selected_workflow": workflow_name,
+            "start_date": start_date,
+            "end_date": end_date,
+            "selected_status": status,
+        },
+    )
+
+
 @workflow.get("/detail/{name}")
 async def workflow_read_detail(
     name: str,
@@ -73,6 +166,37 @@ async def workflow_read_detail(
         )
     raise NotImplementedError(
         "Get the detail does not support for get directly"
+    )
+
+
+@workflow.get("/run/{run_id}")
+async def workflow_run_detail(
+    run_id: str,
+    request: Request,
+    hx_request: Annotated[Optional[str], Header(...)] = None,
+    crud: WorkflowCRUD = Depends(WorkflowCRUD),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    """Get details of a specific workflow run."""
+    run_detail = await crud.get_run_detail(run_id)
+    if not run_detail:
+        raise ValueError(f"Workflow run {run_id} does not exist")
+
+    if hx_request:
+        return templates.TemplateResponse(
+            request=request,
+            name="workflow/partials/run-detail.html",
+            context={
+                "run": run_detail,
+            },
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workflow/run-detail.html",
+        context={
+            "run": run_detail,
+        },
     )
 
 
