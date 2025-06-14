@@ -33,6 +33,7 @@ dependencies = [
     "uvicorn==0.34.3",
     "jinja2==3.1.6",
     "sqlalchemy==2.0.41",
+    "greenlet==3.2.3",
 
     # Authen & Security.
     "python-multipart==0.0.20",
