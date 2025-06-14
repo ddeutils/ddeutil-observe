@@ -49,6 +49,12 @@
                         aria-label="View {{ workflow.name }} details">
                     <i class='bx bx-info-circle'></i>
                 </button>
+                <a class="btn btn-outline action-btn"
+                   href="/workflow/detail/{{ workflow.name }}/page"
+                   title="View workflow detail page"
+                   aria-label="View {{ workflow.name }} detail page">
+                    <i class='bx bx-sitemap'></i>
+                </a>
                 <button class="btn btn-primary action-btn"
                         onclick="runWorkflow(this)"
                         title="Run workflow"

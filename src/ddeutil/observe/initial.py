@@ -294,24 +294,53 @@ async def create_workflows(session: AsyncSession):
                 session.add(audit)
                 await session.flush()
 
-                # Create audit logs for each run
-                audit_log = AuditLog(
-                    id=f"log-{audit.id}-{random.randint(1000, 9999)}",
-                    audit_id=str(audit.id),
-                    workflow_name=workflow.name,
-                    release=execution_date,
-                    type="task",
-                    context={
-                        "params": {"asat-dt": execution_date.isoformat()},
-                        "status": status,
-                        "duration": duration,
-                        "error": error_message,
-                    },
-                    parent_run_id=None,
-                    run_id=release_id,
-                    release_create_date=start_time,
+                # Create multiple audit logs for each run to simulate detailed logging
+                log_types = (
+                    ["start", "task", "end"]
+                    if status in ["success", "failed"]
+                    else ["start"]
                 )
-                session.add(audit_log)
+
+                for idx, log_type in enumerate(log_types):
+                    log_time = start_time + timedelta(
+                        seconds=idx
+                        * (duration // len(log_types) if duration else 10)
+                    )
+
+                    if log_type == "start":
+                        log_context = {
+                            "params": {"asat-dt": execution_date.isoformat()},
+                            "status": "running",
+                            "stage": "initialization",
+                        }
+                    elif log_type == "task":
+                        log_context = {
+                            "params": {"asat-dt": execution_date.isoformat()},
+                            "status": "running",
+                            "stage": "processing",
+                            "progress": "50%",
+                        }
+                    else:  # end
+                        log_context = {
+                            "params": {"asat-dt": execution_date.isoformat()},
+                            "status": status,
+                            "stage": "completion",
+                            "duration": duration,
+                            "error": error_message,
+                        }
+
+                    audit_log = AuditLog(
+                        id=f"log-{audit.id}-{idx:02d}-{random.randint(1000, 9999)}",
+                        audit_id=str(audit.id),
+                        workflow_name=workflow.name,
+                        release=execution_date,
+                        type=log_type,
+                        context=log_context,
+                        parent_run_id=None,
+                        run_id=release_id,
+                        release_create_date=log_time,
+                    )
+                    session.add(audit_log)
 
     await session.commit()
 

@@ -86,7 +86,7 @@ function refreshRunningStatuses() {
 
         if (runId) {
             try {
-                const response = await fetch(`/api/workflow/run/${runId}/status`);
+                const response = await fetch(`/api/v1/workflow/run/${runId}/status`);
                 if (response.ok) {
                     const data = await response.json();
                     updateRunRowStatus(row, data);
@@ -208,7 +208,7 @@ async function cancelRun(runId) {
     }
 
     try {
-        const response = await fetch(`/api/workflow/run/${runId}/cancel`, {
+        const response = await fetch(`/api/v1/workflow/run/${runId}/cancel`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -234,7 +234,7 @@ async function retryRun(runId) {
     }
 
     try {
-        const response = await fetch(`/api/workflow/run/${runId}/retry`, {
+        const response = await fetch(`/api/v1/workflow/run/${runId}/retry`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

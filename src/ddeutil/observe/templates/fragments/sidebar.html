@@ -19,7 +19,6 @@
                     <div>
                         <li class="{% if request.path.endswith('/workflow/') %}active{% endif %}"><a href="{{ url_for('workflow_read_all') }}">All Workflows</a></li>
                         <li class="{% if request.path.endswith('/workflow/runs') %}active{% endif %}"><a href="/workflow/runs">Workflow Runs</a></li>
-                        <li class="{% if request.path.endswith('/workflow/calendar') %}active{% endif %}"><a href="/workflow/calendar">Calendar View</a></li>
                     </div>
                 </ul>
             </li>

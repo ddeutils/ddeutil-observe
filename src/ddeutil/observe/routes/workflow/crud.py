@@ -263,6 +263,55 @@ class WorkflowCRUD(BaseCRUD):
 
         return calendar_data
 
+    async def get_workflow_stats(self, workflow_name: str) -> dict[str, Any]:
+        """Get workflow statistics."""
+
+        stmt = (
+            select(
+                func.count(md.Audit.id).label("total_runs"),
+                func.sum(
+                    case((md.Audit.status == "success", 1), else_=0)
+                ).label("success_runs"),
+                func.sum(case((md.Audit.status == "failed", 1), else_=0)).label(
+                    "failed_runs"
+                ),
+                func.sum(
+                    case((md.Audit.status == "running", 1), else_=0)
+                ).label("running_runs"),
+                func.avg(md.Audit.duration).label("avg_duration"),
+            )
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(
+                and_(
+                    md.Workflow.name == workflow_name,
+                    md.Workflow.delete_flag == false(),
+                )
+            )
+        )
+
+        result = await self.async_session.execute(stmt)
+        row = result.first()
+
+        if not row:
+            return {
+                "total_runs": 0,
+                "success_runs": 0,
+                "failed_runs": 0,
+                "running_runs": 0,
+                "avg_duration": "0s",
+            }
+
+        avg_duration = row.avg_duration
+        avg_duration_str = f"{avg_duration:.2f}s" if avg_duration else "0s"
+
+        return {
+            "total_runs": row.total_runs or 0,
+            "success_runs": row.success_runs or 0,
+            "failed_runs": row.failed_runs or 0,
+            "running_runs": row.running_runs or 0,
+            "avg_duration": avg_duration_str,
+        }
+
     async def get_run_detail(self, run_id: str) -> Optional[dict[str, Any]]:
         """Get detailed information about a specific workflow run."""
 
@@ -305,28 +354,30 @@ class WorkflowCRUD(BaseCRUD):
                         "run_id": log.run_id,
                         "parent_run_id": log.parent_run_id,
                         "release_create_date": log.release_create_date,
-                        "traces": [
-                            {
-                                "run_id": trace.run_id,
-                                "meta": (
-                                    [
-                                        {
-                                            "trace_id": meta.trace_id,
-                                            "mode": meta.mode,
-                                            "datetime": meta.datetime,
-                                            "message": meta.message,
-                                            "filename": meta.filename,
-                                            "lineno": meta.lineno,
-                                        }
-                                        for meta in trace.meta
-                                    ]
-                                    if trace.meta
-                                    else []
-                                ),
-                            }
-                            for trace in [log.trace]
+                        "traces": (
+                            [
+                                {
+                                    "run_id": log.trace.run_id,
+                                    "meta": (
+                                        [
+                                            {
+                                                "trace_id": meta.trace_id,
+                                                "mode": meta.mode,
+                                                "datetime": meta.datetime,
+                                                "message": meta.message,
+                                                "filename": meta.filename,
+                                                "lineno": meta.lineno,
+                                            }
+                                            for meta in log.trace.meta
+                                        ]
+                                        if log.trace.meta
+                                        else []
+                                    ),
+                                }
+                            ]
                             if log.trace
-                        ],
+                            else []
+                        ),
                     }
                     for log in audit.logs
                 ]

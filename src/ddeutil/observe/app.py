@@ -10,7 +10,7 @@ import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, HTTPException, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, RedirectResponse
@@ -93,6 +93,27 @@ async def add_process_time_header(request: Request, call_next):
     process_time = time.perf_counter() - start_time
     response.headers["X-Process-Time"] = str(process_time)
     return response
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    """Handle HTTP exceptions, especially authentication errors."""
+    # Handle authentication errors by redirecting to login
+    if exc.status_code == st.HTTP_401_UNAUTHORIZED:
+        if (
+            exc.detail == "Could not validate credentials"
+            or exc.detail == "Not authenticated"
+        ):
+            return RedirectResponse(
+                url="/auth/login",
+                status_code=st.HTTP_307_TEMPORARY_REDIRECT,
+            )
+
+    # For other HTTP exceptions, return the default response
+    return PlainTextResponse(
+        str(exc.detail),
+        status_code=exc.status_code,
+    )
 
 
 @app.exception_handler(OperationalError)

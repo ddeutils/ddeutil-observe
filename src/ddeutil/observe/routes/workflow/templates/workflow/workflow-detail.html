@@ -1,0 +1,348 @@
+{% extends "shared/layout.html" %}
+{% set active_sidebar_js = 'true' %}
+{% block title %}{{ workflow.name }} - Workflow Detail - Observe{% endblock %}
+
+{% block main_content %}
+<section class="content" role="main" aria-labelledby="workflow-detail-title">
+    <header class="workflow-detail-header">
+        <div class="header-breadcrumb">
+            <a href="/workflow" class="breadcrumb-link">
+                <i class="bx bx-arrow-back"></i>
+                Workflows
+            </a>
+            <i class="bx bx-chevron-right breadcrumb-separator"></i>
+            <span class="breadcrumb-current">{{ workflow.name }}</span>
+        </div>
+
+        <div class="workflow-header-content">
+            <div class="workflow-title-section">
+                <div class="workflow-icon">
+                    <i class="bx bx-sitemap"></i>
+                </div>
+                <div class="workflow-title-info">
+                    <h1 id="workflow-detail-title">{{ workflow.name }}</h1>
+                    <p class="workflow-description">{{ workflow.desc or 'No description provided' }}</p>
+                </div>
+            </div>
+
+            <div class="workflow-status-section">
+                <div class="status-indicator status-{{ workflow_status }}">
+                    <span class="status-dot"></span>
+                    <span class="status-text">{{ workflow_status.title() }}</span>
+                </div>
+                <div class="workflow-actions">
+                    <button class="btn btn-primary" onclick="runWorkflow('{{ workflow.name }}')">
+                        <i class="bx bx-play"></i>
+                        Run Now
+                    </button>
+                    <button class="btn btn-outline" onclick="refreshWorkflowDetail()">
+                        <i class="bx bx-refresh"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="workflow-schedule-info">
+            {% if workflow.on %}
+            <div class="schedule-item">
+                <i class="bx bx-time"></i>
+                <span class="schedule-label">Schedule:</span>
+                {% for schedule in workflow.on %}
+                <span class="schedule-value">{{ schedule.cronjob }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="schedule-item">
+                <i class="bx bx-calendar"></i>
+                <span class="schedule-label">Next Run:</span>
+                <span class="schedule-value">{{ next_run_time or 'Not scheduled' }}</span>
+            </div>
+
+            <div class="schedule-item">
+                <i class="bx bx-history"></i>
+                <span class="schedule-label">Last Run:</span>
+                <span class="schedule-value">{{ last_run_time or 'Never' }}</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Workflow Tabs -->
+    <nav class="workflow-tabs" role="tablist">
+        <button class="tab-button active"
+                data-tab="overview"
+                role="tab"
+                aria-selected="true"
+                onclick="switchTab('overview')">
+            <i class="bx bx-info-circle"></i>
+            Overview
+        </button>
+        <button class="tab-button"
+                data-tab="runs"
+                role="tab"
+                aria-selected="false"
+                onclick="switchTab('runs')">
+            <i class="bx bx-time"></i>
+            Runs
+        </button>
+        <button class="tab-button"
+                data-tab="logs"
+                role="tab"
+                aria-selected="false"
+                onclick="switchTab('logs')">
+            <i class="bx bx-file-blank"></i>
+            Logs
+        </button>
+        <button class="tab-button"
+                data-tab="config"
+                role="tab"
+                aria-selected="false"
+                onclick="switchTab('config')">
+            <i class="bx bx-cog"></i>
+            Configuration
+        </button>
+    </nav>
+
+    <!-- Tab Content -->
+    <div class="workflow-content">
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview-tab" role="tabpanel">
+            <div class="overview-grid">
+                <div class="stats-section">
+                    <h3>Workflow Statistics</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon success">
+                                <i class="bx bx-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">{{ stats.success_runs or 0 }}</span>
+                                <span class="stat-label">Successful Runs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon failed">
+                                <i class="bx bx-x-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">{{ stats.failed_runs or 0 }}</span>
+                                <span class="stat-label">Failed Runs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon running">
+                                <i class="bx bx-time"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">{{ stats.total_runs or 0 }}</span>
+                                <span class="stat-label">Total Runs</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon duration">
+                                <i class="bx bx-stopwatch"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-number">{{ stats.avg_duration or '0s' }}</span>
+                                <span class="stat-label">Avg Duration</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="recent-runs-section">
+                    <h3>Recent Runs</h3>
+                    <div class="recent-runs-list">
+                        {% if recent_runs %}
+                        {% for run in recent_runs %}
+                        <div class="run-item status-{{ run.status }}" onclick="viewRunDetail('{{ run.id }}')">
+                            <div class="run-status">
+                                <span class="status-dot status-{{ run.status }}"></span>
+                            </div>
+                            <div class="run-info">
+                                <div class="run-id">{{ run.release_id }}</div>
+                                <div class="run-time">{{ run.execution_date.strftime('%Y-%m-%d %H:%M:%S') if run.execution_date else 'N/A' }}</div>
+                            </div>
+                            <div class="run-duration">
+                                {% if run.duration %}
+                                    {{ "%.2f"|format(run.duration) }}s
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <div class="empty-state">
+                            <i class="bx bx-time"></i>
+                            <p>No recent runs</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Runs Tab -->
+        <div class="tab-content" id="runs-tab" role="tabpanel">
+            <div class="runs-section">
+                <div class="runs-header">
+                    <h3>Workflow Runs</h3>
+                    <div class="runs-filters">
+                        <select id="status-filter" onchange="filterRuns()">
+                            <option value="">All Statuses</option>
+                            <option value="success">Success</option>
+                            <option value="failed">Failed</option>
+                            <option value="running">Running</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <input type="date" id="date-filter" onchange="filterRuns()" placeholder="Filter by date">
+                    </div>
+                </div>
+
+                <div class="runs-timeline" id="runs-timeline">
+                    {% if all_runs %}
+                    {% for run in all_runs %}
+                    <div class="timeline-item status-{{ run.status }}" data-status="{{ run.status }}" data-date="{{ run.execution_date.strftime('%Y-%m-%d') if run.execution_date else '' }}">
+                        <div class="timeline-marker">
+                            <div class="timeline-dot status-{{ run.status }}"></div>
+                        </div>
+                        <div class="timeline-content">
+                            <div class="timeline-card" onclick="viewRunDetail('{{ run.id }}')">
+                                <div class="timeline-header">
+                                    <div class="run-title">
+                                        <span class="run-id">{{ run.release_id }}</span>
+                                        <span class="run-date">{{ run.execution_date.strftime('%Y-%m-%d %H:%M:%S') if run.execution_date else 'N/A' }}</span>
+                                    </div>
+                                    <div class="run-status-badge status-{{ run.status }}">
+                                        {% if run.status == 'success' %}
+                                            <i class="bx bx-check-circle"></i>
+                                        {% elif run.status == 'failed' %}
+                                            <i class="bx bx-x-circle"></i>
+                                        {% elif run.status == 'running' %}
+                                            <i class="bx bx-time"></i>
+                                        {% elif run.status == 'pending' %}
+                                            <i class="bx bx-hourglass"></i>
+                                        {% endif %}
+                                        {{ run.status.title() }}
+                                    </div>
+                                </div>
+                                <div class="timeline-body">
+                                    <div class="run-details">
+                                        <span class="detail-item">
+                                            <strong>Duration:</strong>
+                                            {% if run.duration %}
+                                                {{ "%.2f"|format(run.duration) }}s
+                                            {% else %}
+                                                -
+                                            {% endif %}
+                                        </span>
+                                        {% if run.error_message %}
+                                        <span class="detail-item error">
+                                            <strong>Error:</strong> {{ run.error_message[:100] }}...
+                                        </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bx bx-time"></i>
+                        <h4>No runs found</h4>
+                        <p>This workflow hasn't been executed yet.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Logs Tab -->
+        <div class="tab-content" id="logs-tab" role="tabpanel">
+            <div class="logs-section">
+                <div class="logs-header">
+                    <h3>Execution Logs</h3>
+                    <div class="logs-controls">
+                        <button class="btn btn-outline" onclick="refreshLogs()">
+                            <i class="bx bx-refresh"></i>
+                            Refresh
+                        </button>
+                        <button class="btn btn-outline" onclick="clearLogs()">
+                            <i class="bx bx-trash"></i>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <div class="logs-content" id="logs-content">
+                    <div class="logs-terminal" id="logs-terminal">
+                        <!-- Logs will be loaded here -->
+                        <div class="log-loading">
+                            <i class="bx bx-loader-alt bx-spin"></i>
+                            Loading logs...
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Tab -->
+        <div class="tab-content" id="config-tab" role="tabpanel">
+            <div class="config-section">
+                <h3>Workflow Configuration</h3>
+                <div class="config-content">
+                    <div class="config-item">
+                        <label>Name:</label>
+                        <span>{{ workflow.name }}</span>
+                    </div>
+                    <div class="config-item">
+                        <label>Description:</label>
+                        <span>{{ workflow.desc or 'No description' }}</span>
+                    </div>
+                    {% if workflow.on %}
+                    <div class="config-item">
+                        <label>Schedule:</label>
+                        <div class="schedule-list">
+                            {% for schedule in workflow.on %}
+                            <div class="schedule-item">
+                                <span class="schedule-type">{{ schedule.type or 'cron' }}</span>
+                                <span class="schedule-cron">{{ schedule.cronjob }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="config-item">
+                        <label>Parameters:</label>
+                        <pre class="config-params">{{ workflow.dump_params() }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Run Detail Modal -->
+<div id="run-detail-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="run-detail-title">Run Details</h2>
+            <button class="close-btn" onclick="closeRunDetail()">&times;</button>
+        </div>
+        <div class="modal-body" id="run-detail-content">
+            <!-- Content will be loaded here -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block link_internal_css %}
+    <link rel="stylesheet" href="/static/css/workflow-detail.css"/>
+{% endblock %}
+
+{% block additional_js %}
+    <script type="text/javascript" src="/static/js/workflow-detail.js" defer></script>
+{% endblock %}

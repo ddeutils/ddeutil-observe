@@ -99,45 +99,48 @@ async def workflow_runs_view(
     )
 
 
-@workflow.get("/calendar")
-async def workflow_calendar_view(
+@workflow.get("/detail/{name}/page")
+async def workflow_detail_page(
+    name: str,
     request: Request,
-    workflow_name: Optional[str] = Query(None),
-    start_date: Optional[str] = Query(None),
-    end_date: Optional[str] = Query(None),
-    status: Optional[str] = Query(None),
     crud: WorkflowCRUD = Depends(WorkflowCRUD),
     templates: Jinja2Templates = Depends(get_templates),
 ):
-    """Workflow timeline view similar to Airflow DAG log view."""
-    # Set default date range (last 30 days)
-    if not start_date:
-        start_date = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
-    if not end_date:
-        end_date = datetime.now().strftime("%Y-%m-%d")
+    """Workflow detail page similar to Airflow DAG page."""
+    # Get workflow details
+    _workflow_model = await crud.get_by_name(name)
+    if _workflow_model is None:
+        raise ValueError(f"Workflow name {name} does not exist")
 
-    # Get timeline data (same as workflow runs)
-    timeline_data = await crud.get_workflow_runs(
-        workflow_name=workflow_name,
-        start_date=start_date,
-        end_date=end_date,
-        status=status,
-        limit=200,  # Increase limit for timeline view
-    )
+    workflow = WorkflowView.model_validate(_workflow_model)
 
-    # Get all workflows for filter dropdown
-    workflows = [wf async for wf in crud.get_all()]
+    # Get workflow statistics
+    stats = await crud.get_workflow_stats(name)
+
+    # Get recent runs (last 10)
+    recent_runs = await crud.get_workflow_runs(workflow_name=name, limit=10)
+
+    # Get all runs for the workflow
+    all_runs = await crud.get_workflow_runs(workflow_name=name, limit=100)
+
+    # Determine workflow status
+    workflow_status = "active" if workflow.on else "inactive"
+
+    # Calculate next and last run times
+    next_run_time = None  # TODO: Calculate based on cron schedule
+    last_run_time = recent_runs[0]["execution_date"] if recent_runs else None
 
     return templates.TemplateResponse(
         request=request,
-        name="workflow/workflow-calendar.html",
+        name="workflow/workflow-detail.html",
         context={
-            "timeline_data": timeline_data,
-            "workflows": workflows,
-            "selected_workflow": workflow_name,
-            "start_date": start_date,
-            "end_date": end_date,
-            "selected_status": status,
+            "workflow": workflow,
+            "workflow_status": workflow_status,
+            "stats": stats,
+            "recent_runs": recent_runs,
+            "all_runs": all_runs,
+            "next_run_time": next_run_time,
+            "last_run_time": last_run_time,
         },
     )
 
