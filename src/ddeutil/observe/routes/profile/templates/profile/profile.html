@@ -1,0 +1,158 @@
+{% extends "shared/layout.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block main_content %}
+<section class="content" role="main">
+<div class="profile-page">
+    <!-- Simplified Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar-section">
+            <div class="profile-avatar-large">
+                <img src="{{ user.profile_image_url or '/static/img/profile.svg' }}"
+                     alt="{{ user.username }}'s profile"
+                     class="avatar-image">
+            </div>
+        </div>
+
+        <div class="profile-info">
+            <h1 class="profile-name">{{ user.username }}</h1>
+            <p class="profile-email">{{ user.email }}</p>
+            <div class="profile-meta">
+                <span class="meta-item">
+                    <i class="bx bx-calendar"></i>
+                    Joined {{ user.created_at.strftime('%B %Y') }}
+                </span>
+                <span class="meta-item">
+                    <i class="bx bx-shield-check"></i>
+                    {{ user.role.name.title() }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Essential Stats Only -->
+    <div class="profile-stats">
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3>{{ notification_metadata.unread_count }}</h3>
+                <p>Unread Notifications</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3>{{ notification_metadata.total_count }}</h3>
+                <p>Total Notifications</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-content">
+                <h3>{{ user.days_active if user.days_active is defined else 0 }}</h3>
+                <p>Days Active</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="profile-actions">
+        <a href="/profile/settings" class="btn btn-primary">
+            <i class="bx bx-cog"></i>
+            Settings
+        </a>
+        <a href="/notifications" class="btn btn-outline">
+            <i class="bx bx-bell"></i>
+            Notifications
+            {% if notification_metadata.unread_count > 0 %}
+            <span class="notification-badge">{{ notification_metadata.unread_count }}</span>
+            {% endif %}
+        </a>
+    </div>
+
+    <!-- Recent Notifications Preview -->
+    {% if notifications %}
+    <div class="recent-notifications">
+        <div class="section-header">
+            <h2>Recent Activity</h2>
+            <a href="/notifications" class="view-all-link">
+                View All
+                <i class="bx bx-chevron-right"></i>
+            </a>
+        </div>
+
+        <div class="notifications-preview">
+            {% for notification in notifications[:3] %}
+            <div class="notification-item {{ 'unread' if not notification.is_read else 'read' }}">
+                <div class="notification-icon {{ notification.color }}">
+                    <i class="bx {{ notification.icon }}"></i>
+                </div>
+
+                <div class="notification-content">
+                    <h4 class="notification-title">{{ notification.title }}</h4>
+                    <p class="notification-message">{{ notification.message[:80] }}{% if notification.message|length > 80 %}...{% endif %}</p>
+                    <span class="notification-time">{{ notification.timestamp.strftime('%Y-%m-%d %H:%M') }}</span>
+                </div>
+
+                {% if not notification.is_read %}
+                <div class="notification-actions">
+                    <button class="mark-read-btn"
+                            hx-post="/notifications/{{ notification.id }}/mark-read"
+                            hx-target="closest .notification-item"
+                            title="Mark as read">
+                        <i class="bx bx-check"></i>
+                    </button>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bx bx-bell-off"></i>
+        </div>
+        <h3>All caught up!</h3>
+        <p>No new notifications. New activity will appear here when available.</p>
+    </div>
+    {% endif %}
+</div>
+</section>
+
+{% endblock %}
+
+{% block link_internal_css %}
+<link rel="stylesheet" href="/static/css/profile.css">
+{% endblock %}
+
+{% block additional_js %}
+<script>
+// Smooth interactions for mark as read
+document.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.xhr.status === 200 && evt.detail.pathInfo.path.includes('mark-read')) {
+        const item = evt.detail.target;
+        item.classList.remove('unread');
+        item.classList.add('read');
+
+        // Update notification badge
+        const badges = document.querySelectorAll('.notification-badge');
+        badges.forEach(badge => {
+            const count = parseInt(badge.textContent) - 1;
+            if (count <= 0) {
+                badge.remove();
+            } else {
+                badge.textContent = count;
+            }
+        });
+
+        // Update unread stat
+        const unreadStat = document.querySelector('.profile-stats .stat-card:first-child h3');
+        if (unreadStat) {
+            const count = parseInt(unreadStat.textContent) - 1;
+            unreadStat.textContent = Math.max(0, count);
+        }
+    }
+});
+</script>
+{% endblock %}

@@ -10,6 +10,7 @@ from fastapi import APIRouter
 from .audit.views import audit
 from .notifications.routes import notification as notification_api
 from .notifications.views import notification
+from .profile.views import profile
 from .schedule.views import schedule
 from .trace.views import trace
 from .workflow.routes import workflow as workflow_api

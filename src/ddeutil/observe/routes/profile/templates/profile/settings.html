@@ -1,0 +1,438 @@
+{% extends "shared/layout.html" %}
+
+{% block title %}Settings{% endblock %}
+
+{% block main_content %}
+<section class="content" role="main">
+<div class="settings-page">
+    <!-- Settings Header -->
+    <div class="page-header">
+        <div class="header-content">
+            <h1 class="page-title">
+                <i class="bx bx-cog"></i>
+                Settings
+            </h1>
+            <p class="page-description">Manage your account and preferences</p>
+        </div>
+        <div class="header-actions">
+            <a href="/profile" class="btn btn-outline">
+                <i class="bx bx-arrow-back"></i>
+                Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <div class="settings-container">
+        <!-- Simplified Settings Navigation -->
+        <aside class="settings-sidebar">
+            <nav class="settings-nav">
+                <button class="nav-item active" data-section="account">
+                    <i class="bx bx-user"></i>
+                    <span>Account</span>
+                </button>
+                <button class="nav-item" data-section="notifications">
+                    <i class="bx bx-bell"></i>
+                    <span>Notifications</span>
+                </button>
+                <button class="nav-item" data-section="security">
+                    <i class="bx bx-shield"></i>
+                    <span>Security</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Settings Content -->
+        <main class="settings-content">
+            <!-- Account Settings -->
+            <div class="settings-section active" id="account-section">
+                <div class="section-header">
+                    <h2>Account Information</h2>
+                    <p>Update your basic account details</p>
+                </div>
+
+                <form class="settings-form" hx-post="/profile/update" hx-target="#account-section">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" class="form-input" required>
+                        <p class="form-help">This is how others will identify you</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" class="form-input" required>
+                        <p class="form-help">Used for notifications and account recovery</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="profile-image">Profile Picture</label>
+                        <div class="profile-image-upload">
+                            <div class="current-image">
+                                <img src="{{ user.profile_image_url or '/static/img/profile.svg' }}" alt="Profile" class="preview-image">
+                            </div>
+                            <div class="upload-controls">
+                                <input type="file" id="profile-image" name="profile_image" accept="image/*" class="file-input">
+                                <label for="profile-image" class="btn btn-outline btn-sm">
+                                    <i class="bx bx-upload"></i>
+                                    Change Picture
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save"></i>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Simplified Notification Settings -->
+            <div class="settings-section" id="notifications-section">
+                <div class="section-header">
+                    <h2>Notification Preferences</h2>
+                    <p>Control what notifications you receive</p>
+                </div>
+
+                <form class="settings-form" hx-post="/profile/notifications/update" hx-target="#notifications-section">
+                    <div class="setting-group">
+                        <h3>
+                            <i class="bx bx-run"></i>
+                            Workflow Notifications
+                        </h3>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="workflow-success">Success Notifications</label>
+                                <p>Get notified when workflows complete successfully</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="workflow-success" name="workflow_success" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="workflow-failure">Error Notifications</label>
+                                <p>Get notified when workflows fail or encounter errors</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="workflow-failure" name="workflow_failure" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>
+                            <i class="bx bx-shield-check"></i>
+                            System Notifications
+                        </h3>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="security-alerts">Security Alerts</label>
+                                <p>Important security and login notifications (recommended)</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="security-alerts" name="security_alerts" checked disabled>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="system-updates">System Updates</label>
+                                <p>Updates about system maintenance and new features</p>
+                            </div>
+                            <div class="setting-control">
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="system-updates" name="system_updates">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <h3>
+                            <i class="bx bx-time"></i>
+                            Timing Controls
+                        </h3>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="notification-frequency">Notification Frequency</label>
+                                <p>How often you want to receive notifications</p>
+                            </div>
+                            <div class="setting-control">
+                                <select id="notification-frequency" name="notification_frequency" class="form-select">
+                                    <option value="instant">Instant</option>
+                                    <option value="hourly">Hourly Summary</option>
+                                    <option value="daily" selected>Daily Summary</option>
+                                    <option value="weekly">Weekly Summary</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <label for="quiet-hours">Quiet Hours</label>
+                                <p>Pause notifications during these hours</p>
+                            </div>
+                            <div class="setting-control">
+                                <div class="time-range">
+                                    <input type="time" id="quiet-start" name="quiet_start" value="22:00" class="form-input">
+                                    <span>to</span>
+                                    <input type="time" id="quiet-end" name="quiet_end" value="08:00" class="form-input">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save"></i>
+                            Save Preferences
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Settings -->
+            <div class="settings-section" id="security-section">
+                <div class="section-header">
+                    <h2>Security & Privacy</h2>
+                    <p>Manage your account security</p>
+                </div>
+
+                <form class="settings-form" hx-post="/profile/security/update" hx-target="#security-section">
+                    <div class="form-group">
+                        <label for="current-password">Current Password</label>
+                        <input type="password" id="current-password" name="current_password" class="form-input" required>
+                        <p class="form-help">Enter your current password to make changes</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new-password">New Password</label>
+                        <input type="password" id="new-password" name="new_password" class="form-input">
+                        <p class="form-help">Leave blank to keep current password</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm New Password</label>
+                        <input type="password" id="confirm-password" name="confirm_password" class="form-input">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bx bx-save"></i>
+                            Update Security
+                        </button>
+                    </div>
+                </form>
+
+                <div class="danger-zone">
+                    <h3>
+                        <i class="bx bx-error"></i>
+                        Account Actions
+                    </h3>
+                    <p>Irreversible actions for your account</p>
+
+                    <div class="danger-actions">
+                        <button class="btn btn-danger"
+                                hx-post="/profile/logout-all"
+                                hx-confirm="This will log you out of all devices. Continue?"
+                                title="Logout from all devices">
+                            <i class="bx bx-log-out"></i>
+                            Logout All Devices
+                        </button>
+
+                        <button class="btn btn-danger"
+                                hx-delete="/profile/account"
+                                hx-confirm="This will permanently delete your account and all data. This action cannot be undone. Type 'DELETE' to confirm."
+                                title="Delete account permanently">
+                            <i class="bx bx-trash"></i>
+                            Delete Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+</section>
+
+<script>
+// Settings navigation
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.settings-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetSection = item.getAttribute('data-section');
+
+            // Update active nav item
+            navItems.forEach(nav => nav.classList.remove('active'));
+            item.classList.add('active');
+
+            // Show target section
+            sections.forEach(section => {
+                section.classList.remove('active');
+                if (section.id === `${targetSection}-section`) {
+                    section.classList.add('active');
+                }
+            });
+        });
+    });
+
+    // Form validation
+    const passwordInputs = document.querySelectorAll('input[type="password"]');
+    passwordInputs.forEach(input => {
+        input.addEventListener('input', validatePasswords);
+    });
+
+    // Profile image preview
+    const fileInput = document.getElementById('profile-image');
+    const previewImage = document.querySelector('.preview-image');
+
+    if (fileInput && previewImage) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+
+function validatePasswords() {
+    const newPassword = document.getElementById('new-password');
+    const confirmPassword = document.getElementById('confirm-password');
+
+    if (newPassword && confirmPassword) {
+        if (newPassword.value && confirmPassword.value) {
+            if (newPassword.value !== confirmPassword.value) {
+                confirmPassword.setCustomValidity('Passwords do not match');
+            } else {
+                confirmPassword.setCustomValidity('');
+            }
+        }
+    }
+}
+
+// HTMX form handling
+document.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.xhr.status === 200) {
+        // Show success feedback
+        const target = evt.detail.target;
+        const successMsg = document.createElement('div');
+        successMsg.className = 'alert alert-success';
+        successMsg.innerHTML = '<i class="bx bx-check"></i> Settings updated successfully!';
+
+        target.insertBefore(successMsg, target.firstChild);
+
+        // Remove success message after 3 seconds
+        setTimeout(() => {
+            successMsg.remove();
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}
+
+{% block link_internal_css %}
+<link rel="stylesheet" href="/static/css/settings.css">
+{% endblock %}
+
+{% block additional_js %}
+<script>
+// Settings page navigation functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const navItems = document.querySelectorAll('.nav-item');
+    const sections = document.querySelectorAll('.settings-section');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetSection = item.getAttribute('data-section');
+
+            // Remove active class from all nav items and sections
+            navItems.forEach(nav => nav.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+
+            // Add active class to clicked nav item and corresponding section
+            item.classList.add('active');
+            document.getElementById(targetSection + '-section').classList.add('active');
+        });
+    });
+
+    // File upload preview
+    const fileInput = document.getElementById('profile-image');
+    const previewImage = document.querySelector('.preview-image');
+
+    if (fileInput && previewImage) {
+        fileInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // Theme selector
+    const themeSelect = document.getElementById('theme');
+    if (themeSelect) {
+        themeSelect.addEventListener('change', function() {
+            const theme = this.value;
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else if (theme === 'light') {
+                document.documentElement.setAttribute('data-theme', 'light');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+        });
+    }
+
+    // Form validation
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(event) {
+            const passwordField = form.querySelector('#new-password');
+            const confirmField = form.querySelector('#confirm-password');
+
+            if (passwordField && confirmField) {
+                if (passwordField.value !== confirmField.value) {
+                    event.preventDefault();
+                    alert('Passwords do not match');
+                    return;
+                }
+
+                if (passwordField.value.length < 8) {
+                    event.preventDefault();
+                    alert('Password must be at least 8 characters long');
+                    return;
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

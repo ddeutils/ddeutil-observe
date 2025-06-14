@@ -368,8 +368,21 @@ document.addEventListener('keydown', function(event) {
 // Performance monitoring
 if ('performance' in window && 'measure' in performance) {
     window.addEventListener('load', () => {
-        performance.measure('page-load-time', 'navigationStart', 'loadEventEnd');
-        const measure = performance.getEntriesByName('page-load-time')[0];
-        console.log(`Page load time: ${Math.round(measure.duration)}ms`);
+        // Use a more reliable approach with proper timing checks
+        setTimeout(() => {
+            try {
+                const navigation = performance.getEntriesByType('navigation')[0];
+                if (navigation && navigation.loadEventEnd > 0) {
+                    const loadTime = navigation.loadEventEnd - navigation.navigationStart;
+                    console.log(`Page load time: ${Math.round(loadTime)}ms`);
+                } else {
+                    // Fallback to simple timing
+                    const loadTime = performance.now();
+                    console.log(`Page ready time: ${Math.round(loadTime)}ms`);
+                }
+            } catch (error) {
+                console.log('Performance monitoring not available');
+            }
+        }, 100); // Small delay to ensure load event has completed
     });
 }
