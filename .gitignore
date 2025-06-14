@@ -172,7 +172,7 @@ observe.db-journal
 observe.test*
 
 # Cursor IDE
-.cursor/
+# .cursor/
 
 # Assets
 *.bkp
