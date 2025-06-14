@@ -209,6 +209,9 @@
 <script>
 // Notification filtering and interactions
 document.addEventListener('DOMContentLoaded', function() {
+    // Only run on notifications page
+    if (!document.querySelector('.notifications-page')) return;
+
     const filterButtons = document.querySelectorAll('.filter-btn');
     const notifications = document.querySelectorAll('.notification-card');
 
@@ -237,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         break;
                     case 'workflow':
                         const dataType = notification.getAttribute('data-type');
-                        show = dataType && dataType.includes('workflow');
+                        show = dataType && dataType.includes && dataType.includes('workflow');
                         break;
                 }
 
@@ -336,7 +339,7 @@ document.addEventListener('htmx:afterSwap', function(evt) {
                             break;
                         case 'workflow':
                             const dataType = notification.getAttribute('data-type');
-                            show = dataType && dataType.includes('workflow');
+                            show = dataType && dataType.includes && dataType.includes('workflow');
                             break;
                     }
 

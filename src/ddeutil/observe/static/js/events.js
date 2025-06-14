@@ -170,6 +170,14 @@ class NotificationManager {
         if (this.isDropdownOpen) {
             dropdown.classList.add('open');
 
+            // Load content via HTMX if not already loaded
+            const content = dropdown.querySelector('#notification-dropdown-content');
+            if (content && content.querySelector('.notification-loading')) {
+                htmx.ajax('GET', button.getAttribute('data-hx-get'), {
+                    target: button.getAttribute('data-hx-target')
+                });
+            }
+
             // Close other dropdowns
             document.querySelectorAll('.action-dropdown.open').forEach(dd => {
                 if (dd !== dropdown) {

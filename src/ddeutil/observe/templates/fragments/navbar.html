@@ -14,9 +14,8 @@
                     aria-expanded="false"
                     aria-haspopup="true"
                     title="Notifications"
-                    hx-get="/notifications/dropdown"
-                    hx-target="#notification-dropdown-content"
-                    hx-trigger="click"
+                    data-hx-get="/notifications/dropdown"
+                    data-hx-target="#notification-dropdown-content"
                     onclick="toggleNotificationDropdown(this)">
                 <i class="bx bx-bell" aria-hidden="true"></i>
                 <span class="notification-badge" aria-hidden="true" id="notification-count">0</span>
