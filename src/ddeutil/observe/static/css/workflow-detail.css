@@ -1,12 +1,12 @@
-/* Workflow Detail Page Styles - Modern Minimal Design */
+/* Workflow Detail Page Styles - Minimal Design */
 
 .workflow-detail-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     padding: 2rem;
-    border-radius: 12px;
+    border-radius: var(--border-radius-lg);
     margin-bottom: 2rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .header-breadcrumb {
@@ -14,26 +14,26 @@
 }
 
 .breadcrumb-link {
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-secondary);
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     font-weight: 500;
-    transition: color 0.2s ease;
+    transition: color var(--transition-fast);
 }
 
 .breadcrumb-link:hover {
-    color: white;
+    color: var(--text-primary);
 }
 
 .breadcrumb-separator {
     margin: 0 0.5rem;
-    color: rgba(255, 255, 255, 0.6);
+    color: var(--text-tertiary);
 }
 
 .breadcrumb-current {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     font-weight: 600;
 }
 
@@ -53,21 +53,24 @@
 }
 
 .workflow-icon {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--bg-secondary);
     padding: 1rem;
-    border-radius: 10px;
+    border-radius: var(--border-radius-lg);
     font-size: 1.5rem;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 
 .workflow-title-info h1 {
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
     font-weight: 700;
+    color: var(--text-primary);
 }
 
 .workflow-description {
     margin: 0;
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-secondary);
     font-size: 1rem;
 }
 
@@ -82,18 +85,24 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
-    border-radius: 20px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    border-radius: var(--border-radius-lg);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
     font-weight: 600;
+    color: var(--text-primary);
 }
 
 .status-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: currentColor;
 }
+
+/* Status colors - keeping these for alerts/status as requested */
+.status-indicator.status-success .status-dot { background: var(--success-color); }
+.status-indicator.status-failed .status-dot { background: var(--error-color); }
+.status-indicator.status-running .status-dot { background: var(--warning-color); }
+.status-indicator.status-pending .status-dot { background: var(--text-tertiary); }
 
 .workflow-actions {
     display: flex;
@@ -110,7 +119,7 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-secondary);
 }
 
 .schedule-label {
@@ -118,16 +127,16 @@
 }
 
 .schedule-value {
-    color: rgba(255, 255, 255, 0.8);
+    color: var(--text-tertiary);
 }
 
 /* Workflow Tabs - Minimal Design */
 .workflow-tabs {
     display: flex;
-    background: white;
-    border-radius: 12px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
     padding: 0.5rem;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
     margin-bottom: 2rem;
     gap: 0.5rem;
 }
@@ -137,11 +146,11 @@
     padding: 1rem 1.5rem;
     border: none;
     background: transparent;
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 500;
-    border-radius: 8px;
+    border-radius: var(--border-radius);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -149,14 +158,13 @@
 }
 
 .tab-button:hover {
-    background: #f1f5f9;
-    color: #334155;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .tab-button.active {
-    background: #3b82f6;
-    color: white;
-    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    background: var(--text-primary);
+    color: var(--bg-primary);
 }
 
 .tab-button i {
@@ -165,9 +173,9 @@
 
 /* Workflow Content */
 .workflow-content {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    border: 1px solid var(--border-color);
     overflow: hidden;
 }
 
@@ -189,7 +197,7 @@
 .stats-section h3,
 .recent-runs-section h3 {
     margin: 0 0 1.5rem 0;
-    color: #1e293b;
+    color: var(--text-primary);
     font-weight: 600;
 }
 
@@ -204,26 +212,45 @@
     align-items: center;
     gap: 1rem;
     padding: 1.5rem;
-    background: #f8fafc;
-    border-radius: 12px;
-    border: 1px solid #e2e8f0;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
 }
 
 .stat-icon {
     width: 48px;
     height: 48px;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    color: white;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
 }
 
-.stat-icon.success { background: #10b981; }
-.stat-icon.failed { background: #ef4444; }
-.stat-icon.running { background: #f59e0b; }
-.stat-icon.duration { background: #8b5cf6; }
+/* Status colors for icons - keeping these for status/alerts */
+.stat-icon.success {
+    background: var(--success-color);
+    color: white;
+    border-color: var(--success-color);
+}
+.stat-icon.failed {
+    background: var(--error-color);
+    color: white;
+    border-color: var(--error-color);
+}
+.stat-icon.running {
+    background: var(--warning-color);
+    color: white;
+    border-color: var(--warning-color);
+}
+.stat-icon.duration {
+    background: var(--text-secondary);
+    color: white;
+    border-color: var(--text-secondary);
+}
 
 .stat-info {
     display: flex;
@@ -233,11 +260,11 @@
 .stat-number {
     font-size: 1.5rem;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .stat-label {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
@@ -251,16 +278,17 @@
     align-items: center;
     gap: 1rem;
     padding: 1rem;
-    background: #f8fafc;
-    border-radius: 8px;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
     margin-bottom: 0.5rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .run-item:hover {
-    background: #e2e8f0;
-    transform: translateY(-1px);
+    background: var(--bg-secondary);
+    border-color: var(--text-secondary);
 }
 
 .run-status .status-dot {
@@ -269,10 +297,11 @@
     border-radius: 50%;
 }
 
-.status-dot.status-success { background: #10b981; }
-.status-dot.status-failed { background: #ef4444; }
-.status-dot.status-running { background: #f59e0b; }
-.status-dot.status-pending { background: #6b7280; }
+/* Status colors for dots - keeping these for status/alerts */
+.status-dot.status-success { background: var(--success-color); }
+.status-dot.status-failed { background: var(--error-color); }
+.status-dot.status-running { background: var(--warning-color); }
+.status-dot.status-pending { background: var(--text-tertiary); }
 
 .run-info {
     flex: 1;
@@ -280,16 +309,16 @@
 
 .run-id {
     font-weight: 600;
-    color: #1e293b;
+    color: var(--text-primary);
 }
 
 .run-time {
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 0.875rem;
 }
 
 .run-duration {
-    color: #64748b;
+    color: var(--text-secondary);
     font-weight: 500;
 }
 
@@ -350,16 +379,17 @@
     border: 2px solid var(--bg-color);
 }
 
+/* Status colors for timeline dots - keeping these for status/alerts */
 .timeline-dot.status-success {
-    background: #059669;
+    background: var(--success-color);
 }
 
 .timeline-dot.status-failed {
-    background: #dc2626;
+    background: var(--error-color);
 }
 
 .timeline-dot.status-running {
-    background: #d97706;
+    background: var(--warning-color);
 }
 
 .timeline-dot.status-pending {
@@ -371,17 +401,17 @@
 }
 
 .timeline-card {
-    background: var(--bg-color);
+    background: var(--bg-primary);
     border: 1px solid var(--border-color);
-    border-radius: 6px;
+    border-radius: var(--border-radius);
     padding: 1.5rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all var(--transition-fast);
 }
 
 .timeline-card:hover {
-    border-color: var(--text-primary);
-    transform: translateY(-1px);
+    border-color: var(--text-secondary);
+    background: var(--bg-secondary);
 }
 
 .timeline-header {

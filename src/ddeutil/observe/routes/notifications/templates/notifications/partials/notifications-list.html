@@ -1,0 +1,78 @@
+{% if notifications %}
+    {% for notification in notifications %}
+        <div class="notification-item {{ 'unread' if not notification.is_read else 'read' }}"
+             data-notification-id="{{ notification.id }}"
+             data-priority="{{ notification.priority if notification.priority else 'low' }}"
+             data-type="{{ notification.type if notification.type else 'general' }}">
+
+            <!-- Notification Icon -->
+            <div class="notification-icon {{ notification.priority if notification.priority else 'low' }}">
+                <i class="bx {{ notification.icon if notification.icon else 'bx-bell' }}"></i>
+            </div>
+
+            <!-- Notification Content -->
+            <div class="notification-content">
+                <div class="notification-header">
+                    <h3 class="notification-title">{{ notification.title if notification.title else 'Notification' }}</h3>
+                    <div class="notification-meta">
+                        <span class="notification-type">{{ notification.type.title() if notification.type else 'General' }}</span>
+                        <span class="notification-time">{{ notification.timestamp.strftime('%M ago') if notification.timestamp else 'Just now' }}</span>
+                    </div>
+                </div>
+
+                <p class="notification-message">{{ notification.message if notification.message else 'No message available.' }}</p>
+
+                {% if notification.workflow_name %}
+                <div class="notification-context">
+                    <i class="bx bx-run"></i>
+                    <span>{{ notification.workflow_name }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="notification-actions">
+                {% if not notification.is_read %}
+                <button class="action-btn action-read"
+                        hx-post="/notifications/{{ notification.id }}/mark-read"
+                        hx-target="closest .notification-item"
+                        hx-swap="outerHTML"
+                        onclick="markNotificationRead('{{ notification.id }}', this)"
+                        title="Mark as read">
+                    <i class="bx bx-check"></i>
+                </button>
+                {% endif %}
+
+                {% if notification.action_url %}
+                <a href="{{ notification.action_url }}"
+                   class="action-btn action-view"
+                   title="View details">
+                    <i class="bx bx-link-external"></i>
+                </a>
+                {% endif %}
+
+                <button class="action-btn action-delete"
+                        hx-delete="/notifications/{{ notification.id }}"
+                        hx-target="closest .notification-item"
+                        hx-swap="outerHTML"
+                        hx-confirm="Delete this notification?"
+                        onclick="deleteNotification('{{ notification.id }}', this)"
+                        title="Delete">
+                    <i class="bx bx-trash"></i>
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+{% else %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="bx bx-bell-off"></i>
+        </div>
+        <h3>All caught up!</h3>
+        <p>No notifications at the moment. We'll let you know when something important happens.</p>
+        <a href="/" class="btn btn-primary">
+            <i class="bx bx-home"></i>
+            Back to Dashboard
+        </a>
+    </div>
+{% endif %}

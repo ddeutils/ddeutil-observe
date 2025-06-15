@@ -187,6 +187,28 @@ async def mark_all_notifications_read(
     return {"success": True, "message": f"Marked {count} notifications as read"}
 
 
+@notification.get("/list")
+async def notification_list_partial(
+    request: Request,
+    service: NotificationService = Depends(get_notification_service),
+    templates: Jinja2Templates = Depends(get_templates),
+):
+    """Render partial notifications list for auto-refresh."""
+    user_id = "observe"  # Get from auth context in real implementation
+    notifications_data = await service.get_notifications(
+        user_id=user_id, limit=50
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="notifications/partials/notifications-list.html",
+        context={
+            "notifications": notifications_data.notifications,
+            "metadata": notifications_data.metadata,
+        },
+    )
+
+
 @notification.get("/count")
 async def get_notification_count(
     service: NotificationService = Depends(get_notification_service),

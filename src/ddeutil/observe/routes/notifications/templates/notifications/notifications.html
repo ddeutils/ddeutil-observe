@@ -2,183 +2,257 @@
 {% set active_sidebar_js = 'true' %}
 {% block title %}Notifications{% endblock %}
 
+{% block extra_js %}
+<script>
+// Quick actions for notifications
+function markNotificationRead(notificationId, element) {
+    const card = element.closest('.notification-item');
+    card.classList.remove('unread');
+    card.classList.add('read');
+    updateUnreadCount();
+}
+
+function deleteNotification(notificationId, element) {
+    const card = element.closest('.notification-item');
+    card.style.animation = 'slideOut 0.3s ease-in forwards';
+    setTimeout(() => {
+        card.remove();
+        updateUnreadCount();
+    }, 300);
+}
+
+function updateUnreadCount() {
+    const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+    const badge = document.querySelector('[data-filter="unread"] .count');
+    const allBadge = document.querySelector('[data-filter="all"] .count');
+
+    if (badge) {
+        badge.textContent = unreadCount;
+        badge.style.display = unreadCount > 0 ? 'flex' : 'none';
+    }
+
+    if (allBadge) {
+        allBadge.textContent = document.querySelectorAll('.notification-item').length;
+    }
+}
+
+// Filter functionality
+function filterNotifications(filterType, buttonElement) {
+    // Update active filter
+    document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+    buttonElement.classList.add('active');
+
+    // Filter notifications
+    const notifications = document.querySelectorAll('.notification-item');
+    notifications.forEach(notification => {
+        let show = false;
+
+        switch(filterType) {
+            case 'all':
+                show = true;
+                break;
+            case 'unread':
+                show = notification.classList.contains('unread');
+                break;
+            case 'high':
+                show = notification.dataset.priority === 'high';
+                break;
+            case 'workflow':
+                show = notification.dataset.type === 'workflow';
+                break;
+        }
+
+        notification.style.display = show ? 'flex' : 'none';
+    });
+}
+
+// Mark all as read
+function markAllAsRead() {
+    const unreadNotifications = document.querySelectorAll('.notification-item.unread');
+    unreadNotifications.forEach(notification => {
+        notification.classList.remove('unread');
+        notification.classList.add('read');
+    });
+    updateUnreadCount();
+}
+
+// Auto-refresh
+document.addEventListener('DOMContentLoaded', function() {
+    if (document.querySelector('.notification-list')) {
+        setInterval(() => {
+            htmx.ajax('GET', '/notifications/list', {
+                target: '.notification-list',
+                swap: 'innerHTML'
+            });
+        }, 30000);
+    }
+});
+
+// Fix theme persistence after HTMX requests
+document.addEventListener('htmx:afterSwap', function(event) {
+    // Ensure theme is preserved after HTMX content replacement
+    const currentTheme = document.body.getAttribute('data-theme');
+    if (currentTheme) {
+        // Re-apply theme if needed (theme is handled by CSS variables, so this is mostly for consistency)
+        console.log('Theme preserved after HTMX swap:', currentTheme);
+    }
+
+    // Re-apply any theme-specific JavaScript if needed
+    if (window.preserveTheme) {
+        window.preserveTheme();
+    }
+
+    // Update counts after content refresh
+    updateUnreadCount();
+});
+
+// Animation keyframes for slide out
+const style = document.createElement('style');
+style.textContent = `
+@keyframes slideOut {
+    0% { transform: translateX(0); opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0; }
+}
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
+
 {% block main_content %}
 <section class="content" role="main">
     <div class="notifications-page">
+        <!-- Page Header -->
         <div class="page-header">
             <div class="header-content">
                 <h1 class="page-title">
                     <i class="bx bx-bell"></i>
                     Notifications
                 </h1>
-                <p class="page-description">Stay updated with your latest alerts</p>
+                <p class="page-subtitle">Stay updated with your latest activity</p>
             </div>
 
             <div class="header-actions">
                 {% if notifications %}
-                <button class="btn btn-outline"
-                        hx-post="/notifications/mark-all-read"
-                        hx-target="#notifications-container"
-                        hx-confirm="Mark all notifications as read?"
+                <button class="btn btn-secondary btn-sm"
+                        onclick="markAllAsRead()"
                         title="Mark all as read">
                     <i class="bx bx-check-double"></i>
-                    Mark All Read
+                    Mark all read
                 </button>
                 {% endif %}
-                <button class="btn btn-ghost notification-settings-btn"
-                        onclick="toggleNotificationSettings()"
-                        title="Quick settings">
+
+                <button class="btn btn-ghost btn-sm"
+                        onclick="window.location.href='/profile/settings#notifications'"
+                        title="Notification settings">
                     <i class="bx bx-cog"></i>
+                    Settings
                 </button>
             </div>
         </div>
 
-        <!-- Collapsible Quick Settings -->
-        <div class="notification-settings" id="notification-settings" style="display: none;">
-            <div class="settings-content">
-                <h3>Quick Settings</h3>
-                <div class="settings-toggles">
-                    <div class="toggle-item">
-                        <div class="toggle-info">
-                            <span class="toggle-label">Workflow Notifications</span>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="workflow-notifications" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-item">
-                        <div class="toggle-info">
-                            <span class="toggle-label">System Updates</span>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="system-notifications" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="toggle-item">
-                        <div class="toggle-info">
-                            <span class="toggle-label">Timing Controls</span>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" id="timing-notifications" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-                <div class="settings-actions">
-                    <a href="/profile/settings#notifications" class="btn btn-sm btn-outline">
-                        <i class="bx bx-cog"></i>
-                        More Settings
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Simplified Filters -->
-        <div class="notification-filters">
-            <button class="filter-btn active" data-filter="all">
-                <i class="bx bx-list-ul"></i>
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active"
+                    onclick="filterNotifications('all', this)"
+                    data-filter="all">
                 All
                 <span class="count">{{ (metadata.total_count if metadata and metadata.total_count else notifications|length) if notifications else 0 }}</span>
             </button>
-            <button class="filter-btn" data-filter="unread">
-                <i class="bx bx-bell"></i>
+
+            <button class="filter-tab"
+                    onclick="filterNotifications('unread', this)"
+                    data-filter="unread">
                 Unread
                 {% set unread_count = (metadata.unread_count if metadata and metadata.unread_count else (notifications|selectattr('is_read', 'equalto', false)|list|length)) if notifications else 0 %}
                 {% if unread_count > 0 %}
                 <span class="count unread">{{ unread_count }}</span>
                 {% endif %}
             </button>
-            <button class="filter-btn" data-filter="high">
-                <i class="bx bx-error"></i>
+
+            <button class="filter-tab"
+                    onclick="filterNotifications('high', this)"
+                    data-filter="high">
                 High Priority
             </button>
-            <button class="filter-btn" data-filter="workflow">
-                <i class="bx bx-run"></i>
+
+            <button class="filter-tab"
+                    onclick="filterNotifications('workflow', this)"
+                    data-filter="workflow">
                 Workflow
             </button>
         </div>
 
-        <div class="notifications-container" id="notifications-container">
+        <!-- Notifications Container -->
+        <div class="notifications-container">
             {% if notifications %}
-                <div class="notifications-list">
+                <div class="notification-list">
                     {% for notification in notifications %}
-                    <div class="notification-card {{ 'unread' if not notification.is_read else 'read' }} {{ notification.priority if notification.priority else 'low' }}"
-                        data-notification-id="{{ notification.id }}"
-                        data-priority="{{ notification.priority if notification.priority else 'low' }}"
-                        data-type="{{ notification.type if notification.type else 'general' }}">
+                    <div class="notification-item {{ 'unread' if not notification.is_read else 'read' }}"
+                         data-notification-id="{{ notification.id }}"
+                         data-priority="{{ notification.priority if notification.priority else 'low' }}"
+                         data-type="{{ notification.type if notification.type else 'general' }}">
 
-                        <!-- Clean Card Structure -->
-                        <div class="card-header">
-                            <div class="notification-icon {{ notification.color if notification.color else 'info' }}">
-                                <i class="bx {{ notification.icon if notification.icon else 'bx-bell' }}"></i>
-                            </div>
-                            <div class="notification-meta">
-                                <div class="notification-type">{{ notification.type.title() if notification.type else 'Notification' }}</div>
-                                <div class="notification-time">{{ notification.timestamp.strftime('%Y-%m-%d %H:%M') if notification.timestamp else '' }}</div>
-                            </div>
-                            <div class="card-actions">
-                                {% if not notification.is_read %}
-                                <button class="action-btn read"
-                                        hx-post="/notifications/{{ notification.id }}/mark-read"
-                                        hx-target="closest .notification-card"
-                                        hx-swap="outerHTML"
-                                        title="Mark as read">
-                                    <i class="bx bx-check"></i>
-                                </button>
-                                {% endif %}
-                                <button class="action-btn delete"
-                                        hx-delete="/notifications/{{ notification.id }}"
-                                        hx-target="closest .notification-card"
-                                        hx-swap="outerHTML"
-                                        hx-confirm="Delete this notification?"
-                                        title="Delete">
-                                    <i class="bx bx-trash"></i>
-                                </button>
-                            </div>
+                        <!-- Notification Icon -->
+                        <div class="notification-icon {{ notification.priority if notification.priority else 'low' }}">
+                            <i class="bx {{ notification.icon if notification.icon else 'bx-bell' }}"></i>
                         </div>
 
-                        <div class="card-content">
-                            <h3 class="notification-title">{{ notification.title if notification.title else 'Notification' }}</h3>
+                        <!-- Notification Content -->
+                        <div class="notification-content">
+                            <div class="notification-header">
+                                <h3 class="notification-title">{{ notification.title if notification.title else 'Notification' }}</h3>
+                                <div class="notification-meta">
+                                    <span class="notification-type">{{ notification.type.title() if notification.type else 'General' }}</span>
+                                    <span class="notification-time">{{ notification.timestamp.strftime('%M ago') if notification.timestamp else 'Just now' }}</span>
+                                </div>
+                            </div>
+
                             <p class="notification-message">{{ notification.message if notification.message else 'No message available.' }}</p>
 
-                            <!-- Additional Context -->
+                            {% if notification.workflow_name %}
                             <div class="notification-context">
-                                {% if notification.workflow_name %}
-                                <div class="notification-workflow">
-                                    <i class="bx bx-run"></i>
-                                    <span>{{ notification.workflow_name }}</span>
-                                </div>
-                                {% endif %}
-
-                                {% if notification.priority == 'high' %}
-                                <div class="priority-badge high">
-                                    <i class="bx bx-error"></i>
-                                    High Priority
-                                </div>
-                                {% elif notification.priority == 'medium' %}
-                                <div class="priority-badge medium">
-                                    <i class="bx bx-info-circle"></i>
-                                    Medium Priority
-                                </div>
-                                {% endif %}
+                                <i class="bx bx-run"></i>
+                                <span>{{ notification.workflow_name }}</span>
                             </div>
+                            {% endif %}
                         </div>
 
-                        {% if notification.action_url %}
-                        <div class="card-footer">
-                            <a href="{{ notification.action_url }}" class="btn btn-sm btn-primary">
+                        <!-- Quick Actions -->
+                        <div class="notification-actions">
+                            {% if not notification.is_read %}
+                            <button class="action-btn action-read"
+                                    hx-post="/notifications/{{ notification.id }}/mark-read"
+                                    hx-target="closest .notification-item"
+                                    hx-swap="outerHTML"
+                                    onclick="markNotificationRead('{{ notification.id }}', this)"
+                                    title="Mark as read">
+                                <i class="bx bx-check"></i>
+                            </button>
+                            {% endif %}
+
+                            {% if notification.action_url %}
+                            <a href="{{ notification.action_url }}"
+                               class="action-btn action-view"
+                               title="View details">
                                 <i class="bx bx-link-external"></i>
-                                View Details
                             </a>
+                            {% endif %}
+
+                            <button class="action-btn action-delete"
+                                    hx-delete="/notifications/{{ notification.id }}"
+                                    hx-target="closest .notification-item"
+                                    hx-swap="outerHTML"
+                                    hx-confirm="Delete this notification?"
+                                    onclick="deleteNotification('{{ notification.id }}', this)"
+                                    title="Delete">
+                                <i class="bx bx-trash"></i>
+                            </button>
                         </div>
-                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
 
-                <!-- Auto-refresh indicator -->
+                <!-- Auto-refresh indicator - Old design restored -->
                 <div class="auto-refresh-indicator">
                     <i class="bx bx-refresh"></i>
                     <span>Auto-refresh every 30 seconds</span>
@@ -188,7 +262,7 @@
                     <div class="empty-icon">
                         <i class="bx bx-bell-off"></i>
                     </div>
-                    <h3>All clear!</h3>
+                    <h3>All caught up!</h3>
                     <p>No notifications at the moment. We'll let you know when something important happens.</p>
                     <a href="/" class="btn btn-primary">
                         <i class="bx bx-home"></i>
@@ -203,156 +277,4 @@
 
 {% block link_internal_css %}
 <link rel="stylesheet" href="/static/css/notifications.css">
-{% endblock %}
-
-{% block additional_js %}
-<script>
-// Notification filtering and interactions
-document.addEventListener('DOMContentLoaded', function() {
-    // Only run on notifications page
-    if (!document.querySelector('.notifications-page')) return;
-
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const notifications = document.querySelectorAll('.notification-card');
-
-    // Filter functionality
-    filterButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const filter = button.getAttribute('data-filter');
-
-            // Update active filter button
-            filterButtons.forEach(btn => btn.classList.remove('active'));
-            button.classList.add('active');
-
-            // Filter notifications
-            notifications.forEach(notification => {
-                let show = false;
-
-                switch(filter) {
-                    case 'all':
-                        show = true;
-                        break;
-                    case 'unread':
-                        show = notification.classList.contains('unread');
-                        break;
-                    case 'high':
-                        show = notification.getAttribute('data-priority') === 'high';
-                        break;
-                    case 'workflow':
-                        const dataType = notification.getAttribute('data-type');
-                        show = dataType && dataType.includes && dataType.includes('workflow');
-                        break;
-                }
-
-                // Use proper display value for notification cards
-                notification.style.display = show ? '' : 'none';
-            });
-        });
-    });
-
-    // Auto-refresh functionality (every 30 seconds)
-    if (document.querySelector('.notifications-list')) {
-        setInterval(() => {
-            htmx.ajax('GET', '/notifications', {target: '#notifications-container'});
-        }, 30000);
-    }
-});
-
-// Toggle notification settings
-function toggleNotificationSettings() {
-    const settings = document.getElementById('notification-settings');
-    const isVisible = settings.style.display !== 'none';
-    settings.style.display = isVisible ? 'none' : 'block';
-
-    if (!isVisible) {
-        settings.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-}
-
-// Mark notifications as read with smooth animation
-document.addEventListener('htmx:afterRequest', function(evt) {
-    if (evt.detail.xhr.status === 200) {
-        if (evt.detail.pathInfo.path.includes('mark-read')) {
-            const item = evt.detail.target;
-            item.classList.remove('unread');
-            item.classList.add('read');
-
-            // Update filter counts
-            updateFilterCounts();
-        } else if (evt.detail.pathInfo.path.includes('mark-all-read')) {
-            // Update all items to read state
-            document.querySelectorAll('.notification-card.unread').forEach(item => {
-                item.classList.remove('unread');
-                item.classList.add('read');
-            });
-            updateFilterCounts();
-        }
-    }
-});
-
-function updateFilterCounts() {
-    const totalCount = document.querySelectorAll('.notification-card').length;
-    const unreadCount = document.querySelectorAll('.notification-card.unread').length;
-
-    // Update filter button counts
-    const allCountSpan = document.querySelector('[data-filter="all"] .count');
-    const unreadCountSpan = document.querySelector('[data-filter="unread"] .count');
-
-    if (allCountSpan) allCountSpan.textContent = totalCount;
-    if (unreadCountSpan) {
-        if (unreadCount > 0) {
-            unreadCountSpan.textContent = unreadCount;
-            unreadCountSpan.style.display = 'inline';
-        } else {
-            unreadCountSpan.style.display = 'none';
-        }
-    }
-}
-
-// Smooth animations for new notifications
-document.addEventListener('htmx:afterSwap', function(evt) {
-    if (evt.detail.target.id === 'notifications-container') {
-        // Re-attach event listeners to new elements
-        const newFilterButtons = document.querySelectorAll('.filter-btn');
-        newFilterButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const filter = button.getAttribute('data-filter');
-
-                // Update active filter button
-                newFilterButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-
-                // Filter notifications
-                const newNotifications = document.querySelectorAll('.notification-card');
-                newNotifications.forEach(notification => {
-                    let show = false;
-
-                    switch(filter) {
-                        case 'all':
-                            show = true;
-                            break;
-                        case 'unread':
-                            show = notification.classList.contains('unread');
-                            break;
-                        case 'high':
-                            show = notification.getAttribute('data-priority') === 'high';
-                            break;
-                        case 'workflow':
-                            const dataType = notification.getAttribute('data-type');
-                            show = dataType && dataType.includes && dataType.includes('workflow');
-                            break;
-                    }
-
-                    notification.style.display = show ? '' : 'none';
-                });
-            });
-        });
-    }
-});
-
-// Console log for debugging
-console.log('Notification page loaded successfully');
-console.log('Found', document.querySelectorAll('.notification-card').length, 'notifications');
-console.log('Found', document.querySelectorAll('.filter-btn').length, 'filter buttons');
-</script>
 {% endblock %}
