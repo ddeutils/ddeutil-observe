@@ -103,9 +103,19 @@ async def http_exception_handler(request: Request, exc: HTTPException):
         if (
             exc.detail == "Could not validate credentials"
             or exc.detail == "Not authenticated"
+            or exc.detail == "Token was expired"
         ):
             return RedirectResponse(
                 url="/auth/login",
+                status_code=st.HTTP_307_TEMPORARY_REDIRECT,
+            )
+
+    # Handle 307 redirects from authentication dependencies
+    if exc.status_code == st.HTTP_307_TEMPORARY_REDIRECT:
+        location = exc.headers.get("Location")
+        if location:
+            return RedirectResponse(
+                url=location,
                 status_code=st.HTTP_307_TEMPORARY_REDIRECT,
             )
 
@@ -151,8 +161,19 @@ app.mount(
 @app.get("/")
 async def home(request: Request):
     """The home page that redirect to main page."""
+    # Check if user is authenticated by looking for tokens
+    access_token = request.cookies.get("access_token")
+    refresh_token = request.cookies.get("refresh_token")
+
+    if not access_token and not refresh_token:
+        # User is not authenticated, redirect to login
+        return RedirectResponse(
+            url="/auth/login",
+            status_code=st.HTTP_307_TEMPORARY_REDIRECT,
+        )
+
+    # User appears to be authenticated, redirect to workflow page
     return RedirectResponse(
-        # TODO: remove current request url_for to workflow page.
-        request.url_for("workflow_read_all"),
+        url="/workflow/",
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,
     )

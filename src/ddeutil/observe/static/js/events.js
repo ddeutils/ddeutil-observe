@@ -103,12 +103,14 @@ class NotificationManager {
         this.loadUnreadCount();
         this.setupEventListeners();
 
-        // Auto-refresh every 30 seconds
-        setInterval(() => {
-            if (!this.isDropdownOpen) {
-                this.loadUnreadCount();
-            }
-        }, 30000);
+        // Auto-refresh every 30 seconds (but not on auth pages)
+        if (!this.isAuthPage()) {
+            setInterval(() => {
+                if (!this.isDropdownOpen) {
+                    this.loadUnreadCount();
+                }
+            }, 30000);
+        }
     }
 
     setupEventListeners() {
@@ -129,15 +131,43 @@ class NotificationManager {
     }
 
     async loadUnreadCount() {
+        // Skip loading notifications if on auth pages
+        if (this.isAuthPage()) {
+            return;
+        }
+
         try {
             const response = await fetch('/notifications/count?user_id=observe');
+
+            // Check if response is HTML (likely a redirect to login)
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                console.warn('Received non-JSON response for notification count, likely not authenticated');
+                return;
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const data = await response.json();
             this.updateBadge(data.unread_count);
         } catch (error) {
             console.error('Failed to load notification count:', error);
-            // Fallback to mock data if API fails
-            this.updateBadge(4);
+            // Don't show fallback data on auth pages or when not authenticated
+            if (!this.isAuthPage()) {
+                this.updateBadge(0);
+            }
         }
+    }
+
+    isAuthPage() {
+        // Check if current page is an authentication page
+        const path = window.location.pathname;
+        return path.includes('/auth/') ||
+               path.includes('/login') ||
+               path.includes('/register') ||
+               document.getElementById('auth-container') !== null;
     }
 
     updateBadge(count) {

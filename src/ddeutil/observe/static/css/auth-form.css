@@ -1,3 +1,12 @@
+/* Auth page wrapper for centering */
+.auth-page-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
+}
+
 [id=auth-container] {
     width: 100%;
     max-width: 380px;
@@ -114,12 +123,12 @@
 }
 
 @media (max-width: 480px) {
-    body {
-      padding: 0.5rem;
+    .auth-page-wrapper {
+        padding: 0.5rem;
     }
 
     [id=auth-container] {
-      padding: 1.5rem;
-      box-shadow: none;
+        padding: 1.5rem;
+        box-shadow: none;
     }
 }

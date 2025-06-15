@@ -6,12 +6,11 @@
 from __future__ import annotations
 
 import time
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi import status as st
 
-from ..audit.crud import AuditCRUD
-from ..audit.schemas import Audit, AuditCreate
 from .crud import WorkflowCRUD
 from .schemas import Workflow, WorkflowCreate
 
@@ -45,12 +44,16 @@ async def api_workflow_create(
     return await service.create(workflow=wf)
 
 
-@workflow.get("/{name}/logs")
-async def api_workflow_get_logs(
+@workflow.get("/{name}/runs")
+async def api_workflow_get_runs(
     name: str,
+    start_date: Optional[str] = Query(None),
+    end_date: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    limit: int = Query(50, le=200),
     service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
-    """Get logs for a specific workflow."""
+    """Get workflow runs with optional filtering."""
     db_workflow = await service.get_by_name(name=name)
     if not db_workflow:
         raise HTTPException(
@@ -58,13 +61,53 @@ async def api_workflow_get_logs(
             detail="Workflow not found.",
         )
 
-    # Get workflow runs and format as logs for now
-    runs = await service.get_workflow_runs(workflow_name=name, limit=50)
+    runs = await service.get_workflow_runs(
+        workflow_name=name,
+        start_date=start_date,
+        end_date=end_date,
+        status=status,
+        limit=limit,
+    )
 
-    # Format logs for terminal display
+    return {
+        "workflow_name": name,
+        "runs": runs,
+        "total_runs": len(runs),
+    }
+
+
+@workflow.get("/{name}/logs")
+async def api_workflow_get_logs(
+    name: str,
+    date: Optional[str] = Query(
+        None, description="Filter logs by date (YYYY-MM-DD)"
+    ),
+    limit: int = Query(100, le=500),
+    service: WorkflowCRUD = Depends(WorkflowCRUD),
+):
+    """Get workflow logs with optional date filtering."""
+    db_workflow = await service.get_by_name(name=name)
+    if not db_workflow:
+        raise HTTPException(
+            status_code=st.HTTP_404_NOT_FOUND,
+            detail="Workflow not found.",
+        )
+
+    # Get runs for the specified date or recent runs
+    start_date = date
+    end_date = date
+
+    runs = await service.get_workflow_runs(
+        workflow_name=name,
+        start_date=start_date,
+        end_date=end_date,
+        limit=limit,
+    )
+
+    # Generate synthetic logs based on run data
     logs = []
     for run in runs:
-        # Create multiple log entries per run to simulate detailed logging
+        # Create multiple audit logs for each run to simulate detailed logging
         log_entries = [
             {
                 "timestamp": (
@@ -125,14 +168,19 @@ async def api_workflow_get_logs(
 
         logs.extend(log_entries)
 
-    # Sort by timestamp descending (newest first)
-    logs.sort(key=lambda x: x["timestamp"], reverse=True)
+    # Sort logs by timestamp
+    logs.sort(key=lambda x: x["timestamp"])
 
-    return logs
+    return {
+        "workflow_name": name,
+        "logs": logs,
+        "total_logs": len(logs),
+        "filter_date": date,
+    }
 
 
 @workflow.post("/{name}/run")
-async def api_workflow_run(
+async def api_workflow_trigger_run(
     name: str,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
@@ -144,8 +192,8 @@ async def api_workflow_run(
             detail="Workflow not found.",
         )
 
-    # TODO: Implement actual workflow execution logic
-    # For now, return a mock response
+    # TODO: Implement actual workflow triggering logic
+    # For now, we'll just return a success response
     return {
         "message": f"Workflow '{name}' run triggered successfully",
         "run_id": f"run-{name}-{int(time.time())}",
@@ -153,23 +201,24 @@ async def api_workflow_run(
     }
 
 
-@workflow.get("/run/{run_id}/status")
-async def api_workflow_run_status(
+@workflow.get("/run/{run_id}")
+async def api_workflow_get_run_detail(
     run_id: str,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
-    """Get status of a specific workflow run."""
+    """Get detailed information about a specific workflow run."""
     try:
         run_detail = await service.get_run_detail(run_id)
         if not run_detail:
-            raise HTTPException(
-                status_code=st.HTTP_404_NOT_FOUND,
-                detail="Run not found.",
-            )
+            raise ValueError("Run not found")
 
         return {
-            "run_id": run_id,
+            "id": run_detail["id"],
+            "release_id": run_detail["release_id"],
+            "workflow_name": run_detail["workflow_name"],
+            "workflow_desc": run_detail["workflow_desc"],
             "status": run_detail["status"],
+            "execution_date": run_detail["execution_date"],
             "start_time": run_detail["start_time"],
             "end_time": run_detail["end_time"],
             "duration": run_detail["duration"],
@@ -182,20 +231,14 @@ async def api_workflow_run_status(
 
 
 @workflow.post("/run/{run_id}/cancel")
-async def api_workflow_run_cancel(
+async def api_workflow_cancel_run(
     run_id: str,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
-    """Cancel a workflow run."""
+    """Cancel a running workflow."""
     try:
-        run_detail = await service.get_run_detail(run_id)
-        if not run_detail:
-            raise HTTPException(
-                status_code=st.HTTP_404_NOT_FOUND,
-                detail="Run not found.",
-            )
-
         # TODO: Implement actual cancellation logic
+        # For now, we'll just return a success response
         return {
             "message": f"Run {run_id} cancellation requested",
             "status": "cancelled",
@@ -208,20 +251,14 @@ async def api_workflow_run_cancel(
 
 
 @workflow.post("/run/{run_id}/retry")
-async def api_workflow_run_retry(
+async def api_workflow_retry_run(
     run_id: str,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
 ):
-    """Retry a workflow run."""
+    """Retry a failed workflow run."""
     try:
-        run_detail = await service.get_run_detail(run_id)
-        if not run_detail:
-            raise HTTPException(
-                status_code=st.HTTP_404_NOT_FOUND,
-                detail="Run not found.",
-            )
-
         # TODO: Implement actual retry logic
+        # For now, we'll just return a success response with a new run ID
         new_run_id = f"retry-{run_id}-{int(time.time())}"
         return {
             "message": f"Run {run_id} retry triggered",
@@ -235,20 +272,49 @@ async def api_workflow_run_retry(
         ) from e
 
 
-@workflow.post("/{name}/audit", response_model=Audit)
-async def api_workflow_create_audit(
+@workflow.get("/{name}/audit/{release_id}")
+async def api_workflow_get_audit_log(
     name: str,
-    audit_trace: AuditCreate,
+    release_id: str,
     service: WorkflowCRUD = Depends(WorkflowCRUD),
-    service_audit: AuditCRUD = Depends(AuditCRUD),
 ):
+    """Get audit logs for a specific workflow run."""
     db_workflow = await service.get_by_name(name=name)
     if not db_workflow:
         raise HTTPException(
-            status_code=st.HTTP_302_FOUND,
-            detail="Workflow does not registered in observe database.",
+            status_code=st.HTTP_404_NOT_FOUND,
+            detail="Workflow not found.",
         )
-    return await service_audit.create_with_trace(
-        workflow_id=db_workflow.id,
-        audit_trace=audit_trace,
+
+    # TODO: Implement audit trace retrieval
+    # For now, return basic information
+    return {
+        "workflow_name": name,
+        "release_id": release_id,
+        "audit_trace": {},
+    }
+
+
+@workflow.get("/{name}/duration-data")
+async def api_workflow_get_duration_data(
+    name: str,
+    limit: int = 50,
+    service: WorkflowCRUD = Depends(WorkflowCRUD),
+):
+    """Get workflow execution duration data for charting."""
+    db_workflow = await service.get_by_name(name=name)
+    if not db_workflow:
+        raise HTTPException(
+            status_code=st.HTTP_404_NOT_FOUND,
+            detail="Workflow not found.",
+        )
+
+    duration_data = await service.get_workflow_duration_data(
+        workflow_name=name, limit=limit
     )
+
+    return {
+        "workflow_name": name,
+        "data": duration_data,
+        "total_records": len(duration_data),
+    }

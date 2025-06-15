@@ -354,29 +354,21 @@ class WorkflowCRUD(BaseCRUD):
                         "run_id": log.run_id,
                         "parent_run_id": log.parent_run_id,
                         "release_create_date": log.release_create_date,
-                        "traces": (
-                            [
-                                {
-                                    "run_id": log.trace.run_id,
-                                    "meta": (
-                                        [
-                                            {
-                                                "trace_id": meta.trace_id,
-                                                "mode": meta.mode,
-                                                "datetime": meta.datetime,
-                                                "message": meta.message,
-                                                "filename": meta.filename,
-                                                "lineno": meta.lineno,
-                                            }
-                                            for meta in log.trace.meta
-                                        ]
-                                        if log.trace.meta
-                                        else []
-                                    ),
-                                }
-                            ]
+                        "trace_info": (
+                            {
+                                "run_id": (
+                                    log.trace.run_id if log.trace else None
+                                ),
+                                "meta_count": (
+                                    len(log.trace.meta)
+                                    if log.trace
+                                    and hasattr(log.trace, "meta")
+                                    and log.trace.meta
+                                    else 0
+                                ),
+                            }
                             if log.trace
-                            else []
+                            else None
                         ),
                     }
                     for log in audit.logs
@@ -385,3 +377,57 @@ class WorkflowCRUD(BaseCRUD):
                 else []
             ),
         }
+
+    async def get_workflow_duration_data(
+        self, workflow_name: str, limit: int = 50
+    ) -> list[dict[str, Any]]:
+        """Get workflow execution duration data for charting (similar to Airflow Task Duration)."""
+
+        stmt = (
+            select(
+                md.Audit.execution_date,
+                md.Audit.duration,
+                md.Audit.status,
+                md.Audit.release_id,
+                md.Audit.start_time,
+                md.Audit.end_time,
+            )
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(
+                and_(
+                    md.Workflow.name == workflow_name,
+                    md.Workflow.delete_flag == false(),
+                    md.Audit.duration.is_not(
+                        None
+                    ),  # Only include runs with duration data
+                )
+            )
+            .order_by(desc(md.Audit.execution_date))
+            .limit(limit)
+        )
+
+        result = await self.async_session.execute(stmt)
+
+        duration_data = []
+        for row in result:
+            duration_data.append(
+                {
+                    "execution_date": (
+                        row.execution_date.isoformat()
+                        if row.execution_date
+                        else None
+                    ),
+                    "duration": float(row.duration) if row.duration else 0.0,
+                    "status": row.status,
+                    "release_id": row.release_id,
+                    "start_time": (
+                        row.start_time.isoformat() if row.start_time else None
+                    ),
+                    "end_time": (
+                        row.end_time.isoformat() if row.end_time else None
+                    ),
+                }
+            )
+
+        # Reverse to get chronological order (oldest first)
+        return list(reversed(duration_data))

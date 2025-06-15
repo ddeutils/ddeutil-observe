@@ -79,20 +79,12 @@
             Overview
         </button>
         <button class="tab-button"
-                data-tab="runs"
+                data-tab="execution"
                 role="tab"
                 aria-selected="false"
-                onclick="switchTab('runs')">
-            <i class="bx bx-time"></i>
-            Runs
-        </button>
-        <button class="tab-button"
-                data-tab="logs"
-                role="tab"
-                aria-selected="false"
-                onclick="switchTab('logs')">
-            <i class="bx bx-file-blank"></i>
-            Logs
+                onclick="switchTab('execution')">
+            <i class="bx bx-bar-chart-alt-2"></i>
+            Execution Analysis
         </button>
         <button class="tab-button"
                 data-tab="config"
@@ -184,105 +176,140 @@
             </div>
         </div>
 
-        <!-- Runs Tab -->
-        <div class="tab-content" id="runs-tab" role="tabpanel">
-            <div class="runs-section">
-                <div class="runs-header">
-                    <h3>Workflow Runs</h3>
-                    <div class="runs-filters">
-                        <select id="status-filter" onchange="filterRuns()">
-                            <option value="">All Statuses</option>
-                            <option value="success">Success</option>
-                            <option value="failed">Failed</option>
-                            <option value="running">Running</option>
-                            <option value="pending">Pending</option>
-                        </select>
-                        <input type="date" id="date-filter" onchange="filterRuns()" placeholder="Filter by date">
+        <!-- Execution Analysis Tab (formerly Duration + Runs + Logs) -->
+        <div class="tab-content" id="execution-tab" role="tabpanel">
+            <div class="execution-analysis-container">
+                <!-- Duration Chart Section -->
+                <div class="duration-chart-section">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <h3><i class="bx bx-line-chart"></i> Execution Duration Timeline</h3>
+                            <p class="section-subtitle">Click on any point to view detailed execution data</p>
+                        </div>
+                        <div class="chart-controls">
+                            <select id="duration-limit" onchange="loadDurationChart()">
+                                <option value="25">Last 25 runs</option>
+                                <option value="50" selected>Last 50 runs</option>
+                                <option value="100">Last 100 runs</option>
+                            </select>
+                            <button class="btn btn-outline" onclick="refreshDurationChart()">
+                                <i class="bx bx-refresh"></i>
+                                Refresh
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="duration-chart" width="800" height="300"></canvas>
+                    </div>
+
+                    <div class="duration-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Average Duration:</span>
+                            <span id="avg-duration" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Min Duration:</span>
+                            <span id="min-duration" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Max Duration:</span>
+                            <span id="max-duration" class="stat-value">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Runs:</span>
+                            <span id="total-runs" class="stat-value">-</span>
+                        </div>
                     </div>
                 </div>
 
-                <div class="runs-timeline" id="runs-timeline">
-                    {% if all_runs %}
-                    {% for run in all_runs %}
-                    <div class="timeline-item status-{{ run.status }}" data-status="{{ run.status }}" data-date="{{ run.execution_date.strftime('%Y-%m-%d') if run.execution_date else '' }}">
-                        <div class="timeline-marker">
-                            <div class="timeline-dot status-{{ run.status }}"></div>
-                        </div>
-                        <div class="timeline-content">
-                            <div class="timeline-card" onclick="viewRunDetail('{{ run.id }}')">
-                                <div class="timeline-header">
-                                    <div class="run-title">
-                                        <span class="run-id">{{ run.release_id }}</span>
-                                        <span class="run-date">{{ run.execution_date.strftime('%Y-%m-%d %H:%M:%S') if run.execution_date else 'N/A' }}</span>
-                                    </div>
-                                    <div class="run-status-badge status-{{ run.status }}">
-                                        {% if run.status == 'success' %}
-                                            <i class="bx bx-check-circle"></i>
-                                        {% elif run.status == 'failed' %}
-                                            <i class="bx bx-x-circle"></i>
-                                        {% elif run.status == 'running' %}
-                                            <i class="bx bx-time"></i>
-                                        {% elif run.status == 'pending' %}
-                                            <i class="bx bx-hourglass"></i>
-                                        {% endif %}
-                                        {{ run.status.title() }}
-                                    </div>
+                <!-- Execution Details Section -->
+                <div class="execution-details-section">
+                    <div class="execution-panel">
+                        <!-- Selected Execution Info -->
+                        <div class="selected-execution-header">
+                            <div class="execution-info">
+                                <h4 id="selected-execution-title">Latest Execution</h4>
+                                <div class="execution-meta">
+                                    <span id="selected-execution-date">-</span>
+                                    <span class="status-badge" id="selected-execution-status">-</span>
                                 </div>
-                                <div class="timeline-body">
-                                    <div class="run-details">
-                                        <span class="detail-item">
-                                            <strong>Duration:</strong>
-                                            {% if run.duration %}
-                                                {{ "%.2f"|format(run.duration) }}s
-                                            {% else %}
-                                                -
-                                            {% endif %}
-                                        </span>
-                                        {% if run.error_message %}
-                                        <span class="detail-item error">
-                                            <strong>Error:</strong> {{ run.error_message[:100] }}...
-                                        </span>
-                                        {% endif %}
-                                    </div>
+                            </div>
+                            <div class="execution-actions">
+                                <button class="btn btn-sm btn-outline" onclick="refreshSelectedExecution()">
+                                    <i class="bx bx-refresh"></i>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Execution Tabs -->
+                        <div class="execution-tabs">
+                            <button class="execution-tab-button active" data-tab="runs" onclick="switchExecutionTab('runs')">
+                                <i class="bx bx-time"></i>
+                                Runs Details
+                            </button>
+                            <button class="execution-tab-button" data-tab="logs" onclick="switchExecutionTab('logs')">
+                                <i class="bx bx-file-blank"></i>
+                                Execution Logs
+                            </button>
+                        </div>
+
+                        <!-- Runs Tab Content -->
+                        <div class="execution-tab-content active" id="execution-runs-tab">
+                            <div class="runs-filters">
+                                <input type="date" id="execution-date-filter" onchange="filterExecutionData()" placeholder="Filter by date">
+                                <select id="execution-status-filter" onchange="filterExecutionData()">
+                                    <option value="">All Statuses</option>
+                                    <option value="success">Success</option>
+                                    <option value="failed">Failed</option>
+                                    <option value="running">Running</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+
+                            <div class="runs-timeline" id="execution-runs-timeline">
+                                <!-- Runs data will be loaded here -->
+                                <div class="runs-loading">
+                                    <i class="bx bx-loader-alt bx-spin"></i>
+                                    <p>Loading execution runs...</p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                    {% else %}
-                    <div class="empty-state">
-                        <i class="bx bx-time"></i>
-                        <h4>No runs found</h4>
-                        <p>This workflow hasn't been executed yet.</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
 
-        <!-- Logs Tab -->
-        <div class="tab-content" id="logs-tab" role="tabpanel">
-            <div class="logs-section">
-                <div class="logs-header">
-                    <h3>Execution Logs</h3>
-                    <div class="logs-controls">
-                        <button class="btn btn-outline" onclick="refreshLogs()">
-                            <i class="bx bx-refresh"></i>
-                            Refresh
-                        </button>
-                        <button class="btn btn-outline" onclick="clearLogs()">
-                            <i class="bx bx-trash"></i>
-                            Clear
-                        </button>
-                    </div>
-                </div>
+                        <!-- Logs Tab Content -->
+                        <div class="execution-tab-content" id="execution-logs-tab">
+                            <div class="logs-controls">
+                                <div class="log-filters">
+                                    <select id="log-level-filter" onchange="filterLogs()">
+                                        <option value="">All Levels</option>
+                                        <option value="INFO">Info</option>
+                                        <option value="SUCCESS">Success</option>
+                                        <option value="ERROR">Error</option>
+                                        <option value="WARNING">Warning</option>
+                                    </select>
+                                </div>
+                                <div class="log-actions">
+                                    <button class="btn btn-sm btn-outline" onclick="refreshLogs()">
+                                        <i class="bx bx-refresh"></i>
+                                        Refresh
+                                    </button>
+                                    <button class="btn btn-sm btn-outline" onclick="clearLogs()">
+                                        <i class="bx bx-trash"></i>
+                                        Clear
+                                    </button>
+                                </div>
+                            </div>
 
-                <div class="logs-content" id="logs-content">
-                    <div class="logs-terminal" id="logs-terminal">
-                        <!-- Logs will be loaded here -->
-                        <div class="log-loading">
-                            <i class="bx bx-loader-alt bx-spin"></i>
-                            Loading logs...
+                            <div class="logs-content" id="execution-logs-content">
+                                <div class="logs-terminal" id="execution-logs-terminal">
+                                    <!-- Logs will be loaded here -->
+                                    <div class="log-loading">
+                                        <i class="bx bx-loader-alt bx-spin"></i>
+                                        <p>Loading execution logs...</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -344,5 +371,6 @@
 {% endblock %}
 
 {% block additional_js %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="/static/js/workflow-detail.js" defer></script>
 {% endblock %}
