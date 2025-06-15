@@ -123,11 +123,20 @@ async def workflow_detail_page(
     # Get all runs for the workflow
     all_runs = await crud.get_workflow_runs(workflow_name=name, limit=100)
 
+    # Get stage details for the workflow
+    stage_details = await crud.get_workflow_stage_details(name, limit=10)
+
+    # Get duration data for charts
+    duration_data = await crud.get_workflow_duration_data(name, limit=50)
+
+    # Get task performance data
+    task_performance = await crud.get_task_performance_data(name, limit=100)
+
     # Determine workflow status
     workflow_status = "active" if workflow.on else "inactive"
 
     # Calculate next and last run times
-    next_run_time = None  # TODO: Calculate based on cron schedule
+    next_run_time = await crud.get_workflow_next_run(name)
     last_run_time = recent_runs[0]["execution_date"] if recent_runs else None
 
     # Pre-serialize workflow data for JavaScript
@@ -159,6 +168,9 @@ async def workflow_detail_page(
             "stats": stats,
             "recent_runs": recent_runs,
             "all_runs": all_runs,
+            "stage_details": stage_details,
+            "duration_data": duration_data,
+            "task_performance": task_performance,
             "next_run_time": next_run_time,
             "last_run_time": last_run_time,
         },

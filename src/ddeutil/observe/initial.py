@@ -96,6 +96,7 @@ async def create_workflows(session: AsyncSession):
         Audit,
         AuditLog,
         Workflow,
+        WorkflowLog,
     )
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
@@ -113,7 +114,10 @@ async def create_workflows(session: AsyncSession):
             on=[{"cronjob": "0 6 * * *", "timezone": "Asia/Bangkok"}],
             jobs={
                 "ingest-job": {
-                    "stages": [{"name": "Extract"}, {"name": "Load"}]
+                    "stages": [
+                        {"name": "Extract", "timeout": 3600, "retries": 3},
+                        {"name": "Load", "timeout": 1800, "retries": 2},
+                    ]
                 }
             },
         ),
@@ -128,9 +132,9 @@ async def create_workflows(session: AsyncSession):
             jobs={
                 "etl-job": {
                     "stages": [
-                        {"name": "Extract"},
-                        {"name": "Transform"},
-                        {"name": "Load"},
+                        {"name": "Extract", "timeout": 3600, "retries": 3},
+                        {"name": "Transform", "timeout": 7200, "retries": 2},
+                        {"name": "Load", "timeout": 1800, "retries": 2},
                     ]
                 }
             },
@@ -145,7 +149,10 @@ async def create_workflows(session: AsyncSession):
             on=[{"cronjob": "0 10 * * *", "timezone": "Asia/Bangkok"}],
             jobs={
                 "report-job": {
-                    "stages": [{"name": "Process"}, {"name": "Generate"}]
+                    "stages": [
+                        {"name": "Process", "timeout": 1800, "retries": 2},
+                        {"name": "Generate", "timeout": 900, "retries": 1},
+                    ]
                 }
             },
         ),
@@ -160,9 +167,9 @@ async def create_workflows(session: AsyncSession):
             jobs={
                 "ml-job": {
                     "stages": [
-                        {"name": "Prepare"},
-                        {"name": "Train"},
-                        {"name": "Validate"},
+                        {"name": "Prepare", "timeout": 3600, "retries": 2},
+                        {"name": "Train", "timeout": 14400, "retries": 1},
+                        {"name": "Validate", "timeout": 1800, "retries": 2},
                     ]
                 }
             },
@@ -177,7 +184,10 @@ async def create_workflows(session: AsyncSession):
             on=[{"cronjob": "0 */4 * * *", "timezone": "Asia/Bangkok"}],
             jobs={
                 "validation-job": {
-                    "stages": [{"name": "Check"}, {"name": "Report"}]
+                    "stages": [
+                        {"name": "Check", "timeout": 1800, "retries": 2},
+                        {"name": "Report", "timeout": 900, "retries": 1},
+                    ]
                 }
             },
         ),
@@ -191,7 +201,122 @@ async def create_workflows(session: AsyncSession):
             on=[{"cronjob": "0 1 * * 0", "timezone": "Asia/Bangkok"}],
             jobs={
                 "cleanup-job": {
-                    "stages": [{"name": "Scan"}, {"name": "Delete"}]
+                    "stages": [
+                        {"name": "Scan", "timeout": 1800, "retries": 2},
+                        {"name": "Delete", "timeout": 900, "retries": 1},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-data-migration",
+            desc="Database migration and schema updates",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "target_version": {"type": "str"},
+            },
+            on=[{"cronjob": "0 3 * * 0", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "migration-job": {
+                    "stages": [
+                        {"name": "Backup", "timeout": 3600, "retries": 2},
+                        {"name": "Migrate", "timeout": 7200, "retries": 1},
+                        {"name": "Verify", "timeout": 1800, "retries": 2},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-api-sync",
+            desc="Synchronize data with external APIs",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "api_endpoint": {"type": "str"},
+            },
+            on=[{"cronjob": "0 */2 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "sync-job": {
+                    "stages": [
+                        {"name": "Connect", "timeout": 300, "retries": 3},
+                        {"name": "Sync", "timeout": 1800, "retries": 2},
+                        {"name": "Verify", "timeout": 900, "retries": 1},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-data-archiving",
+            desc="Archive historical data to cold storage",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "retention_period": {"type": "int"},
+            },
+            on=[{"cronjob": "0 4 * * 0", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "archive-job": {
+                    "stages": [
+                        {"name": "Identify", "timeout": 1800, "retries": 2},
+                        {"name": "Compress", "timeout": 3600, "retries": 1},
+                        {"name": "Transfer", "timeout": 7200, "retries": 2},
+                        {"name": "Cleanup", "timeout": 1800, "retries": 1},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-performance-test",
+            desc="Run performance tests on critical systems",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "test_scenario": {"type": "str"},
+            },
+            on=[{"cronjob": "0 5 * * 0", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "test-job": {
+                    "stages": [
+                        {"name": "Setup", "timeout": 1800, "retries": 2},
+                        {"name": "Execute", "timeout": 3600, "retries": 1},
+                        {"name": "Analyze", "timeout": 1800, "retries": 2},
+                        {"name": "Report", "timeout": 900, "retries": 1},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-security-scan",
+            desc="Perform security vulnerability scans",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "scan_type": {"type": "str"},
+            },
+            on=[{"cronjob": "0 2 * * 0", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "scan-job": {
+                    "stages": [
+                        {"name": "Initialize", "timeout": 900, "retries": 2},
+                        {"name": "Scan", "timeout": 7200, "retries": 1},
+                        {"name": "Analyze", "timeout": 3600, "retries": 2},
+                        {"name": "Report", "timeout": 1800, "retries": 1},
+                    ]
+                }
+            },
+        ),
+        WorkflowCreate(
+            name="wf-data-enrichment",
+            desc="Enrich raw data with additional attributes",
+            params={
+                "asat-dt": {"type": "datetime"},
+                "enrichment_type": {"type": "str"},
+            },
+            on=[{"cronjob": "0 7 * * *", "timezone": "Asia/Bangkok"}],
+            jobs={
+                "enrichment-job": {
+                    "stages": [
+                        {"name": "Extract", "timeout": 1800, "retries": 2},
+                        {"name": "Enrich", "timeout": 3600, "retries": 2},
+                        {"name": "Validate", "timeout": 1800, "retries": 1},
+                        {"name": "Load", "timeout": 1800, "retries": 2},
+                    ]
                 }
             },
         ),
@@ -312,19 +437,71 @@ async def create_workflows(session: AsyncSession):
                             "params": {"asat-dt": execution_date.isoformat()},
                             "status": "running",
                             "stage": "initialization",
+                            "progress": "0%",
+                            "stage_details": {
+                                "name": "initialization",
+                                "timeout": 300,
+                                "retries": 2,
+                                "start_time": log_time.isoformat(),
+                                "end_time": None,
+                                "duration": None,
+                            },
                         }
                     elif log_type == "task":
+                        # Get job stages from workflow
+                        job_stages = []
+                        for _, job in workflow.jobs.items():
+                            if isinstance(job, dict) and "stages" in job:
+                                job_stages.extend(job["stages"])
+
+                        if not job_stages:
+                            # If no stages defined, use default stages
+                            job_stages = [
+                                {
+                                    "name": "Extract",
+                                    "timeout": 1800,
+                                    "retries": 2,
+                                },
+                                {
+                                    "name": "Transform",
+                                    "timeout": 1800,
+                                    "retries": 2,
+                                },
+                                {"name": "Load", "timeout": 1800, "retries": 2},
+                            ]
+
+                        current_stage = job_stages[idx % len(job_stages)]
+
                         log_context = {
                             "params": {"asat-dt": execution_date.isoformat()},
                             "status": "running",
-                            "stage": "processing",
-                            "progress": "50%",
+                            "stage": current_stage.get("name", "processing"),
+                            "progress": f"{((idx + 1) * 100) // len(log_types)}%",
+                            "stage_details": {
+                                "name": current_stage.get("name", "processing"),
+                                "timeout": current_stage.get("timeout", 1800),
+                                "retries": current_stage.get("retries", 2),
+                                "start_time": log_time.isoformat(),
+                                "end_time": None,
+                                "duration": None,
+                            },
                         }
                     else:  # end
                         log_context = {
                             "params": {"asat-dt": execution_date.isoformat()},
                             "status": status,
                             "stage": "completion",
+                            "progress": "100%",
+                            "stage_details": {
+                                "name": "completion",
+                                "timeout": 300,
+                                "retries": 1,
+                                "start_time": log_time.isoformat(),
+                                "end_time": (
+                                    log_time + timedelta(seconds=30)
+                                ).isoformat(),
+                                "duration": 30,
+                            },
                             "duration": duration,
                             "error": error_message,
                         }
@@ -341,6 +518,80 @@ async def create_workflows(session: AsyncSession):
                         release_create_date=log_time,
                     )
                     session.add(audit_log)
+
+                    # Create workflow logs for each audit log
+                    log_levels = ["INFO", "WARNING", "ERROR", "DEBUG"]
+                    log_messages = {
+                        "start": [
+                            "Workflow execution started",
+                            "Initializing workflow parameters",
+                            "Loading configuration",
+                            "Setting up environment",
+                        ],
+                        "task": [
+                            "Processing stage: {stage}",
+                            "Executing task in stage: {stage}",
+                            "Running stage: {stage}",
+                            "Stage {stage} in progress",
+                        ],
+                        "end": [
+                            "Workflow execution completed",
+                            "All stages finished successfully",
+                            "Workflow execution failed",
+                            "Workflow execution cancelled",
+                        ],
+                    }
+
+                    # Create 2-4 logs per audit log
+                    num_logs = random.randint(2, 4)
+                    for log_idx in range(num_logs):
+                        log_time_offset = random.randint(1, 10)
+                        log_timestamp = log_time + timedelta(
+                            seconds=log_idx * log_time_offset
+                        )
+
+                        # Select appropriate log level based on status and stage
+                        if status == "failed" and log_type == "end":
+                            level = "ERROR"
+                        elif status == "cancelled" and log_type == "end":
+                            level = "WARNING"
+                        else:
+                            level = random.choices(
+                                log_levels, weights=[60, 20, 10, 10]
+                            )[0]
+
+                        # Select appropriate message based on log type
+                        message_template = random.choice(log_messages[log_type])
+                        if log_type == "task":
+                            message = message_template.format(
+                                stage=log_context["stage"]
+                            )
+                        else:
+                            message = message_template
+
+                        # Add additional context for errors
+                        context = None
+                        if level == "ERROR":
+                            context = {
+                                "error_code": f"ERR_{random.randint(1000, 9999)}",
+                                "error_details": (
+                                    error_message
+                                    if error_message
+                                    else "Unknown error occurred"
+                                ),
+                                "stack_trace": "Traceback (most recent call last):\n  File 'workflow.py', line 123, in execute_stage\n    result = stage.run()\nRuntimeError: Operation failed",
+                            }
+
+                        workflow_log = WorkflowLog(
+                            workflow_id=workflow.id,
+                            audit_id=audit.id,
+                            level=level,
+                            message=message,
+                            timestamp=log_timestamp,
+                            stage=log_context["stage"],
+                            context=context,
+                        )
+                        session.add(workflow_log)
 
     await session.commit()
 

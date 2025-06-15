@@ -45,6 +45,10 @@ class Workflow(Base):
         "Audit",
         back_populates="workflow",
     )
+    logs: Mapped[list[WorkflowLog]] = relationship(
+        "WorkflowLog",
+        back_populates="workflow",
+    )
 
 
 class Audit(Base):
@@ -82,6 +86,10 @@ class Audit(Base):
 
     logs: Mapped[AuditLog] = relationship(
         "AuditLog",
+        back_populates="audit",
+    )
+    workflow_logs: Mapped[list[WorkflowLog]] = relationship(
+        "WorkflowLog",
         back_populates="audit",
     )
 
@@ -172,4 +180,40 @@ class TraceMeta(Base):
     trace: Mapped[Trace] = relationship(
         "Trace",
         back_populates="meta",
+    )
+
+
+class WorkflowLog(Base):
+    __tablename__ = "workflow_logs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    workflow_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("workflows.id"),
+        index=True,
+    )
+    audit_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("audits.id"),
+        index=True,
+    )
+    level: Mapped[str] = mapped_column(
+        String(10)
+    )  # INFO, WARNING, ERROR, DEBUG
+    message: Mapped[str] = mapped_column(String)
+    timestamp: Mapped[datetime] = mapped_column(DateTime)
+    stage: Mapped[str] = mapped_column(String, nullable=True)
+    context: Mapped[dict] = mapped_column(JSON, nullable=True)
+    update_date: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+
+    workflow: Mapped[Workflow] = relationship(
+        "Workflow",
+        back_populates="logs",
+    )
+    audit: Mapped[Audit] = relationship(
+        "Audit",
+        back_populates="workflow_logs",
     )

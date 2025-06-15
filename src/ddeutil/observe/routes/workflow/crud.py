@@ -431,3 +431,144 @@ class WorkflowCRUD(BaseCRUD):
 
         # Reverse to get chronological order (oldest first)
         return list(reversed(duration_data))
+
+    async def get_workflow_stage_details(
+        self, workflow_name: str, limit: int = 10
+    ) -> list[dict[str, Any]]:
+        """Get detailed stage information for a workflow's recent runs."""
+        stmt = (
+            select(
+                md.AuditLog.workflow_name,
+                md.AuditLog.release,
+                md.AuditLog.type,
+                md.AuditLog.context,
+                md.AuditLog.run_id,
+                md.AuditLog.release_create_date,
+                md.Audit.status,
+                md.Audit.duration,
+            )
+            .join(md.Audit, md.AuditLog.audit_id == md.Audit.id)
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(
+                and_(
+                    md.Workflow.name == workflow_name,
+                    md.Workflow.delete_flag == false(),
+                )
+            )
+            .order_by(desc(md.AuditLog.release_create_date))
+            .limit(limit)
+        )
+
+        result = await self.async_session.execute(stmt)
+        stage_details = []
+
+        for row in result:
+            stage_details.append(
+                {
+                    "workflow_name": row.workflow_name,
+                    "release": row.release.isoformat() if row.release else None,
+                    "type": row.type,
+                    "context": row.context,
+                    "run_id": row.run_id,
+                    "release_create_date": (
+                        row.release_create_date.isoformat()
+                        if row.release_create_date
+                        else None
+                    ),
+                    "status": row.status,
+                    "duration": row.duration,
+                }
+            )
+
+        return stage_details
+
+    async def get_workflow_next_run(
+        self, workflow_name: str
+    ) -> Optional[datetime]:
+        """Calculate the next run time based on the workflow's cron schedule."""
+        workflow = await self.get_by_name(workflow_name)
+        if not workflow or not workflow.on:
+            return None
+
+        # Get the cron schedule from the workflow's 'on' configuration
+        cron_schedule = workflow.on[0].get("cronjob") if workflow.on else None
+        if not cron_schedule:
+            return None
+
+        # TODO: Implement cron schedule parsing and next run calculation
+        # For now, return None as this requires additional cron parsing logic
+        return None
+
+    async def get_task_performance_data(
+        self, workflow_name: str, limit: int = 100
+    ) -> dict[str, Any]:
+        """Get task performance data for analysis."""
+        stmt = (
+            select(
+                md.AuditLog.type,
+                md.AuditLog.context,
+                md.Audit.status,
+                md.Audit.duration,
+                func.count(md.AuditLog.id).label("total_tasks"),
+                func.sum(case((md.Audit.status == "failed", 1), else_=0)).label(
+                    "failed_tasks"
+                ),
+                func.avg(md.Audit.duration).label("avg_duration"),
+                func.min(md.Audit.duration).label("min_duration"),
+                func.max(md.Audit.duration).label("max_duration"),
+            )
+            .join(md.Audit, md.AuditLog.audit_id == md.Audit.id)
+            .join(md.Workflow, md.Audit.workflow_id == md.Workflow.id)
+            .filter(
+                and_(
+                    md.Workflow.name == workflow_name,
+                    md.Workflow.delete_flag == false(),
+                )
+            )
+            .group_by(md.AuditLog.type)
+            .order_by(desc(md.AuditLog.release_create_date))
+            .limit(limit)
+        )
+
+        result = await self.async_session.execute(stmt)
+        task_data = []
+
+        for row in result:
+            task_data.append(
+                {
+                    "type": row.type,
+                    "context": row.context,
+                    "status": row.status,
+                    "duration": row.duration,
+                    "total_tasks": row.total_tasks,
+                    "failed_tasks": row.failed_tasks,
+                    "avg_duration": (
+                        float(row.avg_duration) if row.avg_duration else 0.0
+                    ),
+                    "min_duration": (
+                        float(row.min_duration) if row.min_duration else 0.0
+                    ),
+                    "max_duration": (
+                        float(row.max_duration) if row.max_duration else 0.0
+                    ),
+                }
+            )
+
+        return {
+            "task_data": task_data,
+            "summary": {
+                "total_tasks": sum(t["total_tasks"] for t in task_data),
+                "failed_tasks": sum(t["failed_tasks"] for t in task_data),
+                "avg_duration": (
+                    sum(t["avg_duration"] for t in task_data) / len(task_data)
+                    if task_data
+                    else 0.0
+                ),
+                "min_duration": min(
+                    (t["min_duration"] for t in task_data), default=0.0
+                ),
+                "max_duration": max(
+                    (t["max_duration"] for t in task_data), default=0.0
+                ),
+            },
+        }

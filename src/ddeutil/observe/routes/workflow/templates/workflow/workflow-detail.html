@@ -287,19 +287,19 @@
                     <div class="duration-stats">
                         <div class="stat-item">
                             <span class="stat-label">Average Duration:</span>
-                            <span id="avg-duration" class="stat-value">-</span>
+                            <span id="avg-duration" class="stat-value">{{ "%.2f"|format(task_performance.summary.avg_duration) }}s</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Min Duration:</span>
-                            <span id="min-duration" class="stat-value">-</span>
+                            <span id="min-duration" class="stat-value">{{ "%.2f"|format(task_performance.summary.min_duration) }}s</span>
                         </div>
                         <div class="stat-item">
                             <span class="stat-label">Max Duration:</span>
-                            <span id="max-duration" class="stat-value">-</span>
+                            <span id="max-duration" class="stat-value">{{ "%.2f"|format(task_performance.summary.max_duration) }}s</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">Total Runs:</span>
-                            <span id="total-runs" class="stat-value">-</span>
+                            <span class="stat-label">Total Tasks:</span>
+                            <span id="total-tasks" class="stat-value">{{ task_performance.summary.total_tasks }}</span>
                         </div>
                     </div>
                 </div>
@@ -317,6 +317,36 @@
                         <div class="task-failure-chart">
                             <h4>Task Failure Rate</h4>
                             <canvas id="task-failure-chart"></canvas>
+                        </div>
+                    </div>
+                    <div class="task-performance-details">
+                        <h4>Task Details</h4>
+                        <div class="task-list">
+                            {% for task in task_performance.task_data %}
+                            <div class="task-item">
+                                <div class="task-header">
+                                    <span class="task-type">{{ task.type }}</span>
+                                    <span class="task-status status-{{ task.status }}">{{ task.status }}</span>
+                                </div>
+                                <div class="task-stats">
+                                    <div class="stat">
+                                        <span class="stat-label">Total Runs:</span>
+                                        <span class="stat-value">{{ task.total_tasks }}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Failed:</span>
+                                        <span class="stat-value">{{ task.failed_tasks }}</span>
+                                    </div>
+                                    <div class="stat">
+                                        <span class="stat-label">Avg Duration:</span>
+                                        <span class="stat-value">{{ "%.2f"|format(task.avg_duration) }}s</span>
+                                    </div>
+                                </div>
+                                <div class="task-context">
+                                    <pre>{{ task.context | tojson(indent=2) }}</pre>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
@@ -353,7 +383,27 @@
 
                         <div class="execution-tab-content active" id="runs-tab">
                             <div class="task-runs-list" id="task-runs">
-                                <!-- Task runs will be populated here -->
+                                {% for stage in stage_details %}
+                                <div class="task-run-item status-{{ stage.status }}">
+                                    <div class="task-run-header">
+                                        <span class="task-run-type">{{ stage.type }}</span>
+                                        <span class="task-run-status status-{{ stage.status }}">{{ stage.status }}</span>
+                                    </div>
+                                    <div class="task-run-info">
+                                        <div class="info-item">
+                                            <span class="info-label">Start Time:</span>
+                                            <span class="info-value">{{ stage.release_create_date }}</span>
+                                        </div>
+                                        <div class="info-item">
+                                            <span class="info-label">Duration:</span>
+                                            <span class="info-value">{{ "%.2f"|format(stage.duration) if stage.duration else '-' }}s</span>
+                                        </div>
+                                    </div>
+                                    <div class="task-run-context">
+                                        <pre>{{ stage.context | tojson(indent=2) }}</pre>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                         </div>
 
@@ -369,6 +419,9 @@
                                         </select>
                                         <select id="log-task-filter" onchange="filterLogs()">
                                             <option value="all">All Tasks</option>
+                                            {% for task in task_performance.task_data %}
+                                            <option value="{{ task.type }}">{{ task.type }}</option>
+                                            {% endfor %}
                                         </select>
                                     </div>
                                     <div class="log-actions">
@@ -381,7 +434,18 @@
                                     </div>
                                 </div>
                                 <div class="logs-content" id="logs-content">
-                                    <!-- Logs will be populated here -->
+                                    {% for stage in stage_details %}
+                                    <div class="log-entry log-level-{{ stage.type }}">
+                                        <div class="log-header">
+                                            <span class="log-timestamp">{{ stage.release_create_date }}</span>
+                                            <span class="log-level">{{ stage.type }}</span>
+                                            <span class="log-task">{{ stage.workflow_name }}</span>
+                                        </div>
+                                        <div class="log-message">
+                                            <pre>{{ stage.context | tojson(indent=2) }}</pre>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
                                 </div>
                             </div>
                         </div>
@@ -431,6 +495,30 @@
                                 <div class="task-config-params">
                                     <pre>{{ job.params | default({}) | tojson(indent=2) }}</pre>
                                 </div>
+                                {% if job.stages %}
+                                <div class="task-config-stages">
+                                    <h6>Stages</h6>
+                                    <div class="stages-list">
+                                        {% for stage in job.stages %}
+                                        <div class="stage-item">
+                                            <div class="stage-header">
+                                                <span class="stage-name">{{ stage.name }}</span>
+                                                <div class="stage-meta">
+                                                    <span class="stage-timeout" title="Timeout">
+                                                        <i class="bx bx-time"></i>
+                                                        {{ stage.timeout }}s
+                                                    </span>
+                                                    <span class="stage-retries" title="Retries">
+                                                        <i class="bx bx-refresh"></i>
+                                                        {{ stage.retries }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                             {% else %}

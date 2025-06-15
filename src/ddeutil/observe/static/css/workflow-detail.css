@@ -1278,3 +1278,59 @@
         stroke: var(--primary-color);
     }
 }
+
+.task-config-stages {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.task-config-stages h6 {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.stages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stage-item {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+}
+
+.stage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stage-name {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.stage-meta {
+    display: flex;
+    gap: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.stage-timeout,
+.stage-retries {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stage-timeout i,
+.stage-retries i {
+    font-size: 1rem;
+}
