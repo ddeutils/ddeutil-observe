@@ -1,5 +1,6 @@
-/* Workflow Detail Page Styles - Minimal Design */
+/* Workflow Detail Page Styles - Modern Design */
 
+/* Header Styles */
 .workflow-detail-header {
     background: var(--bg-primary);
     color: var(--text-primary);
@@ -7,10 +8,14 @@
     border-radius: var(--border-radius-lg);
     margin-bottom: 2rem;
     border: 1px solid var(--border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .header-breadcrumb {
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .breadcrumb-link {
@@ -958,5 +963,318 @@
 
     .duration-stats {
         grid-template-columns: 1fr;
+    }
+}
+
+/* DAG View Styles */
+.dag-view-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+}
+
+.dag-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    gap: 16px;
+    flex-shrink: 0;
+}
+
+.zoom-controls,
+.layout-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dag-controls button {
+    padding: 8px 16px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.dag-controls button:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-color-hover);
+    transform: translateY(-1px);
+}
+
+.dag-controls button.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.dag-controls button i {
+    font-size: var(--font-size-base);
+}
+
+.dag-content {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    min-height: 0;
+    background: var(--bg-primary);
+    display: flex;
+    flex-direction: column;
+}
+
+.dag-canvas {
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 600px;
+    background: var(--bg-primary);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+}
+
+.dag-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Override SVG object colors */
+.dag-svg text {
+    fill: var(--text-primary) !important;
+}
+
+.dag-svg .node-shape {
+    fill: var(--bg-primary) !important;
+    stroke: var(--border-color) !important;
+}
+
+.dag-svg .task-edge {
+    stroke: var(--border-color) !important;
+}
+
+.dag-svg .arrowhead-path {
+    fill: var(--border-color) !important;
+}
+
+.dag-grid {
+    fill: url(#grid-pattern);
+}
+
+.dag-inner {
+    transform-origin: 0 0;
+}
+
+/* Node Styles */
+.node {
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.node:hover {
+    filter: brightness(1.1);
+}
+
+.node-shape {
+    fill: var(--bg-primary);
+    stroke: var(--border-color);
+    stroke-width: 2px;
+    transition: all var(--transition-fast);
+}
+
+.node.hover .node-shape {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 8px rgba(var(--primary-color-rgb), 0.3));
+}
+
+.status-indicator {
+    fill: var(--text-secondary);
+    transition: all var(--transition-fast);
+}
+
+.status-indicator.success {
+    fill: var(--success-color);
+}
+
+.status-indicator.failed {
+    fill: var(--error-color);
+}
+
+.status-indicator.running {
+    fill: var(--warning-color);
+    animation: pulse 2s infinite;
+}
+
+.status-indicator.pending {
+    fill: var(--text-secondary);
+}
+
+.job-type-icon {
+    font-family: 'boxicons';
+    font-size: 16px;
+    fill: var(--text-primary);
+}
+
+.node-label {
+    font-size: 14px;
+    font-weight: 500;
+    fill: var(--text-primary);
+    pointer-events: none;
+}
+
+/* Edge Styles */
+.task-edge {
+    fill: none;
+    stroke: var(--border-color);
+    stroke-width: 2px;
+    transition: all var(--transition-fast);
+}
+
+.task-edge.hover {
+    stroke: var(--primary-color);
+    stroke-width: 3px;
+    filter: drop-shadow(0 0 8px rgba(var(--primary-color-rgb), 0.3));
+}
+
+.arrowhead-path {
+    fill: var(--border-color);
+    transition: all var(--transition-fast);
+}
+
+.task-edge.hover .arrowhead-path {
+    fill: var(--primary-color);
+}
+
+/* Minimap Styles */
+.minimap {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+    background: var(--bg-primary);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.minimap-background {
+    stroke: var(--border-color);
+    stroke-width: 1px;
+}
+
+.minimap-viewport {
+    fill: var(--primary-color-light);
+    stroke: var(--primary-color);
+    stroke-width: 1.5px;
+    opacity: 0.5;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .dag-view-container {
+        background: var(--bg-primary-dark);
+        box-shadow: var(--shadow-dark);
+    }
+
+    .dag-controls {
+        background: var(--bg-secondary-dark);
+        border-bottom-color: var(--border-color-dark);
+    }
+
+    .dag-controls button {
+        background: var(--bg-primary-dark);
+        border-color: var(--border-color-dark);
+        color: var(--text-primary-dark);
+    }
+
+    .dag-controls button:hover {
+        background: var(--bg-hover-dark);
+    }
+
+    .dag-controls button.active {
+        background: var(--primary-color-dark);
+    }
+
+    .dag-content {
+        background: var(--bg-primary-dark);
+    }
+
+    .dag-canvas {
+        background: var(--bg-primary-dark);
+        box-shadow: var(--shadow-dark);
+    }
+
+    .dag-grid {
+        opacity: 0.1;
+    }
+
+    .node-shape {
+        fill: var(--bg-primary-dark);
+        stroke: var(--border-color-dark);
+    }
+
+    .node-label {
+        fill: var(--text-primary-dark);
+    }
+
+    .job-type-icon {
+        fill: var(--text-primary-dark);
+    }
+
+    .task-edge {
+        stroke: var(--border-color-dark);
+    }
+
+    .arrowhead-path {
+        fill: var(--border-color-dark);
+    }
+
+    .minimap {
+        background: var(--bg-primary-dark);
+        border-color: var(--border-color-dark);
+    }
+
+    .minimap-background {
+        stroke: var(--border-color-dark);
+    }
+
+    .minimap-viewport {
+        fill: var(--primary-color-dark);
+        stroke: var(--primary-color);
     }
 }

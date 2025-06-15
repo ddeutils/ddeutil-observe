@@ -34,6 +34,11 @@ class Config:
     """
 
     @property
+    def environment(self) -> str:
+        """Get the current environment (development, staging, production)."""
+        return str(env("CORE_ENVIRONMENT", "development") or "development")
+
+    @property
     def tz(self) -> ZoneInfo:
         return ZoneInfo(env("CORE_TIMEZONE", "UTC"))
 

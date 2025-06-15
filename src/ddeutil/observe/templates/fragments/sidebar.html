@@ -22,25 +22,6 @@
                     </div>
                 </ul>
             </li>
-            <li class="{% if request.path.split('/')[1] == 'schedule' %}active{% endif %}">
-                <a href="{{ url_for('schedule_read_all') }}">
-                    <i class="bx bx-calendar-alt"></i>
-                    <span>Schedulers</span>
-                </a>
-            </li>
-            <li>
-                <button onclick=toggleSubMenu(this) class="dropdown-btn">
-                    <i class='bx bx-glasses-alt'></i>
-                    <span>Logging</span>
-                    <i class='bx bx-chevron-down' ></i>
-                </button>
-                <ul class="sub-menu">
-                    <div>
-                        <li class="{% if request.path.split('/')[1] == 'trace' %}active{% endif %}"><a href="{{ url_for('trace_read_all') }}">Trace</a></li>
-                        <li class="{% if request.path.split('/')[1] == 'audit' %}active{% endif %}"><a href="{{ url_for('audit_read_all') }}">Audit</a></li>
-                    </div>
-                </ul>
-            </li>
         </ul>
     </nav>
 </aside>

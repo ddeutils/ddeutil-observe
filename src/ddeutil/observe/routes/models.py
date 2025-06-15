@@ -22,34 +22,6 @@ from sqlalchemy.types import (
 from ..auth.models import Base
 
 
-class Schedule(Base):
-    __tablename__ = "schedules"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(128), index=True)
-    update_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-    )
-
-
-class ScheduleWorkflow(Base):
-    __tablename__ = "schedule_workflows"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    schedule_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("schedules.id")
-    )
-    alias: Mapped[str] = mapped_column(String(128), index=True)
-    name: Mapped[str] = mapped_column(String(128))
-    on: Mapped[str] = mapped_column(String(64))
-    params: Mapped[str] = mapped_column(JSON)
-    update_date: Mapped[datetime] = mapped_column(
-        DateTime,
-        server_default=func.now(),
-    )
-
-
 class Workflow(Base):
     __tablename__ = "workflows"
 

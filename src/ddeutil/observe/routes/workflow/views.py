@@ -130,11 +130,31 @@ async def workflow_detail_page(
     next_run_time = None  # TODO: Calculate based on cron schedule
     last_run_time = recent_runs[0]["execution_date"] if recent_runs else None
 
+    # Pre-serialize workflow data for JavaScript
+    workflow_data = {
+        "name": workflow.name,
+        "desc": workflow.desc or "",
+        "params": workflow.params,
+        "on": workflow.on,
+        "jobs": workflow.jobs,
+        "delete_flag": workflow.delete_flag,
+        "valid_start": (
+            workflow.valid_start.isoformat() if workflow.valid_start else None
+        ),
+        "valid_end": (
+            workflow.valid_end.isoformat() if workflow.valid_end else None
+        ),
+        "update_date": (
+            workflow.update_date.isoformat() if workflow.update_date else None
+        ),
+    }
+
     return templates.TemplateResponse(
         request=request,
         name="workflow/workflow-detail.html",
         context={
             "workflow": workflow,
+            "workflow_data": workflow_data,
             "workflow_status": workflow_status,
             "stats": stats,
             "recent_runs": recent_runs,

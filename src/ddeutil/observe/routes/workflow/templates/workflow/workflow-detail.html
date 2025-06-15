@@ -79,6 +79,14 @@
             Overview
         </button>
         <button class="tab-button"
+                data-tab="dag"
+                role="tab"
+                aria-selected="false"
+                onclick="switchTab('dag')">
+            <i class="bx bx-git-branch"></i>
+            DAG View
+        </button>
+        <button class="tab-button"
                 data-tab="execution"
                 role="tab"
                 aria-selected="false"
@@ -176,7 +184,80 @@
             </div>
         </div>
 
-        <!-- Execution Analysis Tab (formerly Duration + Runs + Logs) -->
+        <!-- DAG View Tab -->
+        <div class="tab-content" id="dag-tab" role="tabpanel">
+            <div class="dag-controls">
+                <div class="zoom-controls">
+                    <button class="btn btn-sm btn-outline" onclick="zoomDag('in')">
+                        <i class="bx bx-zoom-in"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="zoomDag('out')">
+                        <i class="bx bx-zoom-out"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="zoomDag('fit')">
+                        <i class="bx bx-expand"></i>
+                        Fit
+                    </button>
+                </div>
+                <div class="layout-controls">
+                    <button class="btn btn-sm btn-outline" onclick="toggleDagLayout('horizontal')">
+                        <i class="bx bx-right-arrow-alt"></i>
+                        Horizontal
+                    </button>
+                    <button class="btn btn-sm btn-outline" onclick="toggleDagLayout('vertical')">
+                        <i class="bx bx-down-arrow-alt"></i>
+                        Vertical
+                    </button>
+                </div>
+            </div>
+
+            <div class="dag-content">
+                <div class="dag-canvas" id="dag-canvas">
+                    <!-- DAG will be rendered here by JavaScript -->
+                </div>
+
+                <div class="task-details-panel" id="task-details">
+                    <div class="task-details-header">
+                        <h4>Task Details</h4>
+                        <button class="btn btn-sm btn-ghost" onclick="closeTaskDetails()">
+                            <i class="bx bx-x"></i>
+                        </button>
+                    </div>
+                    <div class="task-details-content">
+                        <div class="task-info">
+                            <div class="info-item">
+                                <span class="info-label">Task ID:</span>
+                                <span class="info-value" id="task-id">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Type:</span>
+                                <span class="info-value" id="task-type">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Status:</span>
+                                <span class="info-value" id="task-status">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Duration:</span>
+                                <span class="info-value" id="task-duration">-</span>
+                            </div>
+                        </div>
+                        <div class="task-params">
+                            <h5>Parameters</h5>
+                            <pre id="task-params-json">-</pre>
+                        </div>
+                        <div class="task-dependencies">
+                            <h5>Dependencies</h5>
+                            <div class="dependency-list" id="task-dependencies">
+                                <div class="empty-state">No dependencies</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Execution Analysis Tab -->
         <div class="tab-content" id="execution-tab" role="tabpanel">
             <div class="execution-analysis-container">
                 <!-- Duration Chart Section -->
@@ -223,10 +304,26 @@
                     </div>
                 </div>
 
+                <!-- Task Performance Section -->
+                <div class="task-performance-section">
+                    <div class="section-header">
+                        <h3><i class="bx bx-analyse"></i> Task Performance Analysis</h3>
+                    </div>
+                    <div class="task-performance-grid">
+                        <div class="task-duration-chart">
+                            <h4>Task Duration Distribution</h4>
+                            <canvas id="task-duration-chart"></canvas>
+                        </div>
+                        <div class="task-failure-chart">
+                            <h4>Task Failure Rate</h4>
+                            <canvas id="task-failure-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Execution Details Section -->
                 <div class="execution-details-section">
                     <div class="execution-panel">
-                        <!-- Selected Execution Info -->
                         <div class="selected-execution-header">
                             <div class="execution-info">
                                 <h4 id="selected-execution-title">Latest Execution</h4>
@@ -243,71 +340,48 @@
                             </div>
                         </div>
 
-                        <!-- Execution Tabs -->
                         <div class="execution-tabs">
                             <button class="execution-tab-button active" data-tab="runs" onclick="switchExecutionTab('runs')">
                                 <i class="bx bx-time"></i>
-                                Runs Details
+                                Task Runs
                             </button>
                             <button class="execution-tab-button" data-tab="logs" onclick="switchExecutionTab('logs')">
-                                <i class="bx bx-file-blank"></i>
-                                Execution Logs
+                                <i class="bx bx-code"></i>
+                                Logs
                             </button>
                         </div>
 
-                        <!-- Runs Tab Content -->
-                        <div class="execution-tab-content active" id="execution-runs-tab">
-                            <div class="runs-filters">
-                                <input type="date" id="execution-date-filter" onchange="filterExecutionData()" placeholder="Filter by date">
-                                <select id="execution-status-filter" onchange="filterExecutionData()">
-                                    <option value="">All Statuses</option>
-                                    <option value="success">Success</option>
-                                    <option value="failed">Failed</option>
-                                    <option value="running">Running</option>
-                                    <option value="pending">Pending</option>
-                                </select>
-                            </div>
-
-                            <div class="runs-timeline" id="execution-runs-timeline">
-                                <!-- Runs data will be loaded here -->
-                                <div class="runs-loading">
-                                    <i class="bx bx-loader-alt bx-spin"></i>
-                                    <p>Loading execution runs...</p>
-                                </div>
+                        <div class="execution-tab-content active" id="runs-tab">
+                            <div class="task-runs-list" id="task-runs">
+                                <!-- Task runs will be populated here -->
                             </div>
                         </div>
 
-                        <!-- Logs Tab Content -->
-                        <div class="execution-tab-content" id="execution-logs-tab">
-                            <div class="logs-controls">
-                                <div class="log-filters">
-                                    <select id="log-level-filter" onchange="filterLogs()">
-                                        <option value="">All Levels</option>
-                                        <option value="INFO">Info</option>
-                                        <option value="SUCCESS">Success</option>
-                                        <option value="ERROR">Error</option>
-                                        <option value="WARNING">Warning</option>
-                                    </select>
-                                </div>
-                                <div class="log-actions">
-                                    <button class="btn btn-sm btn-outline" onclick="refreshLogs()">
-                                        <i class="bx bx-refresh"></i>
-                                        Refresh
-                                    </button>
-                                    <button class="btn btn-sm btn-outline" onclick="clearLogs()">
-                                        <i class="bx bx-trash"></i>
-                                        Clear
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div class="logs-content" id="execution-logs-content">
-                                <div class="logs-terminal" id="execution-logs-terminal">
-                                    <!-- Logs will be loaded here -->
-                                    <div class="log-loading">
-                                        <i class="bx bx-loader-alt bx-spin"></i>
-                                        <p>Loading execution logs...</p>
+                        <div class="execution-tab-content" id="logs-tab">
+                            <div class="logs-container">
+                                <div class="logs-header">
+                                    <div class="log-filters">
+                                        <select id="log-level-filter" onchange="filterLogs()">
+                                            <option value="all">All Levels</option>
+                                            <option value="info">Info</option>
+                                            <option value="warning">Warning</option>
+                                            <option value="error">Error</option>
+                                        </select>
+                                        <select id="log-task-filter" onchange="filterLogs()">
+                                            <option value="all">All Tasks</option>
+                                        </select>
                                     </div>
+                                    <div class="log-actions">
+                                        <button class="btn btn-sm btn-outline" onclick="refreshLogs()">
+                                            <i class="bx bx-refresh"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline" onclick="clearLogs()">
+                                            <i class="bx bx-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="logs-content" id="logs-content">
+                                    <!-- Logs will be populated here -->
                                 </div>
                             </div>
                         </div>
@@ -321,30 +395,57 @@
             <div class="config-section">
                 <h3>Workflow Configuration</h3>
                 <div class="config-content">
-                    <div class="config-item">
-                        <label>Name:</label>
-                        <span>{{ workflow.name }}</span>
-                    </div>
-                    <div class="config-item">
-                        <label>Description:</label>
-                        <span>{{ workflow.desc or 'No description' }}</span>
-                    </div>
-                    {% if workflow.on %}
-                    <div class="config-item">
-                        <label>Schedule:</label>
+                    <div class="config-group">
+                        <h4>Schedule Configuration</h4>
                         <div class="schedule-list">
+                            {% if workflow.on %}
                             {% for schedule in workflow.on %}
                             <div class="schedule-item">
-                                <span class="schedule-type">{{ schedule.type or 'cron' }}</span>
-                                <span class="schedule-cron">{{ schedule.cronjob }}</span>
+                                <div class="schedule-type">
+                                    <i class="bx bx-time"></i>
+                                    <span>{{ schedule.type }}</span>
+                                </div>
+                                <div class="schedule-cron">
+                                    <code>{{ schedule.cronjob }}</code>
+                                </div>
                             </div>
                             {% endfor %}
+                            {% else %}
+                            <div class="empty-state">
+                                <p>No schedule configured</p>
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
-                    {% endif %}
-                    <div class="config-item">
-                        <label>Parameters:</label>
-                        <pre class="config-params">{{ workflow.dump_params() }}</pre>
+
+                    <div class="config-group">
+                        <h4>Task Configuration</h4>
+                        <div class="task-config-list">
+                            {% if workflow.jobs %}
+                            {% for job_id, job in workflow.jobs.items() %}
+                            <div class="task-config-item">
+                                <div class="task-config-header">
+                                    <h5>{{ job_id }}</h5>
+                                    <span class="task-type">{{ job.type }}</span>
+                                </div>
+                                <div class="task-config-params">
+                                    <pre>{{ job.params | default({}) | tojson(indent=2) }}</pre>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <div class="empty-state">
+                                <p>No tasks configured</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="config-group">
+                        <h4>Parameters</h4>
+                        <div class="config-params">
+                            <pre>{{ workflow.params | tojson(indent=2) }}</pre>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -371,6 +472,18 @@
 {% endblock %}
 
 {% block additional_js %}
+    <!-- D3.js and Dagre-D3 for DAG visualization -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://dagrejs.github.io/project/dagre-d3/latest/dagre-d3.min.js"></script>
+
+    <!-- Chart.js for performance charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script type="text/javascript" src="/static/js/workflow-detail.js" defer></script>
+
+    <!-- Pass workflow data to JavaScript -->
+    <script type="application/json" id="workflow-data">
+        {{ workflow_data | tojson | safe }}
+    </script>
+
+    <!-- Workflow detail page JavaScript -->
+    <script src="{{ url_for('static', path='js/workflow-detail.js') }}" defer></script>
 {% endblock %}

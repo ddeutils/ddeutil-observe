@@ -66,6 +66,7 @@ authentication and workflows data.
 
 | Environment                      | Component | Default                            | Description                                                                                    |
 |:---------------------------------|:---------:|:-----------------------------------|:-----------------------------------------------------------------------------------------------|
+| **ENVIRONMENT**                  |   Core    | `development`                      | Application environment (development, staging, production). Chrome DevTools only enabled in dev |
 | **TIMEZONE**                     |   Core    | `UTC`                              | A timezone that use on all components of this application                                      |
 | **SQLALCHEMY_DB_ASYNC_URL**      |   Core    | `sqlite+aiosqlite:///./observe.db` | A database url of the application backend side                                                 |
 | **ACCESS_SECRET_KEY**            |   Core    | `secrets.token_urlsafe(32)`        | A secret key that use to hash the access token with jwt package                                |

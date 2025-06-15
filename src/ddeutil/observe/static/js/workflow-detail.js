@@ -5,8 +5,12 @@ let currentTab = 'overview';
 let workflowName = '';
 let autoRefreshInterval = null;
 let durationChart = null;
+let taskDurationChart = null;
+let taskFailureChart = null;
 let selectedExecutionDate = null;
 let executionData = [];
+let dagInstance = null;
+let workflowData = null;  // Add workflowData to global variables
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -17,18 +21,19 @@ document.addEventListener('DOMContentLoaded', function() {
         workflowName = pathParts[nameIndex + 1];
         console.log('Initialized workflow:', workflowName);
 
+        // Initialize workflow data
+        const workflowDataElement = document.getElementById('workflow-data');
+        if (workflowDataElement) {
+            workflowData = JSON.parse(workflowDataElement.textContent);
+        }
+
         // Load initial data based on active tab
         const activeTab = document.querySelector('.tab-button.active')?.dataset.tab || 'overview';
         switchTab(activeTab);
 
-        // Start auto-refresh for overview
-        if (activeTab === 'overview') {
-            startAutoRefresh();
-        }
+        // Setup event listeners
+        setupEventListeners();
     }
-
-    // Setup keyboard shortcuts
-    document.addEventListener('keydown', handleKeyboardShortcuts);
 });
 
 function initializeWorkflowDetail() {
@@ -44,25 +49,29 @@ function initializeWorkflowDetail() {
 
 function setupEventListeners() {
     // Tab switching
-    const tabButtons = document.querySelectorAll('.tab-button');
-    tabButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const tabName = this.dataset.tab;
-            switchTab(tabName);
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', () => switchTab(button.dataset.tab));
+    });
+
+    // DAG controls
+    document.querySelectorAll('.zoom-controls button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const action = e.target.closest('button').dataset.action;
+            handleDagZoom(action);
         });
     });
 
-    // Modal close events
-    const modal = document.getElementById('run-detail-modal');
-    if (modal) {
-        modal.addEventListener('click', function(e) {
-            if (e.target === modal) {
-                closeRunDetail();
-            }
+    document.querySelectorAll('.layout-controls button').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const layout = e.target.closest('button').dataset.layout;
+            toggleDagLayout(layout);
         });
-    }
+    });
 
-    // Keyboard shortcuts
+    // Task details panel
+    document.querySelector('#task-details .btn-ghost').addEventListener('click', closeTaskDetails);
+
+    // Setup keyboard shortcuts
     document.addEventListener('keydown', handleKeyboardShortcuts);
 
     // Filter events
@@ -79,37 +88,21 @@ function setupEventListeners() {
 }
 
 function switchTab(tabName) {
-    console.log('Switching to tab:', tabName);
+    if (currentTab === tabName) return;
 
     // Update tab buttons
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-        btn.setAttribute('aria-selected', 'false');
+    document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.toggle('active', button.dataset.tab === tabName);
+        button.setAttribute('aria-selected', button.dataset.tab === tabName);
     });
-    document.querySelector(`[data-tab="${tabName}"]`)?.classList.add('active');
-    document.querySelector(`[data-tab="${tabName}"]`)?.setAttribute('aria-selected', 'true');
 
     // Update tab content
     document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.remove('active');
+        content.classList.toggle('active', content.id === `${tabName}-tab`);
     });
-    document.getElementById(`${tabName}-tab`)?.classList.add('active');
 
-    // Stop auto-refresh
-    stopAutoRefresh();
-
-    // Load tab-specific content
-    switch(tabName) {
-        case 'overview':
-            startAutoRefresh();
-            break;
-        case 'execution':
-            loadExecutionAnalysis();
-            break;
-        case 'config':
-            // Config is already loaded in template
-            break;
-    }
+    currentTab = tabName;
+    loadTabContent(tabName);
 }
 
 function loadTabContent(tabName) {
@@ -128,6 +121,12 @@ function loadTabContent(tabName) {
             break;
         case 'config':
             // Config is already loaded in the template
+            break;
+        case 'dag':
+            initializeDagView();
+            break;
+        case 'execution':
+            loadExecutionAnalysis();
             break;
     }
 }
@@ -1094,3 +1093,716 @@ function handleKeyboardShortcuts(e) {
         closeRunDetail();
     }
 }
+
+function initializeDagView() {
+    // Clear previous content
+    d3.select('#dag-canvas').selectAll('*').remove();
+
+    // Get canvas dimensions
+    const canvas = document.getElementById('dag-canvas');
+    const width = canvas.clientWidth;
+    const height = canvas.clientHeight;
+
+    // Create SVG container with explicit dimensions
+    const svg = d3.select('#dag-canvas')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .attr('preserveAspectRatio', 'xMidYMid meet')
+        .attr('class', 'dag-svg');
+
+    // Add background pattern
+    const defs = svg.append('defs');
+
+    // Create grid pattern
+    const gridPattern = defs.append('pattern')
+        .attr('id', 'grid-pattern')
+        .attr('patternUnits', 'userSpaceOnUse')
+        .attr('width', 40)
+        .attr('height', 40);
+
+    gridPattern.append('path')
+        .attr('d', 'M 40 0 L 0 0 0 40')
+        .attr('fill', 'none')
+        .attr('stroke', 'var(--border-color)')
+        .attr('stroke-width', 0.5)
+        .attr('opacity', 0.2);
+
+    // Add background rectangle with pattern
+    svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'none')
+        .attr('class', 'dag-background');
+
+    svg.append('rect')
+        .attr('width', width)
+        .attr('height', height)
+        .attr('fill', 'url(#grid-pattern)')
+        .attr('class', 'dag-grid');
+
+    // Create main group for the graph
+    const g = svg.append('g')
+        .attr('class', 'dag-inner');
+
+    // Create defs for arrow markers
+    defs.append('marker')
+        .attr('id', 'arrowhead')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 20)
+        .attr('refY', 0)
+        .attr('markerWidth', 6)
+        .attr('markerHeight', 6)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-5L10,0L0,5')
+        .attr('class', 'arrowhead-path');
+
+    // Get workflow jobs and their dependencies
+    const jobs = workflowData.jobs || {};
+
+    // Create nodes and links data
+    const nodes = Object.entries(jobs).map(([id, config]) => ({
+        id,
+        type: config.type || 'default',
+        params: config.params || {},
+        status: getNodeStatus(id)
+    }));
+
+    const links = [];
+    Object.entries(jobs).forEach(([id, config]) => {
+        if (config.depends_on) {
+            config.depends_on.forEach(depId => {
+                links.push({
+                    source: depId,
+                    target: id
+                });
+            });
+        }
+    });
+
+    // Create force simulation with adjusted parameters
+    const simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(links).id(d => d.id).distance(150))
+        .force('charge', d3.forceManyBody().strength(-500))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(60))
+        .force('x', d3.forceX(width / 2).strength(0.1))
+        .force('y', d3.forceY(height / 2).strength(0.1));
+
+    // Create links
+    const link = g.append('g')
+        .attr('class', 'links')
+        .selectAll('path')
+        .data(links)
+        .enter()
+        .append('path')
+        .attr('class', 'task-edge')
+        .attr('marker-end', 'url(#arrowhead)');
+
+    // Create nodes
+    const node = g.append('g')
+        .attr('class', 'nodes')
+        .selectAll('g')
+        .data(nodes)
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .call(d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended));
+
+    // Add node rectangles
+    node.append('rect')
+        .attr('class', d => `node-shape ${d.status}`)
+        .attr('width', 180)
+        .attr('height', 40)
+        .attr('rx', 8)
+        .attr('ry', 8)
+        .attr('x', -90)
+        .attr('y', -20);
+
+    // Add status indicator
+    node.append('circle')
+        .attr('class', d => `status-indicator ${d.status}`)
+        .attr('r', 6)
+        .attr('cx', -70)
+        .attr('cy', -10);
+
+    // Add job type icon
+    node.append('text')
+        .attr('class', 'job-type-icon')
+        .attr('x', -50)
+        .attr('y', -5)
+        .text(d => getJobTypeIcon(d.type));
+
+    // Add node label
+    node.append('text')
+        .attr('class', 'node-label')
+        .attr('x', -30)
+        .attr('y', 5)
+        .text(d => d.id);
+
+    // Add zoom behavior with adjusted scale extent
+    const zoom = d3.zoom()
+        .scaleExtent([0.1, 2])
+        .on('zoom', (event) => {
+            g.attr('transform', event.transform);
+            if (window.updateMinimap) {
+                window.updateMinimap(event.transform);
+            }
+        });
+
+    svg.call(zoom);
+
+    // Update positions on simulation tick
+    simulation.on('tick', () => {
+        // Keep nodes within bounds
+        nodes.forEach(d => {
+            d.x = Math.max(90, Math.min(width - 90, d.x));
+            d.y = Math.max(20, Math.min(height - 20, d.y));
+        });
+
+        link.attr('d', d => {
+            const dx = d.target.x - d.source.x;
+            const dy = d.target.y - d.source.y;
+            const dr = Math.sqrt(dx * dx + dy * dy);
+            return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
+        });
+
+        node.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+    // Add click handlers for nodes
+    node.on('click', function(event, d) {
+        showTaskDetails(d.id);
+    })
+    .on('mouseover', function(event, d) {
+        d3.select(this).classed('hover', true);
+        // Highlight connected edges
+        link.classed('highlight', l =>
+            l.source.id === d.id || l.target.id === d.id
+        );
+    })
+    .on('mouseout', function(event, d) {
+        d3.select(this).classed('hover', false);
+        link.classed('highlight', false);
+    });
+
+    // Add hover effects for edges
+    link.on('mouseover', function(event, d) {
+        d3.select(this).classed('hover', true);
+    })
+    .on('mouseout', function(event, d) {
+        d3.select(this).classed('hover', false);
+    });
+
+    // Store the graph instance
+    dagInstance = { svg, g, simulation, zoom };
+
+    // Add minimap after dagInstance is created
+    addMinimap(svg, g, nodes, links);
+
+    // Handle window resize
+    const resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+            const newWidth = entry.contentRect.width;
+            const newHeight = entry.contentRect.height;
+
+            // Update SVG dimensions
+            svg.attr('width', newWidth)
+               .attr('height', newHeight)
+               .attr('viewBox', `0 0 ${newWidth} ${newHeight}`);
+
+            // Update background and grid
+            svg.select('.dag-background')
+               .attr('width', newWidth)
+               .attr('height', newHeight);
+
+            svg.select('.dag-grid')
+               .attr('width', newWidth)
+               .attr('height', newHeight);
+
+            // Update force simulation center and bounds
+            simulation.force('center', d3.forceCenter(newWidth / 2, newHeight / 2));
+            simulation.force('x', d3.forceX(newWidth / 2).strength(0.1));
+            simulation.force('y', d3.forceY(newHeight / 2).strength(0.1));
+
+            // Update minimap position
+            const minimap = d3.select('.minimap');
+            if (!minimap.empty()) {
+                minimap.attr('transform', `translate(${newWidth - 174}, ${newHeight - 174})`);
+            }
+
+            // Restart simulation to apply new forces
+            simulation.alpha(0.3).restart();
+        }
+    });
+
+    resizeObserver.observe(canvas);
+
+    // Initial fit
+    handleDagZoom('fit');
+}
+
+// Drag functions
+function dragstarted(event, d) {
+    if (!event.active) dagInstance.simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+}
+
+function dragged(event, d) {
+    d.fx = event.x;
+    d.fy = event.y;
+}
+
+function dragended(event, d) {
+    if (!event.active) dagInstance.simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+}
+
+function addMinimap(svg, g, nodes, links) {
+    const minimapSize = 150;
+    const minimap = svg.append('g')
+        .attr('class', 'minimap')
+        .attr('transform', `translate(${svg.node().clientWidth - minimapSize - 24}, ${svg.node().clientHeight - minimapSize - 24})`);
+
+    // Add background
+    minimap.append('rect')
+        .attr('class', 'minimap-background')
+        .attr('width', minimapSize)
+        .attr('height', minimapSize)
+        .attr('rx', 4)
+        .attr('ry', 4)
+        .attr('fill', 'var(--bg-primary)')
+        .attr('stroke', 'var(--border-color)')
+        .attr('stroke-width', 1);
+
+    // Add viewport indicator
+    minimap.append('rect')
+        .attr('class', 'minimap-viewport')
+        .attr('width', minimapSize)
+        .attr('height', minimapSize)
+        .attr('fill', 'var(--primary-color-light)')
+        .attr('stroke', 'var(--primary-color)')
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.3);
+
+    // Get the bounds of all nodes
+    const bounds = getGraphBounds(nodes);
+    const scale = Math.min(
+        minimapSize / (bounds.width || 1),
+        minimapSize / (bounds.height || 1)
+    ) * 0.8;
+
+    // Add minimap nodes
+    const minimapNodes = minimap.append('g')
+        .attr('class', 'minimap-nodes')
+        .selectAll('circle')
+        .data(nodes)
+        .enter()
+        .append('circle')
+        .attr('r', 3)
+        .attr('fill', d => {
+            switch(d.status) {
+                case 'success': return 'var(--success-color)';
+                case 'failed': return 'var(--error-color)';
+                case 'running': return 'var(--warning-color)';
+                default: return 'var(--text-secondary)';
+            }
+        })
+        .attr('stroke', 'var(--bg-primary)')
+        .attr('stroke-width', 1);
+
+    // Add minimap links
+    const minimapLinks = minimap.append('g')
+        .attr('class', 'minimap-links')
+        .selectAll('line')
+        .data(links)
+        .enter()
+        .append('line')
+        .attr('stroke', 'var(--border-color)')
+        .attr('stroke-width', 1)
+        .attr('opacity', 0.5);
+
+    // Update minimap positions
+    function updateMinimap(transform) {
+        const centerX = svg.node().clientWidth / 2;
+        const centerY = svg.node().clientHeight / 2;
+
+        // Update nodes
+        minimapNodes
+            .attr('cx', d => {
+                const x = (d.x - bounds.x) * scale + (minimapSize / 2);
+                return isNaN(x) ? minimapSize / 2 : x;
+            })
+            .attr('cy', d => {
+                const y = (d.y - bounds.y) * scale + (minimapSize / 2);
+                return isNaN(y) ? minimapSize / 2 : y;
+            });
+
+        // Update links
+        minimapLinks
+            .attr('x1', d => {
+                const x = (d.source.x - bounds.x) * scale + (minimapSize / 2);
+                return isNaN(x) ? minimapSize / 2 : x;
+            })
+            .attr('y1', d => {
+                const y = (d.source.y - bounds.y) * scale + (minimapSize / 2);
+                return isNaN(y) ? minimapSize / 2 : y;
+            })
+            .attr('x2', d => {
+                const x = (d.target.x - bounds.x) * scale + (minimapSize / 2);
+                return isNaN(x) ? minimapSize / 2 : x;
+            })
+            .attr('y2', d => {
+                const y = (d.target.y - bounds.y) * scale + (minimapSize / 2);
+                return isNaN(y) ? minimapSize / 2 : y;
+            });
+
+        // Update viewport indicator
+        const viewport = minimap.select('.minimap-viewport');
+        if (transform) {
+            const viewportWidth = minimapSize / transform.k;
+            const viewportHeight = minimapSize / transform.k;
+            const viewportX = (-transform.x / transform.k - bounds.x) * scale + (minimapSize / 2);
+            const viewportY = (-transform.y / transform.k - bounds.y) * scale + (minimapSize / 2);
+
+            viewport
+                .attr('width', Math.min(viewportWidth, minimapSize))
+                .attr('height', Math.min(viewportHeight, minimapSize))
+                .attr('x', Math.max(0, Math.min(viewportX, minimapSize - viewportWidth)))
+                .attr('y', Math.max(0, Math.min(viewportY, minimapSize - viewportHeight)));
+        }
+    }
+
+    // Initial update
+    updateMinimap();
+
+    // Store update function for later use
+    window.updateMinimap = updateMinimap;
+}
+
+function getGraphBounds(nodes) {
+    if (!nodes.length) return { x: 0, y: 0, width: 0, height: 0 };
+
+    const xCoords = nodes.map(n => n.x).filter(x => !isNaN(x));
+    const yCoords = nodes.map(n => n.y).filter(y => !isNaN(y));
+
+    if (!xCoords.length || !yCoords.length) return { x: 0, y: 0, width: 0, height: 0 };
+
+    const minX = Math.min(...xCoords);
+    const maxX = Math.max(...xCoords);
+    const minY = Math.min(...yCoords);
+    const maxY = Math.max(...yCoords);
+
+    return {
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY
+    };
+}
+
+function getNodeStatus(taskId) {
+    // TODO: Implement actual status checking logic
+    return 'pending';
+}
+
+function getJobTypeIcon(jobType) {
+    const icons = {
+        'python': '📝',
+        'shell': '💻',
+        'sql': '🗃️',
+        'default': '⚙️'
+    };
+    return icons[jobType] || icons.default;
+}
+
+function handleDagZoom(action) {
+    if (!dagInstance) return;
+
+    const svg = dagInstance.svg;
+    const zoom = dagInstance.zoom;
+    const g = dagInstance.g;
+
+    switch (action) {
+        case 'in':
+            svg.transition().duration(300).call(zoom.scaleBy, 1.3);
+            break;
+        case 'out':
+            svg.transition().duration(300).call(zoom.scaleBy, 0.7);
+            break;
+        case 'fit':
+            const svgElement = svg.node();
+            const graphElement = g.node();
+            const graphWidth = graphElement.getBBox().width;
+            const graphHeight = graphElement.getBBox().height;
+            const containerWidth = svgElement.clientWidth;
+            const containerHeight = svgElement.clientHeight;
+
+            const scale = Math.min(
+                containerWidth / graphWidth,
+                containerHeight / graphHeight
+            ) * 0.8;
+
+            const transform = d3.zoomIdentity
+                .translate(containerWidth / 2, containerHeight / 2)
+                .scale(scale)
+                .translate(-graphWidth / 2, -graphHeight / 2);
+
+            svg.transition().duration(300).call(zoom.transform, transform);
+            break;
+    }
+}
+
+function toggleDagLayout(layout) {
+    if (!dagInstance) return;
+
+    const g = dagInstance.g;
+    g.graph().rankdir = layout === 'horizontal' ? 'LR' : 'TB';
+
+    // Re-render the graph
+    const render = new dagreD3.render();
+    dagInstance.inner.call(render, g);
+
+    // Reset zoom to fit
+    handleDagZoom('fit');
+}
+
+// Add zoomDag function
+function zoomDag(action) {
+    if (!dagInstance) return;
+    handleDagZoom(action);
+}
+
+function showTaskDetails(taskId) {
+    const taskDetails = document.getElementById('task-details');
+    const task = workflowData.jobs[taskId];
+
+    if (!task) return;
+
+    // Update task details content
+    document.getElementById('task-id').textContent = taskId;
+    document.getElementById('task-type').textContent = task.type || 'default';
+    document.getElementById('task-status').textContent = getNodeStatus(taskId);
+    document.getElementById('task-duration').textContent = getTaskDuration(taskId);
+
+    // Update parameters
+    const paramsJson = document.getElementById('task-params-json');
+    paramsJson.textContent = JSON.stringify(task.params || {}, null, 2);
+
+    // Update dependencies
+    const dependenciesList = document.getElementById('task-dependencies');
+    if (task.depends_on && task.depends_on.length > 0) {
+        dependenciesList.innerHTML = task.depends_on.map(depId => `
+            <div class="dependency-item" onclick="showTaskDetails('${depId}')">
+                <i class="bx bx-git-branch"></i>
+                ${depId}
+            </div>
+        `).join('');
+    } else {
+        dependenciesList.innerHTML = '<div class="empty-state">No dependencies</div>';
+    }
+
+    // Show the panel
+    taskDetails.classList.add('open');
+}
+
+function closeTaskDetails() {
+    const taskDetails = document.getElementById('task-details');
+    taskDetails.classList.remove('open');
+}
+
+function getTaskDuration(taskId) {
+    // TODO: Implement actual duration calculation
+    return '-';
+}
+
+function updateMinimap(transform) {
+    if (!dagInstance) return;
+
+    const minimap = d3.select('.minimap');
+    const viewport = minimap.select('.minimap-viewport');
+
+    if (viewport.empty()) return;
+
+    const svg = dagInstance.svg.node();
+    const scale = transform.k;
+    const x = -transform.x / scale;
+    const y = -transform.y / scale;
+    const width = svg.clientWidth / scale;
+    const height = svg.clientHeight / scale;
+
+    const minimapSize = 150;
+
+    // Add safety checks for NaN values
+    const safeX = isNaN(x) ? 0 : x;
+    const safeY = isNaN(y) ? 0 : y;
+    const safeWidth = isNaN(width) ? minimapSize : width;
+    const safeHeight = isNaN(height) ? minimapSize : height;
+
+    viewport
+        .attr('x', safeX * (minimapSize / svg.clientWidth))
+        .attr('y', safeY * (minimapSize / svg.clientHeight))
+        .attr('width', safeWidth * (minimapSize / svg.clientWidth))
+        .attr('height', safeHeight * (minimapSize / svg.clientHeight));
+}
+
+// Update the existing workflowData
+workflowData = {
+    id: 'sample-workflow',
+    name: 'Sample Workflow',
+    description: 'A sample workflow with multiple stages and jobs',
+    status: 'running',
+    created_at: '2024-03-20T10:00:00Z',
+    updated_at: '2024-03-20T10:30:00Z',
+    schedule: {
+        type: 'cron',
+        value: '0 0 * * *'
+    },
+    stages: [
+        {
+            id: 'stage1',
+            name: 'Data Collection',
+            description: 'Collect data from various sources',
+            status: 'completed',
+            jobs: ['collect_api_data', 'collect_db_data', 'validate_data']
+        },
+        {
+            id: 'stage2',
+            name: 'Data Processing',
+            description: 'Process and transform the collected data',
+            status: 'running',
+            jobs: ['process_data', 'transform_data', 'enrich_data']
+        },
+        {
+            id: 'stage3',
+            name: 'Data Analysis',
+            description: 'Analyze the processed data',
+            status: 'pending',
+            jobs: ['analyze_data', 'generate_reports', 'notify_results']
+        },
+        {
+            id: 'stage4',
+            name: 'Data Storage',
+            description: 'Store the analyzed data',
+            status: 'pending',
+            jobs: ['store_results', 'archive_data', 'cleanup_temp']
+        }
+    ],
+    jobs: {
+        'collect_api_data': {
+            type: 'http',
+            params: {
+                url: 'https://api.example.com/data',
+                method: 'GET',
+                headers: {
+                    'Authorization': 'Bearer token123'
+                }
+            },
+            depends_on: []
+        },
+        'collect_db_data': {
+            type: 'sql',
+            params: {
+                query: 'SELECT * FROM source_table',
+                connection: 'source_db'
+            },
+            depends_on: []
+        },
+        'validate_data': {
+            type: 'python',
+            params: {
+                script: 'validate_data.py',
+                input_path: '/data/raw',
+                output_path: '/data/validated'
+            },
+            depends_on: ['collect_api_data', 'collect_db_data']
+        },
+        'process_data': {
+            type: 'python',
+            params: {
+                script: 'process_data.py',
+                input_path: '/data/validated',
+                output_path: '/data/processed'
+            },
+            depends_on: ['validate_data']
+        },
+        'transform_data': {
+            type: 'sql',
+            params: {
+                query: 'TRANSFORM_DATA.sql',
+                connection: 'target_db'
+            },
+            depends_on: ['process_data']
+        },
+        'enrich_data': {
+            type: 'python',
+            params: {
+                script: 'enrich_data.py',
+                input_path: '/data/processed',
+                output_path: '/data/enriched'
+            },
+            depends_on: ['transform_data']
+        },
+        'analyze_data': {
+            type: 'python',
+            params: {
+                script: 'analyze_data.py',
+                input_path: '/data/enriched',
+                output_path: '/data/analysis'
+            },
+            depends_on: ['enrich_data']
+        },
+        'generate_reports': {
+            type: 'python',
+            params: {
+                script: 'generate_reports.py',
+                input_path: '/data/analysis',
+                output_path: '/reports'
+            },
+            depends_on: ['analyze_data']
+        },
+        'notify_results': {
+            type: 'http',
+            params: {
+                url: 'https://api.example.com/notify',
+                method: 'POST',
+                body: {
+                    'report_path': '/reports'
+                }
+            },
+            depends_on: ['generate_reports']
+        },
+        'store_results': {
+            type: 'sql',
+            params: {
+                query: 'STORE_RESULTS.sql',
+                connection: 'archive_db'
+            },
+            depends_on: ['analyze_data']
+        },
+        'archive_data': {
+            type: 'shell',
+            params: {
+                command: 'archive_data.sh',
+                source: '/data/analysis',
+                destination: '/archive'
+            },
+            depends_on: ['store_results']
+        },
+        'cleanup_temp': {
+            type: 'shell',
+            params: {
+                command: 'cleanup.sh',
+                paths: ['/data/temp', '/data/processed']
+            },
+            depends_on: ['archive_data', 'notify_results']
+        }
+    }
+};

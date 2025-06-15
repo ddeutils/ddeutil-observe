@@ -27,7 +27,6 @@ from .routes import (
     audit,
     notification,
     profile,
-    schedule,
     trace,
     workflow,
 )
@@ -148,7 +147,19 @@ app.include_router(notification)
 app.include_router(profile)
 app.include_router(trace)
 app.include_router(audit)
-app.include_router(schedule)
+
+
+# NOTE: Add Chrome DevTools endpoint - only enabled in development
+@app.get("/.well-known/appspecific/com.chrome.devtools.json")
+async def chrome_devtools(request: Request):
+    """Handle Chrome DevTools request.
+    In production, this endpoint returns 404 to avoid exposing unnecessary information.
+    """
+    if config.environment == "development":
+        return {"protocol-version": "1.1", "security": {"enabled": True}}
+    # In production/staging, return 404
+    raise HTTPException(status_code=st.HTTP_404_NOT_FOUND, detail="Not Found")
+
 
 # NOTE: Start mount all static files from /static path to this application.
 app.mount(
