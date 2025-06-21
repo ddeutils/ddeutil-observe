@@ -13,7 +13,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import PlainTextResponse, RedirectResponse
+from fastapi.responses import PlainTextResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import OperationalError
 
@@ -69,13 +69,10 @@ app = FastAPI(
     ),
     version=__version__,
     lifespan=lifespan,
-    docs_url="/api/docs",
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:88",
-    ],
+    allow_origins=["http://localhost:8888"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -148,19 +145,6 @@ app.include_router(profile)
 app.include_router(trace)
 app.include_router(audit)
 
-
-# NOTE: Add Chrome DevTools endpoint - only enabled in development
-@app.get("/.well-known/appspecific/com.chrome.devtools.json")
-async def chrome_devtools(request: Request):
-    """Handle Chrome DevTools request.
-    In production, this endpoint returns 404 to avoid exposing unnecessary information.
-    """
-    if config.environment == "development":
-        return {"protocol-version": "1.1", "security": {"enabled": True}}
-    # In production/staging, return 404
-    raise HTTPException(status_code=st.HTTP_404_NOT_FOUND, detail="Not Found")
-
-
 # NOTE: Start mount all static files from /static path to this application.
 app.mount(
     "/static",
@@ -170,19 +154,26 @@ app.mount(
 
 
 @app.get("/")
-async def home(request: Request):
+async def home(
+    request: Request,
+    response: Response,
+):
     """The home page that redirect to main page."""
     # Check if user is authenticated by looking for tokens
     access_token = request.cookies.get("access_token")
     refresh_token = request.cookies.get("refresh_token")
 
     if not access_token and not refresh_token:
-        # User is not authenticated, redirect to login
+        response.headers["HX-Redirect"] = "/"
+        response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
+        # User is not authenticated, redirect to log in
         return RedirectResponse(
             url="/auth/login",
             status_code=st.HTTP_307_TEMPORARY_REDIRECT,
         )
 
+    response.headers["HX-Redirect"] = "/workflow/"
+    response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
     # User appears to be authenticated, redirect to workflow page
     return RedirectResponse(
         url="/workflow/",
