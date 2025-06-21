@@ -18,9 +18,9 @@ This project focuses on the `ddeutil-workflow` tool first :dart:.
 > workflow application on a target self-hosted.
 
 > [!NOTE]
-> I will use this project to be the base Frontend learning path for me.
+> I will use this project to be my Fundamental Frontend learning.
 
-## :round_pushpin: Installation
+## 📦 Installation
 
 ```shell
 pip install -U ddeutil-observe
@@ -64,20 +64,20 @@ authentication and workflows data.
 > The config value that you will set on the environment should combine with
 > prefix, component, and name which is `OBSERVE_{component}_{name}` (Upper case).
 
-| Environment                      | Component | Default                            | Description                                                                                    |
-|:---------------------------------|:---------:|:-----------------------------------|:-----------------------------------------------------------------------------------------------|
+| Environment                      | Component | Default                            | Description                                                                                     |
+|:---------------------------------|:---------:|:-----------------------------------|:------------------------------------------------------------------------------------------------|
 | **ENVIRONMENT**                  |   Core    | `development`                      | Application environment (development, staging, production). Chrome DevTools only enabled in dev |
-| **TIMEZONE**                     |   Core    | `UTC`                              | A timezone that use on all components of this application                                      |
-| **SQLALCHEMY_DB_ASYNC_URL**      |   Core    | `sqlite+aiosqlite:///./observe.db` | A database url of the application backend side                                                 |
-| **ACCESS_SECRET_KEY**            |   Core    | `secrets.token_urlsafe(32)`        | A secret key that use to hash the access token with jwt package                                |
-| **ACCESS_TOKEN_EXPIRE_MINUTES**  |   Core    | `30`                               | Expire period of the access token in minute unit                                               |
-| **REFRESH_SECRET_KEY**           |   Core    | `secrets.token_urlsafe(32)`        | A secret key that use to hash the refresh token with jwt package                               |
-| **REFRESH_TOKEN_EXPIRE_MINUTES** |   Core    | `60 * 24 * 8`                      | Expire period of the refresh token in minute unit                                              |
-| **ADMIN_USER**                   |    Web    | `observe`                          | An username of superuser                                                                       |
-| **ADMIN_PASS**                   |    Web    | `observe`                          | A password of superuser                                                                        |
-| **ADMIN_EMAIL**                  |    Web    | `observe@mail.com`                 | An email of superuser                                                                          |
-| **DEBUG_MODE**                   |    Log    | `true`                             | Logging mode                                                                                   |
-| **SQLALCHEMY_DEBUG_MODE**        |    Log    | `true`                             | Database Logging mode that will logging every execution statement before and after connection  |
+| **TIMEZONE**                     |   Core    | `UTC`                              | A timezone that use on all components of this application                                       |
+| **SQLALCHEMY_DB_ASYNC_URL**      |   Core    | `sqlite+aiosqlite:///./observe.db` | A database url of the application backend side                                                  |
+| **ACCESS_SECRET_KEY**            |   Core    | `secrets.token_urlsafe(32)`        | A secret key that use to hash the access token with jwt package                                 |
+| **ACCESS_TOKEN_EXPIRE_MINUTES**  |   Core    | `30`                               | Expire period of the access token in minute unit                                                |
+| **REFRESH_SECRET_KEY**           |   Core    | `secrets.token_urlsafe(32)`        | A secret key that use to hash the refresh token with jwt package                                |
+| **REFRESH_TOKEN_EXPIRE_MINUTES** |   Core    | `60 * 24 * 8`                      | Expire period of the refresh token in minute unit                                               |
+| **ADMIN_USER**                   |    Web    | `observe`                          | An username of superuser                                                                        |
+| **ADMIN_PASS**                   |    Web    | `observe`                          | A password of superuser                                                                         |
+| **ADMIN_EMAIL**                  |    Web    | `observe@mail.com`                 | An email of superuser                                                                           |
+| **DEBUG_MODE**                   |    Log    | `true`                             | Logging mode                                                                                    |
+| **SQLALCHEMY_DEBUG_MODE**        |    Log    | `true`                             | Database Logging mode that will logging every execution statement before and after connection   |
 
 ## :rocket: Deployment
 
