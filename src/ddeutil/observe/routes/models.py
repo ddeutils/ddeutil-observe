@@ -72,7 +72,7 @@ class Audit(Base):
     start_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     end_time: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     execution_date: Mapped[datetime] = mapped_column(DateTime, index=True)
-    duration: Mapped[int] = mapped_column(Integer, nullable=True)  # in seconds
+    duration: Mapped[int] = mapped_column(Integer, nullable=True)
     error_message: Mapped[str] = mapped_column(String, nullable=True)
     update_date: Mapped[datetime] = mapped_column(
         DateTime,
@@ -197,9 +197,7 @@ class WorkflowLog(Base):
         ForeignKey("audits.id"),
         index=True,
     )
-    level: Mapped[str] = mapped_column(
-        String(10)
-    )  # INFO, WARNING, ERROR, DEBUG
+    level: Mapped[str] = mapped_column(String(10))
     message: Mapped[str] = mapped_column(String)
     timestamp: Mapped[datetime] = mapped_column(DateTime)
     stage: Mapped[str] = mapped_column(String, nullable=True)

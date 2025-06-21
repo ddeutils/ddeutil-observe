@@ -74,10 +74,10 @@ async def token(
             refresh_token=refresh_token,
         ),
     )
-    return {
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-    }
+    return TokenRefreshSchema(
+        access_token=access_token,
+        refresh_token=refresh_token,
+    )
 
 
 @auth.post("/refresh")
@@ -122,7 +122,9 @@ async def read_user_by_username(
     username: str,
     session: AsyncSession = Depends(get_async_session),
 ) -> UserSchema:
-    return await User.get_by_username(session, username=username)
+    return UserSchema.model_validate(
+        await User.get_by_username(session, username=username)
+    )
 
 
 @auth.get(
@@ -135,9 +137,7 @@ async def read_user_all(
     return await User.get_all(session)
 
 
-@auth.get(
-    path="/role",
-)
+@auth.get(path="/role")
 async def read_role_all(
     session: AsyncSession = Depends(get_async_session),
 ):

@@ -41,6 +41,15 @@ async def register(
     request: Request,
     template: Jinja2Templates = Depends(get_templates),
 ) -> HTMLResponse:
+    """Register view that landing the register form on the authentication page.
+
+    Args:
+        request: (Request)
+        template: (Jinja2Templates)
+
+    Returns:
+        HTMLResponse: return register form HTML template.
+    """
     return template.TemplateResponse(
         request=request,
         name="auth/authenticate.html",

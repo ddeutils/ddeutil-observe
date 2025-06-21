@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
+from collections.abc import Sequence
 from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
@@ -12,7 +13,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped, mapped_column, relationship, selectinload
 from sqlalchemy.sql import false, func, select, true
-from sqlalchemy.types import UUID as UUIDType
+from sqlalchemy.types import UUID as UUID_SA
 from sqlalchemy.types import Boolean, DateTime, Integer, String
 from typing_extensions import Self
 
@@ -26,7 +27,7 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[UUID] = mapped_column(
-        UUIDType(as_uuid=True),
+        UUID_SA(as_uuid=True),
         primary_key=True,
         default=uuid4,
         unique=True,
@@ -144,7 +145,7 @@ class User(Base):
         session: AsyncSession,
         *,
         is_active: Optional[bool] = None,
-    ) -> list[Self]:
+    ) -> Sequence[Self]:
         stmt = select(cls)
         if is_active is not None:
             stmt = stmt.where(cls.is_active == (false if is_active else true)())
