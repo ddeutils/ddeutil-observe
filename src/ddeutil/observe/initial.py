@@ -14,8 +14,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional
 
-from fastapi.routing import APIRoute
+from fastapi.routing import APIRoute, BaseRoute
 from sqlalchemy import insert, select
+from sqlalchemy.engine.result import ScalarResult
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .auth.securities import get_password_hash
@@ -63,12 +64,14 @@ async def create_admin(session: AsyncSession) -> None:
 
 
 async def create_role_policy(
-    session: AsyncSession, routes: list[APIRoute]
+    session: AsyncSession, routes: list[BaseRoute]
 ) -> None:
     """Create Role and Policy."""
     from src.ddeutil.observe.auth.models import Role
 
-    roles: Optional[Role] = (await session.execute(select(Role))).scalars()
+    roles: Optional[ScalarResult[Role]] = (
+        await session.execute(select(Role))
+    ).scalars()
     logger.info(str(roles))
 
     policy_routes: list[str] = []
