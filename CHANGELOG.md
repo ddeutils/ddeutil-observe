@@ -2,6 +2,74 @@
 
 ## Latest Changes
 
+## 0.0.8
+
+### :sparkles: Features
+
+- :dart: feat: update workflow detail page.
+- :dart: feat: add workflow detail page.
+- :dart: feat: add workflow running page.
+- :dart: feat: improve profile and setting page.
+- :dart: feat: add notification feature to the main page.
+- :dart: feat: add workflow detail can dynamic change when click on workflow name.
+- :dart: feat: add modal for create workflow button.
+- :dart: feat: add display trace log.
+- :dart: feat: update models that sync with workflow.
+- :dart: feat: add workflow endpoints config for map workflow node.
+- :dart: feat: add logout on setting.
+- :dart: feat: add views for schedule route.
+- :dart: feat: remove custom logging and use uvicorn instead.
+- :dart: feat: add routes and views for other routes.
+
+### :bug: Bug fixes
+
+- :gear: fixed: change htmx style from html.
+- :gear: fixed: move main_contant css style to new file.
+- :gear: fixed: move notifications template location.
+- :gear: fixed: change create workflow form.
+- :gear: fixed: fix logic of toggle theme.
+- :gear: fixed: fix logic of toggle sidebar.
+- :gear: fixed: change mapped type on models.
+- :gear: fixed: change trace schema.
+
+### :black_nib: Code Changes
+
+- :construction: format: update typehint of initial module.
+- :test_tube: tests: migrate mocking data to initial file.
+- :art: styled: add graph view for workflow detail.
+- :art: styled: revise notification page.
+- :test_tube: tests: update venv lib on local.
+- :art: format: change code with AI version 02
+- :art: format: change code with AI version 01
+- :construction: refactored: ⬆ deps: bump ddeutil-workflow from 0.0.58 to 0.0.67 (#48)
+- :construction: refactored: ⬆ deps: bump uvicorn from 0.34.2 to 0.34.3 (#47)
+- :construction: refactored: ⬆ deps: bump sqlalchemy from 2.0.40 to 2.0.41 (#46)
+- :construction: refactored: ⬆ deps: bump uvicorn from 0.34.0 to 0.34.2 (#44)
+- :construction: refactored: ⬆ deps: bump ddeutil-workflow from 0.0.41 to 0.0.58 (#43)
+- :construction: refactored: ⬆ deps: bump python-dotenv from 1.0.1 to 1.1.0 (#39)
+- :construction: refactored: ⬆ deps: bump pytest-asyncio from 0.25.3 to 0.26.0 (#41)
+- :construction: refactored: ⬆ deps: bump sqlalchemy from 2.0.38 to 2.0.40 (#40)
+- :construction: refactored: ⬆ deps: bump ddeutil-workflow from 0.0.36 to 0.0.39 (#38)
+- :construction: refactored: ⬆ deps: bump fastapi from 0.115.10 to 0.115.12 (#37)
+- :art: styled: resize sidebar menu.
+- :art: styled: add skeleton loading on workflow detail.
+
+### :package: Build & Workflow
+
+- :toolbox: build: remove ignore file for cursur agent.
+- :toolbox: build: ignore sampling data on static folder.
+
+### :postbox: Dependencies
+
+- :pushpin: deps: update ddeutil-workflow version to 0.0.78.
+- :pushpin: deps: update greenlet deps.
+- :pushpin: deps: update ddeutil-workflow from 0.0.35 to 0.0.36.
+
+### :book: Documentations
+
+- :page_facing_up: docs: update readme file.
+- :page_facing_up: docs: move ai gen docs to docs dir.
+
 ## 0.0.7
 
 ### :stars: Highlight Features
