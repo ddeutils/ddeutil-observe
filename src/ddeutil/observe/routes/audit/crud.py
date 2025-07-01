@@ -10,8 +10,8 @@ from datetime import datetime
 
 from sqlalchemy import select
 
+from ... import models as md
 from ...crud import BaseCRUD
-from .. import models as md
 from .schemas import AuditCreate
 
 logger = logging.getLogger("uvicorn.error")

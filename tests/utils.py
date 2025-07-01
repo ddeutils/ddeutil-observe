@@ -22,8 +22,9 @@ OUTSIDE_PATH: Path = Path(__file__).parent.parent
 
 
 def initial_auth(db_path: Optional[Path] = None):
+    from ddeutil.observe.models import Base
+
     from src.ddeutil.observe.auth.schemas import UserCreateForm
-    from src.ddeutil.observe.routes.models import Base
 
     db_path: Path = db_path or OUTSIDE_PATH / "observe.db"
     engine = create_async_engine(
@@ -77,9 +78,10 @@ async def initial_db(db_path: Optional[Path] = None) -> None:
     insert workflow and logging data that will show on monitoring page.
     The data will cover all testcases.
     """
+    from ddeutil.observe.models import Base
+
     from src.ddeutil.observe.routes.audit.crud import AuditCRUD
     from src.ddeutil.observe.routes.audit.schemas import AuditCreate
-    from src.ddeutil.observe.routes.models import Base
     from src.ddeutil.observe.routes.workflow.crud import WorkflowCRUD
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 

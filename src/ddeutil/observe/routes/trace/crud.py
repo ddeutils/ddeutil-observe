@@ -10,8 +10,8 @@ import logging
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
+from ... import models as md
 from ...crud import BaseCRUD
-from .. import models as md
 
 logger = logging.getLogger("uvicorn.error")
 

@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
+"""The Core Application."""
 from __future__ import annotations
 
 import logging
@@ -43,6 +44,9 @@ sessionmanager.init(config.sqlalchemy_db_async_url)
 async def lifespan(inside: FastAPI):
     """Lifespan context function that make sure the session maker instance
     already close after respond the incoming request to the client.
+
+        This function will handle deploy models before start FastAPI
+    application.
     """
     async with sessionmanager.connect() as conn:
         await sessionmanager.create_all(conn)
@@ -92,9 +96,9 @@ async def add_process_time_header(request: Request, call_next):
 
 
 @app.exception_handler(HTTPException)
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(_: Request, exc: HTTPException):
     """Handle HTTP exceptions, especially authentication errors."""
-    # Handle authentication errors by redirecting to login
+    # Handle authentication errors by redirecting to log in
     if exc.status_code == st.HTTP_401_UNAUTHORIZED:
         if (
             exc.detail == "Could not validate credentials"
@@ -154,10 +158,7 @@ app.mount(
 
 
 @app.get("/")
-async def home(
-    request: Request,
-    response: Response,
-):
+async def home(request: Request, response: Response) -> RedirectResponse:
     """The home page that redirect to main page."""
     # Check if user is authenticated by looking for tokens
     access_token = request.cookies.get("access_token")
@@ -174,7 +175,7 @@ async def home(
 
     response.headers["HX-Redirect"] = "/workflow/"
     response.status_code = st.HTTP_307_TEMPORARY_REDIRECT
-    # User appears to be authenticated, redirect to workflow page
+    # NOTE: User appears to be authenticated, redirect to workflow page
     return RedirectResponse(
         url="/workflow/",
         status_code=st.HTTP_307_TEMPORARY_REDIRECT,

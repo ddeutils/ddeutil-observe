@@ -7,8 +7,8 @@
 [![gh license](https://img.shields.io/github/license/ddeutils/ddeutil-observe)](https://github.com/ddeutils/ddeutil-observe/blob/main/LICENSE)
 [![code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-The **Lightweight Observe Application** project was created for easy to
-make an observe application that getting logs, audits, or trigger status
+The **Lightweight Observe Application** was created for easy to make an observe
+application that getting logs, audits, or trigger status
 from any data framework storage and endpoint APIs.
 This project focuses on the `ddeutil-workflow` tool first :dart:.
 
@@ -18,7 +18,7 @@ This project focuses on the `ddeutil-workflow` tool first :dart:.
 > workflow application on a target self-hosted.
 
 > [!NOTE]
-> I will use this project to be my Fundamental Frontend learning.
+> I will use this project to be my Fundamental Frontend path learning.
 
 ## 📦 Installation
 

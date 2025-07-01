@@ -95,12 +95,13 @@ async def create_role_policy(
 async def create_workflows(session: AsyncSession):
     import random
 
-    from src.ddeutil.observe.routes.models import (
+    from ddeutil.observe.models import (
         Audit,
         AuditLog,
         Workflow,
         WorkflowLog,
     )
+
     from src.ddeutil.observe.routes.workflow.schemas import WorkflowCreate
 
     workflows = (await session.execute(select(Workflow))).scalars().all()

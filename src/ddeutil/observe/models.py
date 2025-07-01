@@ -3,6 +3,7 @@
 # Licensed under the MIT License. See LICENSE in the project root for
 # license information.
 # ------------------------------------------------------------------------------
+"""This models module will keep all necessary module for all routing."""
 from __future__ import annotations
 
 from datetime import datetime
@@ -19,24 +20,41 @@ from sqlalchemy.types import (
     String,
 )
 
-from ..auth.models import Base
+from .auth.models import Base
 
 
 class Workflow(Base):
+    """Workflow model that store with SCD2 type."""
+
     __tablename__ = "workflows"
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(128), index=True)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        index=True,
+        doc="A workflow ID.",
+    )
+    name: Mapped[str] = mapped_column(
+        String(128),
+        index=True,
+        doc="A workflow name.",
+    )
     desc: Mapped[str] = mapped_column(String, nullable=True)
     params: Mapped[dict[str, Any]] = mapped_column(JSON)
     on: Mapped[dict[str, Any]] = mapped_column(JSON)
     jobs: Mapped[dict[str, Any]] = mapped_column(JSON)
 
     # NOTE: The SCD Columns
-    delete_flag: Mapped[bool] = mapped_column(Boolean, default=False)
+    deleted_flag: Mapped[bool] = mapped_column(Boolean, default=False)
     valid_start: Mapped[datetime] = mapped_column(DateTime)
     valid_end: Mapped[datetime] = mapped_column(DateTime)
-    update_date: Mapped[datetime] = mapped_column(
+
+    # NOTE: Information.
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
+    )
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
     )
@@ -52,6 +70,8 @@ class Workflow(Base):
 
 
 class Audit(Base):
+    """Audit model that store with Append only type."""
+
     __tablename__ = "audits"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
@@ -74,7 +94,7 @@ class Audit(Base):
     execution_date: Mapped[datetime] = mapped_column(DateTime, index=True)
     duration: Mapped[int] = mapped_column(Integer, nullable=True)
     error_message: Mapped[str] = mapped_column(String, nullable=True)
-    update_date: Mapped[datetime] = mapped_column(
+    updated_at: Mapped[datetime] = mapped_column(
         DateTime,
         server_default=func.now(),
     )

@@ -15,8 +15,8 @@ from sqlalchemy import and_, case, desc, func, select
 from sqlalchemy.orm import selectinload
 from sqlalchemy.sql import false
 
+from ... import models as md
 from ...crud import BaseCRUD
-from .. import models as md
 from .schemas import Workflow, WorkflowCreate
 
 logger = logging.getLogger("uvicorn.error")
