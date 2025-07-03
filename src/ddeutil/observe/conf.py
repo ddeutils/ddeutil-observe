@@ -25,6 +25,9 @@ load_dotenv()
 def env(
     var: str, default: Optional[str] = None
 ) -> Optional[str]:  # pragma: no cov
+    """Return environment variable that already combine the specific suffix,
+    `OBSERVE` before getting.
+    """
     return os.getenv(f"{PREFIX}_{var.upper().replace(' ', '_')}", default)
 
 

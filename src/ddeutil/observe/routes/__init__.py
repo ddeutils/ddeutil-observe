@@ -22,4 +22,5 @@ api_router.include_router(notification_api)
 
 @api_router.get("/", tags=["api"])
 async def health():
+    """API Health check routing."""
     return {"message": "Observe Application Standby ..."}

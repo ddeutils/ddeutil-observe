@@ -22,6 +22,13 @@ PARENT_PATH: Path = Path(__file__).parent
 def get_templates(request: Request) -> Jinja2Templates:
     """Dynamic multi-templating Jinja2 loader that support templates inside
     APIRouter.
+
+    Args:
+        request (Request): A Request instance that passing from FastAPI
+            application before passing this result to routing function.
+
+    Returns:
+         Jinja2Templates: A jinja template object.
     """
     choices: list[FileSystemLoader] = [
         FileSystemLoader(PARENT_PATH / "templates")
