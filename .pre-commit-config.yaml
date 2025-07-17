@@ -58,7 +58,8 @@ repos:
         name: pytest runner
         stages: [pre-push]
         types: [python]
-        entry: .venv/Scripts/pytest.exe -v
+        # entry: .venv/Scripts/pytest.exe -v
+        entry: .venv/bin/pytest -vv -s
         language: system
         pass_filenames: false
         always_run: true
