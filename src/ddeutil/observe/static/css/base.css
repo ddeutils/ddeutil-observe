@@ -1,52 +1,53 @@
 :root {
-    /* Light theme variables */
+    /* Light theme variables - Modern neutral palette */
     --bg-color: hsl(0, 0%, 100%);
-    --text-color: hsl(0, 0%, 15%);
-    --border-color: hsl(0, 0%, 86%);
-    --input-bg: hsl(0, 0%, 98%);
-    --input-focus-border: hsl(0, 0%, 20%);
-    --button-bg: hsl(0, 0%, 18%);
-    --button-hover-bg: hsl(0, 0%, 15%);
+    --text-color: hsl(220, 9%, 9%);
+    --border-color: hsl(220, 13%, 91%);
+    --input-bg: hsl(220, 14%, 98%);
+    --input-focus-border: hsl(220, 70%, 50%);
+    --button-bg: hsl(220, 9%, 9%);
+    --button-hover-bg: hsl(220, 9%, 15%);
     --button-text: hsl(0, 0%, 100%);
-    --link-color: hsl(0, 0%, 18%);
-    --link-hover-color: hsl(0, 0%, 18%);
-    --shadow-color: hsl(0, 0%, 6%);
-    --text-primary: hsl(220, 13%, 18%);
+    --link-color: hsl(220, 70%, 50%);
+    --link-hover-color: hsl(220, 70%, 40%);
+    --shadow-color: hsla(220, 9%, 9%, 0.08);
+    --text-primary: hsl(220, 9%, 9%);
     --text-secondary: hsl(220, 9%, 46%);
-    --text-log: hsl(0, 0%, 0%);
+    --text-log: hsl(220, 9%, 9%);
     --bg-primary: hsl(0, 0%, 100%);
     --bg-secondary: hsl(220, 14%, 98%);
 
     /* Const variables */
-    --bg-accent-color: hsl(240, 100%, 67%);
-    --border-color: hsl(220, 13%, 91%);
-    --accent-color: hsl(240, 100%, 67%);
+    --bg-accent-color: hsl(220, 70%, 50%);
+    --accent-color: hsl(220, 70%, 50%);
     --sidebar-width: 220px;
     --sidebar-collapsed-width: 60px;
     --header-height: 60px;
     --footer-height: 40px;
     --success-color: hsl(142, 76%, 36%);
     --error-color: hsl(0, 84%, 60%);
+    --warning-color: hsl(38, 92%, 50%);
+    --info-color: hsl(220, 70%, 50%);
 }
 
 [data-theme="dark"] {
-    /* Dark theme variables */
-    --bg-color: hsl(0, 0%, 10%);
-    --text-color: hsl(0, 0%, 92%);
-    --border-color: hsl(0, 0%, 24%);
-    --input-bg: hsl(0, 0%, 16%);
-    --input-focus-border: hsl(0, 0%, 78%);
-    --button-bg: hsl(0, 0%, 92%);
-    --button-hover-bg: hsl(0, 0%, 78%);
-    --button-text: hsl(0, 0%, 10%);
-    --link-color: hsl(0, 0%, 78%);
-    --link-hover-color: hsl(0, 0%, 92%);
-    --shadow-color: hsl(0, 0%, 0%);
-    --text-primary: hsl(220, 13%, 91%);
-    --text-secondary: hsl(220, 9%, 65%);
-    --text-log: hsl(0, 0%, 87%);
-    --bg-primary: hsl(0, 0%, 10%);
-    --bg-secondary: hsl(240, 3%, 16%);
+    /* Dark theme variables - Modern warm dark palette */
+    --bg-color: hsl(220, 13%, 9%);
+    --text-color: hsl(220, 9%, 95%);
+    --border-color: hsl(220, 13%, 18%);
+    --input-bg: hsl(220, 13%, 13%);
+    --input-focus-border: hsl(220, 70%, 60%);
+    --button-bg: hsl(0, 0%, 100%);
+    --button-hover-bg: hsl(0, 0%, 90%);
+    --button-text: hsl(220, 13%, 9%);
+    --link-color: hsl(220, 70%, 70%);
+    --link-hover-color: hsl(220, 70%, 80%);
+    --shadow-color: hsla(0, 0%, 0%, 0.3);
+    --text-primary: hsl(220, 9%, 95%);
+    --text-secondary: hsl(220, 9%, 75%);
+    --text-log: hsl(220, 9%, 87%);
+    --bg-primary: hsl(220, 13%, 9%);
+    --bg-secondary: hsl(220, 13%, 13%);
 }
 
 * {
@@ -68,13 +69,13 @@ body {
 
 a {
     text-decoration: none;
-    color: var(text-color);
+    color: var(--text-color);
 }
 
 button {
     border-radius: 6px;
     padding: 8px 12px;
-    color: var(--text-coloar);
+    color: var(--text-color);
     cursor: pointer;
 }
 
