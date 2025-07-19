@@ -14,6 +14,7 @@ from fastapi import FastAPI, Request
 from fastapi import status as st
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import PlainTextResponse, RedirectResponse
+from fastapi.routing import APIRoute
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import OperationalError
 
@@ -45,7 +46,10 @@ async def lifespan(inside: FastAPI):
 
     async with sessionmanager.session() as session:
         await create_admin(session)
-        await create_role_policy(session, routes=inside.routes)
+        api_routes = [
+            route for route in inside.routes if isinstance(route, APIRoute)
+        ]
+        await create_role_policy(session, routes=api_routes)
         await create_workflows(session)
 
     yield

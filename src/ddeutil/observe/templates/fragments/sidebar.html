@@ -3,15 +3,17 @@
         <span class="sidebar-logo">Observe</span>
         <button class="sidebar-toggle"
                 id="sidebar-toggle-btn"
-                onclick=toggleSidebar()>
-            <i class='bx bx-chevrons-right'></i>
+                type="button"
+                onclick="toggleSidebar()"
+                aria-label="Toggle sidebar">
+            <i class="bx bx-chevrons-right"></i>
         </button>
     </div>
     <nav class="sidebar-menu">
         <ul>
             <li class="{% if request.path.split('/')[1] == 'workflow' %}active{% endif %}">
                 <a href="{{ url_for('workflow_read_all') }}">
-                    <i class='bx bx-run'></i>
+                    <i class="bx bx-run"></i>
                     <span>Workflows</span>
                 </a>
             </li>
@@ -22,10 +24,10 @@
                 </a>
             </li>
             <li>
-                <button onclick=toggleSubMenu(this) class="dropdown-btn">
-                    <i class='bx bx-glasses-alt'></i>
+                <button type="button" onclick="toggleSubMenu(this)" class="dropdown-btn">
+                    <i class="bx bx-glasses-alt"></i>
                     <span>Logging</span>
-                    <i class='bx bx-chevron-down' ></i>
+                    <i class="bx bx-chevron-down"></i>
                 </button>
                 <ul class="sub-menu">
                     <div>

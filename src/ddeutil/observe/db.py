@@ -41,20 +41,26 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
     settings: dict[str, Any] = {
         # NOTE:
-        #   Baseline setting that be production ready.
-        #   * WAL mode might be the one for you if you want to concurrently work
-        #     on the database, it does not block readers and writers.
+        #   Production-ready settings optimized for concurrent access.
+        #   * WAL mode allows multiple readers with single writer
+        #   * NORMAL synchronous for better crash recovery
+        #   * Optimized cache and page settings for performance
         #
         #   Ref: https://forum.qt.io/topic/139657/multithreading-with-sqlite/
+        #   Ref: https://www.sqlite.org/wal.html
         #
         "journal_mode": "'WAL'",
         "locking_mode": "'NORMAL'",
-        "synchronous": "'OFF'",
+        "synchronous": "'NORMAL'",  # Changed from 'OFF' for better crash recovery
         "foreign_keys": "'ON'",
         "page_size": 4096,
         "cache_size": 10000,
         # NOTE: Set busy timeout for avoid database locking with 10 sec.
         "busy_timeout": 10000,
+        # Additional settings for better concurrency
+        "temp_store": "'MEMORY'",  # Store temp tables in memory
+        "mmap_size": 268435456,  # 256MB memory mapping for better performance
+        "wal_autocheckpoint": 1000,  # Checkpoint WAL after 1000 pages
     }
     for k, v in settings.items():
         cursor.execute(f"PRAGMA {k} = {v};")
@@ -103,7 +109,11 @@ class DBSessionManager:
         self._engine = create_async_engine(
             host,
             echo=False,
-            pool_pre_ping=False,
+            pool_pre_ping=True,  # Enable connection health checks
+            pool_size=20,  # Maximum number of connections in the pool
+            max_overflow=30,  # Additional connections beyond pool_size
+            pool_timeout=30,  # Timeout for getting connection from pool
+            pool_recycle=3600,  # Recycle connections after 1 hour
             connect_args={"check_same_thread": False},
         )
         self._sessionmaker = async_sessionmaker(

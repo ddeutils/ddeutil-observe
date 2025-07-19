@@ -1,13 +1,13 @@
 <header class="header">
     <div class="header-actions">
-        <button class="action-item" onclick="themeToggle()" id="theme-toggle">
+        <button class="action-item" type="button" onclick="themeToggle()" id="theme-toggle" aria-label="Toggle theme">
             <i class="bx bx-sun"></i>
         </button>
-        <ul class="action-item">
+        <button class="action-item" type="button" aria-label="Notifications">
             <i class="bx bx-bell"></i>
-        </ul>
-        <ul class="action-item action-dropdown">
-            <img src="/static/img/profile.svg" alt="profile-anon"/>
+        </button>
+        <div class="action-item action-dropdown">
+            <img src="/static/img/profile.svg" alt="profile-anon">
             <div class="dropdown-menu">
                 <div class="dropdown-item">
                     <i class="bx bx-user"></i>
@@ -18,10 +18,10 @@
                     <span>Setting</span>
                 </div>
                 <div class="dropdown-item" hx-post="/auth/logout">
-                    <i class='bx bx-log-out-circle' ></i>
+                    <i class="bx bx-log-out-circle"></i>
                     <span>Logout</span>
                 </div>
             </div>
-        </ul>
+        </div>
     </div>
 </header>
