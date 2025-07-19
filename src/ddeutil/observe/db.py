@@ -51,16 +51,20 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
         #
         "journal_mode": "'WAL'",
         "locking_mode": "'NORMAL'",
-        "synchronous": "'NORMAL'",  # Changed from 'OFF' for better crash recovery
+        # NOTE: Changed from 'OFF' for better crash recovery
+        "synchronous": "'NORMAL'",
         "foreign_keys": "'ON'",
         "page_size": 4096,
         "cache_size": 10000,
         # NOTE: Set busy timeout for avoid database locking with 10 sec.
         "busy_timeout": 10000,
-        # Additional settings for better concurrency
-        "temp_store": "'MEMORY'",  # Store temp tables in memory
-        "mmap_size": 268435456,  # 256MB memory mapping for better performance
-        "wal_autocheckpoint": 1000,  # Checkpoint WAL after 1000 pages
+        # NOTE: Additional settings for better concurrency
+        #   - `temp_store`: Store temp tables in memory
+        #   - `mmap_size`: 256MB memory mapping for better performance
+        #   - `wal_autocheckpoint`: Checkpoint WAL after 1000 pages
+        "temp_store": "'MEMORY'",
+        "mmap_size": 268435456,
+        "wal_autocheckpoint": 1000,
     }
     for k, v in settings.items():
         cursor.execute(f"PRAGMA {k} = {v};")
