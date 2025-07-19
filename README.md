@@ -19,8 +19,11 @@ This project focuses on the `ddeutil-workflow` tool first :dart:.
 
 > [!NOTE]
 > I will use this project to be the base Frontend learning path for me.
+> **The frontend stacks** that I use on this project:
+> - [**HTMX**](https://htmx.org): For Server interactivity
+> - [**Alpine.js**](https://alpinejs.dev/start-here): For Client interactivity
 
-## :round_pushpin: Installation
+## 📦 Installation
 
 ```shell
 pip install -U ddeutil-observe
@@ -28,13 +31,13 @@ pip install -U ddeutil-observe
 
 > :egg: **Docker Images** supported:
 >
-> | Docker Image               | Python Version | Support |
-> |----------------------------|----------------|:-------:|
-> | ddeutil-observe:latest     | `3.9`          |   :x:   |
-> | ddeutil-observe:python3.10 | `3.10`         |   :x:   |
-> | ddeutil-observe:python3.11 | `3.11`         |   :x:   |
-> | ddeutil-observe:python3.12 | `3.12`         |   :x:   |
-> | ddeutil-observe:python3.12 | `3.13`         |   :x:   |
+> | Docker Image                | Python Version | Support |
+> |:----------------------------|:--------------:|:-------:|
+> | ddeutil-observe:latest      |     `3.9`      |   :x:   |
+> | ddeutil-observe:python3.10  |     `3.10`     |   :x:   |
+> | ddeutil-observe:python3.11  |     `3.11`     |   :x:   |
+> | ddeutil-observe:python3.12  |     `3.12`     |   :x:   |
+> | ddeutil-observe:python3.12  |     `3.13`     |   :x:   |
 
 > [!NOTE]
 > If you want to increase this application performance, you can install the

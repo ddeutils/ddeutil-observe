@@ -26,7 +26,8 @@
             {% include 'fragments/footer.html' %}
         </main>
     {% endblock %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="/static/js/theme.js"></script>
     <script src="/static/js/events.js"></script>
     {%- block additional_js %}{% endblock -%}
