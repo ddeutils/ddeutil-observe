@@ -1,85 +1,143 @@
 :root {
-    /* Light theme variables - Modern neutral palette */
-    --bg-color: hsl(0, 0%, 100%);
-    --text-color: hsl(220, 9%, 9%);
-    --border-color: hsl(220, 13%, 91%);
-    --input-bg: hsl(220, 14%, 98%);
-    --input-focus-border: hsl(220, 70%, 50%);
-    --button-bg: hsl(220, 9%, 9%);
-    --button-hover-bg: hsl(220, 9%, 15%);
-    --button-text: hsl(0, 0%, 100%);
-    --link-color: hsl(220, 70%, 50%);
-    --link-hover-color: hsl(220, 70%, 40%);
-    --shadow-color: hsla(220, 9%, 9%, 0.08);
-    --text-primary: hsl(220, 9%, 9%);
-    --text-secondary: hsl(220, 9%, 46%);
-    --text-log: hsl(220, 9%, 9%);
-    --bg-primary: hsl(0, 0%, 100%);
-    --bg-secondary: hsl(220, 14%, 98%);
-
-    /* Const variables */
-    --bg-accent-color: hsl(220, 70%, 50%);
-    --accent-color: hsl(220, 70%, 50%);
+    /* Layout Variables */
     --sidebar-width: 220px;
     --sidebar-collapsed-width: 60px;
     --header-height: 60px;
     --footer-height: 40px;
-    --success-color: hsl(142, 76%, 36%);
-    --error-color: hsl(0, 84%, 60%);
-    --warning-color: hsl(38, 92%, 50%);
-    --info-color: hsl(220, 70%, 50%);
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+
+    /* Border Radius */
+    --radius-sm: 4px;
+    --radius-md: 6px;
+    --radius-lg: 8px;
+    --radius-full: 50%;
+
+    /* Transitions */
+    --transition-fast: 0.1s ease;
+    --transition-normal: 0.2s ease;
+    --transition-slow: 0.3s ease;
+
+    /* Light Theme Colors */
+    --bg-primary: hsl(0, 0%, 100%);
+    --bg-secondary: hsl(220, 14%, 98%);
+    --bg-accent: hsl(220, 70%, 50%);
+    --text-primary: hsl(220, 9%, 9%);
+    --text-secondary: hsl(220, 9%, 46%);
+    --text-muted: hsl(220, 9%, 75%);
+    --border-color: hsl(220, 13%, 91%);
+    --input-bg: hsl(220, 14%, 98%);
+    --input-focus: hsl(220, 70%, 50%);
+    --button-bg: hsl(220, 9%, 9%);
+    --button-hover: hsl(220, 9%, 15%);
+    --button-text: hsl(0, 0%, 100%);
+    --link-color: hsl(220, 70%, 50%);
+    --link-hover: hsl(220, 70%, 40%);
+    --shadow: hsla(220, 9%, 9%, 0.08);
+
+    /* Status Colors */
+    --success: hsl(142, 76%, 36%);
+    --error: hsl(0, 84%, 60%);
+    --warning: hsl(38, 92%, 50%);
+    --info: hsl(220, 70%, 50%);
 }
 
 [data-theme="dark"] {
-    /* Dark theme variables - Modern warm dark palette */
-    --bg-color: hsl(220, 13%, 9%);
-    --text-color: hsl(220, 9%, 95%);
-    --border-color: hsl(220, 13%, 18%);
-    --input-bg: hsl(220, 13%, 13%);
-    --input-focus-border: hsl(220, 70%, 60%);
-    --button-bg: hsl(0, 0%, 100%);
-    --button-hover-bg: hsl(0, 0%, 90%);
-    --button-text: hsl(220, 13%, 9%);
-    --link-color: hsl(220, 70%, 70%);
-    --link-hover-color: hsl(220, 70%, 80%);
-    --shadow-color: hsla(0, 0%, 0%, 0.3);
-    --text-primary: hsl(220, 9%, 95%);
-    --text-secondary: hsl(220, 9%, 75%);
-    --text-log: hsl(220, 9%, 87%);
     --bg-primary: hsl(220, 13%, 9%);
     --bg-secondary: hsl(220, 13%, 13%);
+    --bg-accent: hsl(220, 70%, 60%);
+    --text-primary: hsl(220, 9%, 95%);
+    --text-secondary: hsl(220, 9%, 75%);
+    --text-muted: hsl(220, 9%, 65%);
+    --border-color: hsl(220, 13%, 18%);
+    --input-bg: hsl(220, 13%, 13%);
+    --input-focus: hsl(220, 70%, 60%);
+    --button-bg: hsl(0, 0%, 100%);
+    --button-hover: hsl(0, 0%, 90%);
+    --button-text: hsl(220, 13%, 9%);
+    --link-color: hsl(220, 70%, 70%);
+    --link-hover: hsl(220, 70%, 80%);
+    --shadow: hsla(0, 0%, 0%, 0.3);
 }
 
+/* Reset & Base Styles */
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    transition: all 0.1s ease;
+}
+
+* {
+    transition: background-color var(--transition-fast),
+                border-color var(--transition-fast),
+                color var(--transition-fast);
 }
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: var(--bg-secondary);
-    color: var(--text-color);
+    color: var(--text-primary);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
 }
 
+/* Typography */
 a {
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--text-primary);
 }
 
+/* Button Base */
 button {
-    border-radius: 6px;
-    padding: 8px 12px;
-    color: var(--text-color);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--text-primary);
     cursor: pointer;
+    border: none;
+    background: none;
+    font: inherit;
 }
 
-/* Footer Styles */
+/* Utility Classes */
+.flex {
+    display: flex;
+}
+
+.flex-col {
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
+}
+
+.justify-center {
+    justify-content: center;
+}
+
+.justify-between {
+    justify-content: space-between;
+}
+
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+.rounded { border-radius: var(--radius-md); }
+.rounded-lg { border-radius: var(--radius-lg); }
+.rounded-full { border-radius: var(--radius-full); }
+
+.shadow { box-shadow: 0 1px 3px var(--shadow); }
+.shadow-lg { box-shadow: 0 4px 24px var(--shadow); }
+
+/* Footer */
 .footer {
     height: var(--footer-height);
     background-color: var(--bg-primary);
@@ -87,7 +145,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0 20px;
+    padding: 0 var(--spacing-xl);
     color: var(--text-secondary);
     font-size: 0.8rem;
 }
