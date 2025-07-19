@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Observe{% endblock %}</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css">
     {%- block link_internal_css %}{% endblock -%}
-    <link rel="stylesheet" href="/static/css/base.css"/>
+    <link rel="stylesheet" href="/static/css/base.css">
     {%- block main_css %}
-    <link rel="stylesheet" href="/static/css/base-sidebar.css"/>
-    <link rel="stylesheet" href="/static/css/base-navbar.css"/>
-    <link rel="stylesheet" href="/static/css/skeleton.css"/>
+    <link rel="stylesheet" href="/static/css/base-sidebar.css">
+    <link rel="stylesheet" href="/static/css/base-navbar.css">
+    <link rel="stylesheet" href="/static/css/skeleton.css">
     {% endblock -%}
     {% block additional_css %}{% endblock %}
 </head>
@@ -27,11 +27,11 @@
         </main>
     {% endblock %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/2.0.4/htmx.min.js"></script>
-    <script type="text/javascript" src="/static/js/theme.js"></script>
-    <script type="text/javascript" src="/static/js/events.js"></script>
+    <script src="/static/js/theme.js"></script>
+    <script src="/static/js/events.js"></script>
     {%- block additional_js %}{% endblock -%}
     {%- if active_sidebar_js == 'true' %}
-    <script type="text/javascript" src="/static/js/sidebar.js"></script>
+    <script src="/static/js/sidebar.js"></script>
     {% endif -%}
 </body>
 </html>
