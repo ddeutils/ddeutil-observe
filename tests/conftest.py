@@ -4,6 +4,7 @@
 # license information.
 # ------------------------------------------------------------------------------
 from contextlib import ExitStack
+from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
@@ -11,6 +12,11 @@ from fastapi.testclient import TestClient
 from .utils import dotenv_setting
 
 dotenv_setting()
+
+
+@pytest.fixture(scope="session")
+def test_path() -> Path:
+    return Path(__file__).parent
 
 
 @pytest.fixture()
